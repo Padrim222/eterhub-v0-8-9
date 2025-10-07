@@ -171,13 +171,19 @@ export const SignInPage: React.FC<SignInPageProps> = ({
         </div>
       </section>
 
-      {/* Right column: hero image + testimonials */}
+      {/* Right column: hero video + testimonials */}
       {heroImageSrc && (
         <section className="hidden md:block flex-1 relative p-4">
-          <div 
-            className="absolute inset-4 rounded-3xl bg-cover bg-center" 
-            style={{ backgroundImage: `url(${heroImageSrc})` }}
-          ></div>
+          <div className="absolute inset-4 rounded-3xl overflow-hidden bg-black">
+            <iframe
+              src="https://www.instagram.com/p/DOUffdoEfYF/embed"
+              className="w-full h-full"
+              frameBorder="0"
+              scrolling="no"
+              allowTransparency={true}
+              allow="encrypted-media"
+            ></iframe>
+          </div>
           {testimonials.length > 0 && (
             <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-4 px-8 w-full justify-center">
               <TestimonialCard testimonial={testimonials[0]} delay="" />
