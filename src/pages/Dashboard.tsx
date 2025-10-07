@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Bell, ArrowUpRight, Search, Menu, ChevronDown, X } from "lucide-react";
+import { Bell, ArrowUpRight, Search, Menu, ChevronDown, X, Instagram, Youtube } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -19,7 +19,8 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
-import leaderImage from "@/assets/leader-image.jpg";
+import leaderImage from "@/assets/leader-davi.png";
+import eterLogo from "@/assets/eter-logo.png";
 
 const Dashboard = () => {
   const [expandedInfo, setExpandedInfo] = useState(false);
@@ -52,19 +53,11 @@ const Dashboard = () => {
   return (
     <div className="min-h-screen bg-background text-foreground">
       {/* Header */}
-      <header className="fixed top-0 left-0 right-0 z-50 bg-background border-b border-border/30 px-6 py-4">
+      <header className="fixed top-0 left-0 right-0 z-50 backdrop-blur-md bg-background/80 border-b border-border/30 px-6 py-4">
         <div className="flex items-center justify-between max-w-[1600px] mx-auto">
           {/* Logo */}
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-foreground flex items-center justify-center border border-foreground">
-              <div className="w-6 h-6 grid grid-cols-2 gap-0.5">
-                <div className="bg-background rounded-sm"></div>
-                <div className="bg-background rounded-sm"></div>
-                <div className="bg-background rounded-sm"></div>
-                <div className="bg-background rounded-sm"></div>
-              </div>
-            </div>
-            <span className="text-xl font-bold tracking-wide">ETER</span>
+            <img src={eterLogo} alt="ETER" className="h-10 w-auto" />
           </div>
 
           {/* Navigation */}
@@ -146,7 +139,7 @@ const Dashboard = () => {
         {/* Grid Layout */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
           {/* Receita Total Card */}
-          <Card className="bg-card p-6 rounded-[20px] hover:scale-[1.01] transition-all duration-300 border-border/50 shadow-sm">
+          <Card className="backdrop-blur-md bg-card/80 p-6 rounded-[20px] hover:scale-[1.01] transition-all duration-300 border-border/50 shadow-sm hover:bg-card/90">
             <div className="flex items-start justify-between mb-4">
               <h3 className="text-base font-semibold text-card-foreground">Receita Total</h3>
               <div className="flex items-center gap-1">
@@ -180,7 +173,7 @@ const Dashboard = () => {
           </Card>
 
           {/* Conversão & Funil Card */}
-          <Card className="bg-card p-6 rounded-[20px] hover:scale-[1.01] transition-all duration-300 border-border/50 shadow-sm">
+          <Card className="backdrop-blur-md bg-card/80 p-6 rounded-[20px] hover:scale-[1.01] transition-all duration-300 border-border/50 shadow-sm hover:bg-card/90">
             <div className="flex items-start justify-between mb-4">
               <h3 className="text-base font-semibold text-card-foreground leading-tight">Conversão<br/>& Funil</h3>
               <div className="flex items-center gap-1">
@@ -222,9 +215,12 @@ const Dashboard = () => {
           </Card>
 
           {/* Engajamento das Redes Card */}
-          <Card className="bg-card-dark p-6 rounded-[20px] hover:scale-[1.01] transition-all duration-300 border-border/20 shadow-sm">
+          <Card className="backdrop-blur-md bg-card-dark/80 p-6 rounded-[20px] hover:scale-[1.01] transition-all duration-300 border-border/20 shadow-sm hover:bg-card-dark/90">
             <div className="flex items-start justify-between mb-4">
-              <h3 className="text-base font-semibold text-card-dark-foreground leading-tight">Engajamento<br/>das Redes</h3>
+              <div className="flex items-center gap-2">
+                <Instagram className="w-5 h-5 text-primary" />
+                <h3 className="text-base font-semibold text-card-dark-foreground leading-tight">Engajamento<br/>Instagram</h3>
+              </div>
               <div className="flex items-center gap-1">
                 <Button variant="ghost" size="icon" className="h-7 w-7 hover:bg-white/5">
                   <Bell className="w-4 h-4 text-white/60" />
@@ -258,18 +254,18 @@ const Dashboard = () => {
             
             <div className="space-y-2.5">
               <div className="flex items-center gap-2.5">
-                <div className="w-2.5 h-2.5 rounded-full bg-primary"></div>
-                <span className="text-sm text-card-dark-foreground font-medium">Instagram: 70</span>
+                <Instagram className="w-4 h-4 text-primary" />
+                <span className="text-sm text-card-dark-foreground font-medium">Instagram: 70%</span>
               </div>
               <div className="flex items-center gap-2.5">
-                <div className="w-2.5 h-2.5 rounded-full bg-muted"></div>
-                <span className="text-sm text-card-dark-foreground font-medium">Youtube: 30</span>
+                <Youtube className="w-4 h-4 text-muted" />
+                <span className="text-sm text-card-dark-foreground/60 font-medium">Youtube: 30%</span>
               </div>
             </div>
           </Card>
 
           {/* Lançamentos Card */}
-          <Card className="bg-card-dark p-6 rounded-[20px] hover:scale-[1.01] transition-all duration-300 border-border/20 shadow-sm">
+          <Card className="backdrop-blur-md bg-card-dark/80 p-6 rounded-[20px] hover:scale-[1.01] transition-all duration-300 border-border/20 shadow-sm hover:bg-card-dark/90">
             <div className="flex items-start justify-between mb-4">
               <h3 className="text-base font-semibold text-card-dark-foreground">Lançamentos</h3>
               <div className="flex items-center gap-1">
@@ -319,7 +315,7 @@ const Dashboard = () => {
 
         {/* IMOVI Card - Large */}
         <div className="mb-6">
-          <Card className="bg-card p-8 rounded-[20px] hover:scale-[1.005] transition-all duration-300 border-border/50 shadow-sm">
+          <Card className="backdrop-blur-md bg-card/80 p-8 rounded-[20px] hover:scale-[1.005] transition-all duration-300 border-border/50 shadow-sm hover:bg-card/90">
             <div className="flex items-start justify-between mb-6">
               <div>
                 <h2 className="text-2xl font-bold text-card-foreground mb-1">IMOVI</h2>
@@ -387,7 +383,7 @@ const Dashboard = () => {
         {/* Bottom Section */}
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
           {/* Insights IA Card */}
-          <Card className="lg:col-span-3 bg-card-dark p-8 rounded-[20px] border-border/20 shadow-sm">
+          <Card className="lg:col-span-3 backdrop-blur-md bg-card-dark/80 p-8 rounded-[20px] border-border/20 shadow-sm hover:bg-card-dark/90 transition-colors">
             <div className="flex items-start justify-between mb-6">
               <div>
                 <h2 className="text-2xl font-bold text-card-dark-foreground mb-1">Insights IA</h2>
@@ -463,15 +459,15 @@ const Dashboard = () => {
           </Card>
 
           {/* Líder Sobre Card */}
-          <Card className="bg-card-dark rounded-[20px] overflow-hidden hover:scale-[1.02] transition-transform">
+          <Card className="backdrop-blur-md bg-card-dark/80 rounded-[20px] overflow-hidden hover:scale-[1.02] transition-transform hover:bg-card-dark/90">
             <div className="p-6">
               <h3 className="text-xl font-bold text-card-dark-foreground mb-1">Líder</h3>
-              <p className="text-sm text-card-dark-foreground">Sobre</p>
+              <p className="text-sm text-card-dark-foreground">Davi Ribas</p>
             </div>
             <div className="relative aspect-[3/4]">
               <img 
                 src={leaderImage} 
-                alt="Leader presentation" 
+                alt="Davi Ribas apresentando" 
                 className="w-full h-full object-cover"
               />
             </div>
