@@ -63,105 +63,152 @@ async function getRunResults(runId: string, apiKey: string): Promise<any[]> {
   );
   
   if (!resultsResponse.ok) {
+    const errorText = await resultsResponse.text();
+    console.error('❌ Erro ao obter resultados:', resultsResponse.status, errorText);
     throw new Error(`Falha ao obter resultados: ${resultsResponse.status}`);
   }
   
-  return await resultsResponse.json();
+  const results = await resultsResponse.json();
+  console.log(`📦 Resultados obtidos: ${results.length} items`);
+  if (results.length > 0) {
+    console.log('🔍 Primeiro item:', JSON.stringify(results[0]).substring(0, 500));
+  }
+  return results;
 }
 
 async function scrapeProfile(username: string, apiKey: string): Promise<ProfileData> {
   console.log('📊 Buscando dados do perfil...');
   
-  const response = await fetch(
-    `https://api.apify.com/v2/acts/apify~instagram-profile-scraper/runs?token=${apiKey}`,
-    {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        usernames: [username],
-        resultsLimit: 1,
-      }),
+  try {
+    const response = await fetch(
+      `https://api.apify.com/v2/acts/apify~instagram-profile-scraper/runs?token=${apiKey}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          usernames: [username],
+          resultsLimit: 1,
+        }),
+      }
+    );
+    
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('❌ Profile scraper error:', response.status, errorText);
+      return {};
     }
-  );
-  
-  if (!response.ok) {
-    throw new Error('Falha ao iniciar scraping do perfil');
+    
+    const runData = await response.json();
+    const runId = runData.data.id;
+    console.log(`🎯 Profile scraper run ID: ${runId}`);
+    
+    const success = await waitForRun(runId, apiKey, 20);
+    if (!success) {
+      console.error('⏰ Timeout ao buscar perfil');
+      return {};
+    }
+    
+    const results = await getRunResults(runId, apiKey);
+    return results[0] || {};
+  } catch (error) {
+    console.error('❌ Erro ao buscar perfil:', error);
+    return {};
   }
-  
-  const runData = await response.json();
-  const runId = runData.data.id;
-  
-  const success = await waitForRun(runId, apiKey, 20);
-  if (!success) {
-    throw new Error('Timeout ao buscar perfil');
-  }
-  
-  const results = await getRunResults(runId, apiKey);
-  return results[0] || {};
 }
 
 async function scrapePosts(username: string, apiKey: string): Promise<ApifyPost[]> {
   console.log('📸 Buscando posts do perfil...');
   
-  const response = await fetch(
-    `https://api.apify.com/v2/acts/apify~instagram-post-scraper/runs?token=${apiKey}`,
-    {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        directUrls: [`https://www.instagram.com/${username}/`],
-        resultsLimit: 30,
-      }),
+  try {
+    const response = await fetch(
+      `https://api.apify.com/v2/acts/apify~instagram-post-scraper/runs?token=${apiKey}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          directUrls: [`https://www.instagram.com/${username}/`],
+          resultsLimit: 50,
+          resultsType: 'posts',
+        }),
+      }
+    );
+    
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('❌ Post scraper error:', response.status, errorText);
+      console.warn('⚠️ Post scraper falhou');
+      return [];
     }
-  );
-  
-  if (!response.ok) {
-    console.warn('⚠️ Post scraper falhou, tentando método alternativo');
+    
+    const runData = await response.json();
+    const runId = runData.data.id;
+    console.log(`🎯 Post scraper run ID: ${runId}`);
+    
+    const success = await waitForRun(runId, apiKey, 30);
+    if (!success) {
+      console.error('⏰ Timeout ao buscar posts');
+      return [];
+    }
+    
+    const results = await getRunResults(runId, apiKey);
+    console.log(`📊 Posts brutos retornados: ${results.length}`);
+    
+    const filteredPosts = results.filter((item: any) => {
+      const isPost = item.url && (item.url.includes('/p/') || item.url.includes('/reel/'));
+      if (!isPost && results.length < 5) {
+        console.log('🔍 Item rejeitado (não é post):', JSON.stringify(item).substring(0, 300));
+      }
+      return isPost;
+    });
+    
+    console.log(`✅ Posts filtrados: ${filteredPosts.length}`);
+    return filteredPosts;
+  } catch (error) {
+    console.error('❌ Erro ao buscar posts:', error);
     return [];
   }
-  
-  const runData = await response.json();
-  const runId = runData.data.id;
-  
-  const success = await waitForRun(runId, apiKey, 30);
-  if (!success) {
-    console.warn('⚠️ Timeout no post scraper');
-    return [];
-  }
-  
-  return await getRunResults(runId, apiKey);
 }
 
 async function scrapeReels(username: string, apiKey: string): Promise<ApifyPost[]> {
   console.log('🎬 Buscando reels do perfil...');
   
-  const response = await fetch(
-    `https://api.apify.com/v2/acts/apify~instagram-reel-scraper/runs?token=${apiKey}`,
-    {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        directUrls: [`https://www.instagram.com/${username}/reels/`],
-        resultsLimit: 30,
-      }),
+  try {
+    const response = await fetch(
+      `https://api.apify.com/v2/acts/apify~instagram-reel-scraper/runs?token=${apiKey}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          username: [username],
+          resultsLimit: 50,
+        }),
+      }
+    );
+    
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('❌ Reel scraper error:', response.status, errorText);
+      console.warn('⚠️ Reel scraper não disponível');
+      return [];
     }
-  );
-  
-  if (!response.ok) {
-    console.warn('⚠️ Reel scraper não disponível');
+    
+    const runData = await response.json();
+    const runId = runData.data.id;
+    console.log(`🎯 Reel scraper run ID: ${runId}`);
+    
+    const success = await waitForRun(runId, apiKey, 30);
+    if (!success) {
+      console.error('⏰ Timeout ao buscar reels');
+      return [];
+    }
+    
+    const results = await getRunResults(runId, apiKey);
+    console.log(`📊 Reels brutos retornados: ${results.length}`);
+    return results;
+  } catch (error) {
+    console.error('❌ Erro ao buscar reels:', error);
     return [];
   }
-  
-  const runData = await response.json();
-  const runId = runData.data.id;
-  
-  const success = await waitForRun(runId, apiKey, 30);
-  if (!success) {
-    console.warn('⚠️ Timeout no reel scraper');
-    return [];
-  }
-  
-  return await getRunResults(runId, apiKey);
 }
 
 function normalizePost(post: ApifyPost, userId: string) {
