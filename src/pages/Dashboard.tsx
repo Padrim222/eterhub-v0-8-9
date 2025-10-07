@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Bell, ArrowUpRight, Search, Menu, Instagram, Sparkles, Upload, Link as LinkIcon, Users } from "lucide-react";
+import { Bell, ArrowUpRight, Search, Menu, Instagram, Sparkles, Upload, Link as LinkIcon, Users, AlertCircle } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -26,7 +26,10 @@ import eterLogo from "@/assets/eter-logo.png";
 import { AppNavigation } from "@/components/layout/AppNavigation";
 import { FunnelVisualization } from "@/components/dashboard/FunnelVisualization";
 import { OnboardingModal } from "@/components/dashboard/OnboardingModal";
-import { calculateImovi, getImoviColor } from "@/utils/imoviCalculations";
+import { getImoviColor } from "@/utils/imoviCalculations";
+import { useDashboardData } from "@/hooks/useDashboardData";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 const Dashboard = () => {
   const [showOnboarding, setShowOnboarding] = useState(false);
@@ -96,32 +99,18 @@ const Dashboard = () => {
     setCompetitorHandle("");
   };
 
-  // Sample data
-  const imoviData = [
-    { month: "Mai", value: 0 },
-    { month: "Jun", value: 2.1, label: "Início" },
-    { month: "Jul", value: 3.2 },
-    { month: "Ago", value: 6.4, highlighted: true },
-    { month: "Set", value: 0 },
-    { month: "Out", value: 0 },
-    { month: "Nov", value: 0 },
-    { month: "Dez", value: 0 },
-  ];
-
-  const movqlData = [
-    { month: "Julho", leads: 200 },
-    { month: "Agosto", leads: 350 },
-    { month: "Setembro", leads: 640, highlighted: true },
-    { month: "Outubro", leads: 0 },
-    { month: "Novembro", leads: 0 },
-  ];
-
-  const currentImovi = calculateImovi({
-    views: 5000,
-    retention: 65,
-    interactions: 450,
-    movql: 35
-  });
+  // Buscar dados reais do Supabase
+  const { 
+    posts,
+    totalPosts, 
+    totalEngagement, 
+    totalReach,
+    imoviHistory,
+    movqlData,
+    currentImovi,
+    isLoading,
+    error 
+  } = useDashboardData();
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -162,8 +151,40 @@ const Dashboard = () => {
 
       {/* Main Content */}
       <main className="pt-24 px-6 pb-12 max-w-[1600px] mx-auto">
-        <div className="mb-10">
-          <h1 className="text-5xl font-bold mb-8 tracking-tight">Dashboard</h1>
+        {/* Loading State */}
+        {isLoading && (
+          <div className="space-y-6">
+            <Skeleton className="h-12 w-64" />
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <Skeleton className="h-96 rounded-3xl" />
+              <Skeleton className="h-96 rounded-3xl" />
+              <Skeleton className="h-96 rounded-3xl" />
+            </div>
+          </div>
+        )}
+
+        {/* Error State */}
+        {error && (
+          <Alert variant="destructive" className="mb-6">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>
+              {error}
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="ml-4"
+                onClick={() => window.location.reload()}
+              >
+                Tentar novamente
+              </Button>
+            </AlertDescription>
+          </Alert>
+        )}
+
+        {!isLoading && !error && (
+          <>
+            <div className="mb-10">
+              <h1 className="text-5xl font-bold mb-8 tracking-tight">Dashboard</h1>
           
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-8">
@@ -187,6 +208,16 @@ const Dashboard = () => {
               </Button>
             </div>
           </div>
+
+          {/* No Data Alert */}
+          {totalPosts === 0 && (
+            <Alert className="mb-6">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>
+                Nenhum post encontrado nos últimos 30 dias. Configure seu Instagram para começar a ver dados.
+              </AlertDescription>
+            </Alert>
+          )}
         </div>
 
         {/* Grid Layout - Top Cards */}
@@ -273,18 +304,22 @@ const Dashboard = () => {
               <div className="text-sm text-muted-foreground mb-1">
                 {userProfile?.instagram_username ? `@${userProfile.instagram_username}` : 'Não configurado'}
               </div>
-              <div className="text-3xl font-bold text-primary">0</div>
+              <div className="text-3xl font-bold text-primary">{totalPosts}</div>
               <div className="text-xs text-muted-foreground">Posts analisados</div>
             </div>
 
             <div className="mt-4 space-y-2">
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">Engajamento:</span>
-                <span className="text-card-dark-foreground font-semibold">—</span>
+                <span className="text-card-dark-foreground font-semibold">
+                  {totalEngagement > 0 ? totalEngagement.toLocaleString() : '—'}
+                </span>
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">Alcance:</span>
-                <span className="text-card-dark-foreground font-semibold">—</span>
+                <span className="text-card-dark-foreground font-semibold">
+                  {totalReach > 0 ? totalReach.toLocaleString() : '—'}
+                </span>
               </div>
             </div>
 
@@ -383,7 +418,7 @@ const Dashboard = () => {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               <div className="lg:col-span-2">
                 <ResponsiveContainer width="100%" height={240}>
-                  <BarChart data={imoviData}>
+                  <BarChart data={imoviHistory}>
                     <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.3} />
                     <XAxis dataKey="month" stroke="hsl(var(--muted-foreground))" fontSize={12} />
                     <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} domain={[0, 10]} />
@@ -395,7 +430,7 @@ const Dashboard = () => {
                       }}
                     />
                     <Bar dataKey="value" radius={[12, 12, 0, 0]}>
-                      {imoviData.map((entry, index) => (
+                      {imoviHistory.map((entry, index) => (
                         <Cell 
                           key={`cell-${index}`} 
                           fill={entry.highlighted 
@@ -478,6 +513,8 @@ const Dashboard = () => {
             </p>
           </div>
         </Card>
+          </>
+        )}
       </main>
     </div>
   );
