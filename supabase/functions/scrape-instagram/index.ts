@@ -42,145 +42,172 @@ serve(async (req) => {
       .single();
 
     if (profileError || !profile?.instagram_username) {
-      throw new Error('Username do Instagram não configurado. Configure seu @ no onboarding.');
+      throw new Error('Username do Instagram não configurado');
     }
 
     const instagramUsername = profile.instagram_username.replace('@', '');
-    console.log('📸 Iniciando scraping do perfil:', instagramUsername);
+    console.log('📸 Iniciando scraping:', instagramUsername);
 
-    // Start Apify Instagram scraper actor
+    // Start Apify actor
     const actorRunResponse = await fetch(
       `https://api.apify.com/v2/acts/apify~instagram-profile-scraper/runs?token=${apifyApiKey}`,
       {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           usernames: [instagramUsername],
-          resultsLimit: 30, // Últimos 30 posts
-          addParentData: true,
+          resultsLimit: 30,
+          addParentData: false,
         }),
       }
     );
 
     if (!actorRunResponse.ok) {
-      const errorText = await actorRunResponse.text();
-      console.error('❌ Erro ao iniciar Apify actor:', errorText);
-      throw new Error(`Falha ao iniciar scraping: ${errorText}`);
+      throw new Error(`Apify start failed: ${await actorRunResponse.text()}`);
     }
 
     const runData = await actorRunResponse.json();
     const runId = runData.data.id;
     
-    console.log('🚀 Apify run iniciado:', runId);
+    console.log('🚀 Run ID:', runId);
 
-    // Wait for the run to finish (poll status)
+    // Poll for completion
     let status = 'RUNNING';
     let attempts = 0;
-    const maxAttempts = 30; // 5 minutos máximo (10 segundos * 30)
+    const maxAttempts = 30;
 
     while (status === 'RUNNING' && attempts < maxAttempts) {
-      await new Promise(resolve => setTimeout(resolve, 10000)); // Wait 10 seconds
+      await new Promise(resolve => setTimeout(resolve, 10000));
       
-      // ✅ URL CORRIGIDA: Usar /actor-runs/ ao invés de /acts/.../runs/
       const statusResponse = await fetch(
         `https://api.apify.com/v2/actor-runs/${runId}?token=${apifyApiKey}`
       );
       
-      if (!statusResponse.ok) {
-        console.error('❌ Erro ao verificar status:', await statusResponse.text());
+      if (statusResponse.ok) {
+        const statusData = await statusResponse.json();
+        status = statusData.data.status;
+        attempts++;
+        console.log(`⏳ Tentativa ${attempts}/30: ${status}`);
+      } else {
         break;
       }
-      
-      const statusData = await statusResponse.json();
-      status = statusData.data.status;
-      attempts++;
-      
-      console.log(`⏳ Status do scraping (tentativa ${attempts}/30):`, status);
     }
 
     if (status !== 'SUCCEEDED') {
-      throw new Error(`Scraping não completou. Status final: ${status}. Tente novamente.`);
+      throw new Error(`Scraping falhou. Status: ${status}`);
     }
 
-    console.log('✅ Scraping completado com sucesso!');
-
-    // ✅ URL CORRIGIDA: Buscar resultados do dataset
+    // Get results
     const resultsResponse = await fetch(
       `https://api.apify.com/v2/actor-runs/${runId}/dataset/items?token=${apifyApiKey}`
     );
 
     if (!resultsResponse.ok) {
-      const errorText = await resultsResponse.text();
-      console.error('❌ Erro ao buscar resultados - Status:', resultsResponse.status);
-      console.error('❌ Erro ao buscar resultados - Resposta:', errorText);
-      throw new Error(`Falha ao obter resultados: ${resultsResponse.status}`);
+      throw new Error(`Failed to get results: ${resultsResponse.status}`);
     }
 
     const results = await resultsResponse.json();
-    console.log('📦 Resultados obtidos:', results.length, 'items');
+    console.log('📦 Items retornados:', results.length);
 
     if (!results || results.length === 0) {
-      throw new Error('Nenhum dado foi retornado. Verifique se o perfil é público.');
+      throw new Error('Nenhum dado retornado');
     }
 
-    // Separar dados do perfil e posts
-    const profileData = results.find((item: any) => item.type === 'Profile') || results[0];
+    // ✅ PARSE CORRETO DOS DADOS
+    const profileData = results[0]; // Primeiro item = dados do perfil
+    
+    // Filtrar apenas posts (ignorar profile info)
     const posts = results.filter((item: any) => 
-      item.type === 'Video' || item.type === 'Image' || item.type === 'Sidecar'
+      item.url && item.url.includes('/p/') // URL de post
     );
 
     console.log('📊 Posts encontrados:', posts.length);
+    console.log('👤 Perfil:', {
+      username: profileData.username,
+      followers: profileData.followersCount,
+      following: profileData.followsCount,
+      posts: profileData.postsCount
+    });
 
-    // Store posts in database
+    // ✅ TRANSFORMAR DADOS DO APIFY PARA O FORMATO DO SUPABASE
     const postsToInsert = posts.map((post: any) => {
-      const views = post.videoViewCount || post.displayUrl ? 1000 : 0; // Fallback
+      // ✅ Apify retorna likes/comments/timestamp
+      // ❌ Apify NÃO retorna views/shares/saves
+      
       const likes = post.likesCount || 0;
       const comments = post.commentsCount || 0;
       
+      // 🔧 ESTIMATIVA DE VIEWS (Instagram não fornece via scraper)
+      // Heurística: views ≈ likes * 10 (média conservadora)
+      const estimatedViews = likes * 10;
+      
+      // 🔧 Shares e Saves não disponíveis via Apify
+      const shares = 0;
+      const saves = 0;
+      
+      // Calcular engagement rate
+      const totalEngagement = likes + comments + shares + saves;
+      const engagementRate = estimatedViews > 0 
+        ? (totalEngagement / estimatedViews) * 100 
+        : 0;
+
       return {
         user_id: user.id,
-        post_url: post.url || post.displayUrl,
-        post_type: post.type,
-        caption: post.caption?.substring(0, 500) || '', // Limitar caption
-        views: views,
+        post_url: post.url,
+        post_type: post.type || 'Image', // Image, Video, Sidecar
+        caption: (post.caption || '').substring(0, 1000), // Limitar tamanho
+        views: estimatedViews,
         likes: likes,
         comments: comments,
-        shares: 0, // Instagram não fornece shares via scraper
-        saves: 0, // Instagram não fornece saves via scraper
-        published_at: post.timestamp ? new Date(post.timestamp).toISOString() : new Date().toISOString(),
-        engagement_rate: calculateEngagementRate(views, likes, comments, 0),
+        shares: shares,
+        saves: saves,
+        published_at: post.timestamp 
+          ? new Date(post.timestamp).toISOString() 
+          : new Date().toISOString(),
+        engagement_rate: parseFloat(engagementRate.toFixed(2)),
       };
     });
 
-    // Insert posts (upsert to avoid duplicates)
-    const { error: insertError } = await supabase
+    console.log('💾 Preparando para inserir', postsToInsert.length, 'posts');
+
+    // ✅ UPSERT NO SUPABASE
+    const { data: insertedPosts, error: insertError } = await supabase
       .from('ig_posts')
       .upsert(postsToInsert, { 
         onConflict: 'post_url',
         ignoreDuplicates: false // Atualizar se já existir
-      });
+      })
+      .select();
 
     if (insertError) {
-      console.error('❌ Erro ao inserir posts:', insertError);
+      console.error('❌ Erro ao inserir:', insertError);
       throw insertError;
     }
 
-    console.log('✅ Posts inseridos/atualizados no banco de dados');
+    console.log('✅ Posts salvos:', insertedPosts?.length || postsToInsert.length);
 
+    // ✅ RETORNAR SUCESSO COM ESTATÍSTICAS
     return new Response(
       JSON.stringify({
         success: true,
-        message: `Scraping concluído! ${posts.length} posts importados.`,
+        message: `${posts.length} posts importados com sucesso!`,
         stats: {
           totalPosts: posts.length,
-          profileData: {
-            username: profileData?.username || instagramUsername,
-            followersCount: profileData?.followersCount || 0,
-            followsCount: profileData?.followsCount || 0,
-            postsCount: profileData?.postsCount || posts.length,
+          postsInserted: insertedPosts?.length || postsToInsert.length,
+          profile: {
+            username: profileData.username || instagramUsername,
+            followers: profileData.followersCount || 0,
+            following: profileData.followsCount || 0,
+            totalPosts: profileData.postsCount || posts.length,
           },
+          metrics: {
+            totalLikes: postsToInsert.reduce((sum: number, p: any) => sum + p.likes, 0),
+            totalComments: postsToInsert.reduce((sum: number, p: any) => sum + p.comments, 0),
+            avgEngagement: (
+              postsToInsert.reduce((sum: number, p: any) => sum + p.engagement_rate, 0) / 
+              postsToInsert.length
+            ).toFixed(2),
+          }
         },
       }),
       {
@@ -188,13 +215,11 @@ serve(async (req) => {
       }
     );
   } catch (error) {
-    console.error('❌ Erro no scraping:', error);
-    const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido';
-    
+    console.error('❌ Erro:', error);
     return new Response(
       JSON.stringify({
         success: false,
-        error: errorMessage,
+        error: error instanceof Error ? error.message : 'Erro desconhecido',
       }),
       {
         status: 400,
@@ -203,13 +228,3 @@ serve(async (req) => {
     );
   }
 });
-
-function calculateEngagementRate(
-  views: number,
-  likes: number,
-  comments: number,
-  saves: number
-): number {
-  if (views === 0) return 0;
-  return ((likes + comments + saves) / views) * 100;
-}
