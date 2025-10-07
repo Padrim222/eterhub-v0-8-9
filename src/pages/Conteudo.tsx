@@ -1,19 +1,41 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Bell, Search, Plus, Filter, Grid3x3, List } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AppNavigation } from "@/components/layout/AppNavigation";
 import eterLogo from "@/assets/eter-logo.png";
 import { supabase } from "@/integrations/supabase/client";
 import { useInstagramPosts } from "@/hooks/useInstagramPosts";
 import { PostsGrid } from "@/components/conteudo/PostsGrid";
+import { PostsTable } from "@/components/conteudo/PostsTable";
 import { InstagramMetrics } from "@/components/conteudo/InstagramMetrics";
 
 const Conteudo = () => {
-  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+  const [viewMode, setViewMode] = useState<"grid" | "list">("list");
   const [userProfile, setUserProfile] = useState<any>(null);
+  const [activeTab, setActiveTab] = useState("todos");
   const { posts, isLoading, error } = useInstagramPosts();
+
+  const filteredPosts = useMemo(() => {
+    if (activeTab === "todos") return posts;
+    
+    return posts.filter((post) => {
+      const type = post.post_type?.toLowerCase() || "";
+      
+      if (activeTab === "reels") {
+        return type.includes("reel");
+      }
+      if (activeTab === "stories") {
+        return type.includes("story");
+      }
+      if (activeTab === "posts") {
+        return !type.includes("reel") && !type.includes("story");
+      }
+      return true;
+    });
+  }, [posts, activeTab]);
 
   useEffect(() => {
     loadUserProfile();
@@ -111,28 +133,35 @@ const Conteudo = () => {
             </div>
           </div>
 
-          {/* Tabs */}
-          <div className="flex items-center gap-8 border-b border-border/30">
-            <button className="pb-3 border-b-2 border-primary font-semibold text-foreground">
-              Todos
-            </button>
-            <button className="pb-3 text-muted-foreground hover:text-foreground transition-colors">
-              Reels
-            </button>
-            <button className="pb-3 text-muted-foreground hover:text-foreground transition-colors">
-              Posts
-            </button>
-            <button className="pb-3 text-muted-foreground hover:text-foreground transition-colors">
-              Stories
-            </button>
-          </div>
+          {/* Instagram Metrics */}
+          <InstagramMetrics posts={posts} />
         </div>
 
-        {/* Instagram Metrics */}
-        <InstagramMetrics posts={posts} />
+        {/* Tabs and Content */}
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+          <TabsList className="bg-muted/50 backdrop-blur-sm border border-border/40">
+            <TabsTrigger value="todos" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+              Todos ({posts.length})
+            </TabsTrigger>
+            <TabsTrigger value="reels" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+              Reels ({posts.filter(p => p.post_type?.toLowerCase().includes("reel")).length})
+            </TabsTrigger>
+            <TabsTrigger value="posts" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+              Posts ({posts.filter(p => !p.post_type?.toLowerCase().includes("reel") && !p.post_type?.toLowerCase().includes("story")).length})
+            </TabsTrigger>
+            <TabsTrigger value="stories" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+              Stories ({posts.filter(p => p.post_type?.toLowerCase().includes("story")).length})
+            </TabsTrigger>
+          </TabsList>
 
-        {/* Posts Grid */}
-        <PostsGrid posts={posts} isLoading={isLoading} error={error} />
+          <TabsContent value={activeTab} className="space-y-6">
+            {viewMode === "grid" ? (
+              <PostsGrid posts={filteredPosts} isLoading={isLoading} error={error} />
+            ) : (
+              <PostsTable posts={filteredPosts} />
+            )}
+          </TabsContent>
+        </Tabs>
       </main>
     </div>
   );
