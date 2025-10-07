@@ -83,6 +83,13 @@ const Dashboard = () => {
   const { 
     imoviHistory,
     currentImovi,
+    totalReach,
+    totalEngagement,
+    totalLikes,
+    totalComments,
+    totalSaves,
+    avgEngagementRate,
+    previousPeriodData,
     isLoading,
     error 
   } = useDashboardData();
@@ -200,13 +207,27 @@ const Dashboard = () => {
               </div>
             </div>
 
-            {/* Grid Row 1: 5 Cards - Scraping + Instagram + 3 Cards principais */}
-            <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 mb-6">
+            {/* Grid Row 1: Cards principais com dados reais */}
+            <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-6">
               <ScrapingCard />
-              <InstagramMetricsCard />
-              <ReceitaTotalCard />
-              <ConversaoFunilCard />
-              <EngajamentoRedesCard />
+              <ReceitaTotalCard 
+                totalViews={totalReach} 
+                previousViews={previousPeriodData.totalReach} 
+              />
+              <ConversaoFunilCard 
+                totalEngagement={totalEngagement}
+                previousEngagement={previousPeriodData.totalEngagement}
+                avgEngagementRate={avgEngagementRate}
+                previousEngagementRate={previousPeriodData.avgEngagementRate}
+              />
+              <EngajamentoRedesCard 
+                totalLikes={totalLikes}
+                previousLikes={previousPeriodData.totalLikes}
+                totalComments={totalComments}
+                previousComments={previousPeriodData.totalComments}
+                totalSaves={totalSaves}
+                previousSaves={previousPeriodData.totalSaves}
+              />
             </div>
 
             {/* Grid Row 2: IMOVI (2 cols) + Lançamentos (1 col) */}

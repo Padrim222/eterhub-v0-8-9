@@ -18,6 +18,18 @@ interface DashboardData {
   totalPosts: number;
   totalEngagement: number;
   totalReach: number;
+  totalLikes: number;
+  totalComments: number;
+  totalSaves: number;
+  avgEngagementRate: number;
+  previousPeriodData: {
+    totalReach: number;
+    totalEngagement: number;
+    totalLikes: number;
+    totalComments: number;
+    totalSaves: number;
+    avgEngagementRate: number;
+  };
   imoviHistory: Array<{ month: string; value: number; highlighted?: boolean; label?: string }>;
   movqlData: Array<{ month: string; leads: number; highlighted?: boolean }>;
   currentImovi: number;
@@ -31,6 +43,18 @@ export const useDashboardData = () => {
     totalPosts: 0,
     totalEngagement: 0,
     totalReach: 0,
+    totalLikes: 0,
+    totalComments: 0,
+    totalSaves: 0,
+    avgEngagementRate: 0,
+    previousPeriodData: {
+      totalReach: 0,
+      totalEngagement: 0,
+      totalLikes: 0,
+      totalComments: 0,
+      totalSaves: 0,
+      avgEngagementRate: 0,
+    },
     imoviHistory: [],
     movqlData: [
       { month: "Julho", leads: 0 },
@@ -70,13 +94,44 @@ export const useDashboardData = () => {
 
         const fetchedPosts = posts || [];
 
-        // Calcular métricas totais
+        // Calcular métricas totais (últimos 30 dias)
         const totalPosts = fetchedPosts.length;
         const totalEngagement = fetchedPosts.reduce(
           (sum, post) => sum + (post.likes + post.comments + post.saves),
           0
         );
         const totalReach = fetchedPosts.reduce((sum, post) => sum + post.views, 0);
+        const totalLikes = fetchedPosts.reduce((sum, post) => sum + post.likes, 0);
+        const totalComments = fetchedPosts.reduce((sum, post) => sum + post.comments, 0);
+        const totalSaves = fetchedPosts.reduce((sum, post) => sum + post.saves, 0);
+        const avgEngagementRate = fetchedPosts.length > 0 
+          ? fetchedPosts.reduce((sum, post) => sum + (post.engagement_rate || 0), 0) / fetchedPosts.length
+          : 0;
+
+        // Buscar posts dos 30 dias anteriores para comparação
+        const sixtyDaysAgo = new Date();
+        sixtyDaysAgo.setDate(sixtyDaysAgo.getDate() - 60);
+
+        const { data: previousPosts } = await supabase
+          .from('ig_posts')
+          .select('*')
+          .eq('user_id', session.user.id)
+          .gte('published_at', sixtyDaysAgo.toISOString())
+          .lt('published_at', thirtyDaysAgo.toISOString())
+          .order('published_at', { ascending: false });
+
+        const previousPostsData = previousPosts || [];
+        const previousTotalEngagement = previousPostsData.reduce(
+          (sum, post) => sum + (post.likes + post.comments + post.saves),
+          0
+        );
+        const previousTotalReach = previousPostsData.reduce((sum, post) => sum + post.views, 0);
+        const previousTotalLikes = previousPostsData.reduce((sum, post) => sum + post.likes, 0);
+        const previousTotalComments = previousPostsData.reduce((sum, post) => sum + post.comments, 0);
+        const previousTotalSaves = previousPostsData.reduce((sum, post) => sum + post.saves, 0);
+        const previousAvgEngagementRate = previousPostsData.length > 0
+          ? previousPostsData.reduce((sum, post) => sum + (post.engagement_rate || 0), 0) / previousPostsData.length
+          : 0;
 
         // Calcular IMOVI atual (baseado nos últimos 7 dias)
         const sevenDaysAgo = new Date();
@@ -159,6 +214,18 @@ export const useDashboardData = () => {
           totalPosts,
           totalEngagement,
           totalReach,
+          totalLikes,
+          totalComments,
+          totalSaves,
+          avgEngagementRate,
+          previousPeriodData: {
+            totalReach: previousTotalReach,
+            totalEngagement: previousTotalEngagement,
+            totalLikes: previousTotalLikes,
+            totalComments: previousTotalComments,
+            totalSaves: previousTotalSaves,
+            avgEngagementRate: previousAvgEngagementRate,
+          },
           imoviHistory: imoviHistoryComplete,
           movqlData: [
             { month: "Julho", leads: 0 },

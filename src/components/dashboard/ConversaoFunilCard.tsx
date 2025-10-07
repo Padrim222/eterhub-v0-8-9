@@ -1,8 +1,42 @@
-import { Bell, ArrowUpRight, TrendingUp, TrendingDown } from "lucide-react";
+import { Bell, ArrowUpRight, TrendingUp, TrendingDown, Minus } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 
-export const ConversaoFunilCard = () => {
+interface ConversaoFunilCardProps {
+  totalEngagement: number;
+  previousEngagement: number;
+  avgEngagementRate: number;
+  previousEngagementRate: number;
+}
+
+export const ConversaoFunilCard = ({ 
+  totalEngagement, 
+  previousEngagement,
+  avgEngagementRate,
+  previousEngagementRate
+}: ConversaoFunilCardProps) => {
+  const calculateTrend = (current: number, previous: number) => {
+    if (previous === 0) return { type: 'neutral', change: 0 };
+    const change = ((current - previous) / previous) * 100;
+    if (change > 5) return { type: 'up', change };
+    if (change < -5) return { type: 'down', change };
+    return { type: 'neutral', change };
+  };
+
+  const engagementTrend = calculateTrend(totalEngagement, previousEngagement);
+  const rateTrend = calculateTrend(avgEngagementRate, previousEngagementRate);
+
+  const getTrendIcon = (type: string) => {
+    if (type === 'up') return <TrendingUp className="w-4 h-4" />;
+    if (type === 'down') return <TrendingDown className="w-4 h-4" />;
+    return <Minus className="w-4 h-4" />;
+  };
+
+  const getTrendColor = (type: string) => {
+    if (type === 'up') return 'bg-green-500';
+    if (type === 'down') return 'bg-red-500';
+    return 'bg-yellow-500';
+  };
   return (
     <Card className="bg-gradient-to-br from-gray-100 to-gray-200 rounded-3xl p-6 hover:shadow-xl transition-all">
       <div className="flex justify-between items-start mb-6">
@@ -29,29 +63,31 @@ export const ConversaoFunilCard = () => {
       </div>
 
       <div className="mb-3">
-        <div className="text-7xl font-bold text-black leading-none">36</div>
+        <div className="text-7xl font-bold text-black leading-none">
+          {(totalEngagement / 1000).toFixed(1)}K
+        </div>
         <div className="text-black/60 text-sm mt-2 leading-tight">
-          Campanhas<br />ativas totais
+          Engajamento<br />total
         </div>
       </div>
 
       <div className="flex gap-3 mt-6">
-        <div className="relative flex-1 bg-black rounded-2xl p-4 overflow-hidden">
-          <div className="absolute inset-0 bg-[repeating-linear-gradient(45deg,transparent,transparent_6px,rgba(255,255,255,0.05)_6px,rgba(255,255,255,0.05)_12px)]" />
+        <div className={`relative flex-1 ${getTrendColor(engagementTrend.type)} rounded-2xl p-4 overflow-hidden`}>
+          <div className="absolute inset-0 bg-[repeating-linear-gradient(45deg,transparent,transparent_6px,rgba(255,255,255,0.1)_6px,rgba(255,255,255,0.1)_12px)]" />
           <div className="relative flex items-center justify-center gap-1 mb-1">
-            <TrendingUp className="w-4 h-4 text-white" />
-            <span className="text-white font-bold text-lg">40%</span>
+            {getTrendIcon(engagementTrend.type)}
+            <span className="text-white font-bold text-lg">{Math.abs(engagementTrend.change).toFixed(1)}%</span>
           </div>
-          <div className="text-white/60 text-xs text-center">ROI</div>
+          <div className="text-white/80 text-xs text-center">GROWTH</div>
         </div>
 
-        <div className="relative flex-1 bg-[#00FF00] rounded-2xl p-4 overflow-hidden">
-          <div className="absolute inset-0 bg-[repeating-linear-gradient(45deg,transparent,transparent_6px,rgba(0,0,0,0.05)_6px,rgba(0,0,0,0.05)_12px)]" />
+        <div className={`relative flex-1 ${getTrendColor(rateTrend.type)} rounded-2xl p-4 overflow-hidden`}>
+          <div className="absolute inset-0 bg-[repeating-linear-gradient(45deg,transparent,transparent_6px,rgba(255,255,255,0.1)_6px,rgba(255,255,255,0.1)_12px)]" />
           <div className="relative flex items-center justify-center gap-1 mb-1">
-            <TrendingDown className="w-4 h-4 text-black" />
-            <span className="text-black font-bold text-lg">35%</span>
+            {getTrendIcon(rateTrend.type)}
+            <span className="text-white font-bold text-lg">{avgEngagementRate.toFixed(1)}%</span>
           </div>
-          <div className="text-black/60 text-xs text-center">CAC</div>
+          <div className="text-white/80 text-xs text-center">TAXA</div>
         </div>
       </div>
     </Card>
