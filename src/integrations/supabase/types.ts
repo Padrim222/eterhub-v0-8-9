@@ -121,13 +121,13 @@ export type Database = {
           },
         ]
       }
-      profiles: {
+      profiles_backup: {
         Row: {
           avatar_url: string | null
           created_at: string | null
           email: string | null
           full_name: string | null
-          id: string
+          id: string | null
           updated_at: string | null
         }
         Insert: {
@@ -135,7 +135,7 @@ export type Database = {
           created_at?: string | null
           email?: string | null
           full_name?: string | null
-          id: string
+          id?: string | null
           updated_at?: string | null
         }
         Update: {
@@ -143,7 +143,7 @@ export type Database = {
           created_at?: string | null
           email?: string | null
           full_name?: string | null
-          id?: string
+          id?: string | null
           updated_at?: string | null
         }
         Relationships: []
@@ -185,27 +185,33 @@ export type Database = {
       }
       users: {
         Row: {
+          avatar_url: string | null
           created_at: string | null
           email: string | null
           id: string
           instagram_username: string | null
           is_active: boolean | null
+          leader_title: string | null
           nome: string | null
         }
         Insert: {
+          avatar_url?: string | null
           created_at?: string | null
           email?: string | null
           id?: string
           instagram_username?: string | null
           is_active?: boolean | null
+          leader_title?: string | null
           nome?: string | null
         }
         Update: {
+          avatar_url?: string | null
           created_at?: string | null
           email?: string | null
           id?: string
           instagram_username?: string | null
           is_active?: boolean | null
+          leader_title?: string | null
           nome?: string | null
         }
         Relationships: []

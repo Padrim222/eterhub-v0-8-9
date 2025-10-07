@@ -20,7 +20,7 @@ interface DashboardData {
   totalReach: number;
   imoviHistory: Array<{ month: string; value: number; highlighted?: boolean; label?: string }>;
   movqlData: Array<{ month: string; leads: number; highlighted?: boolean }>;
-  currentImovi: { score: number; level: string; color: string };
+  currentImovi: number;
   isLoading: boolean;
   error: string | null;
 }
@@ -39,7 +39,7 @@ export const useDashboardData = () => {
       { month: "Outubro", leads: 0 },
       { month: "Novembro", leads: 0 },
     ],
-    currentImovi: { score: 0, level: 'RUIM', color: '#EF4444' },
+    currentImovi: 0,
     isLoading: true,
     error: null,
   });
@@ -92,12 +92,13 @@ export const useDashboardData = () => {
           0
         );
 
-        const currentImovi = calculateImovi({
+        const currentImoviData = calculateImovi({
           views: Math.round(avgViews),
           retention: avgRetention,
           interactions: totalInteractions,
           movql: 0, // TODO: Implementar quando tivermos dados de MOVQL
         });
+        const currentImovi = currentImoviData.score;
 
         // Agrupar posts por mês para histórico IMOVI
         const monthlyData = new Map<string, Post[]>();
