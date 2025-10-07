@@ -177,7 +177,7 @@ const Auth = () => {
           ? "Crie sua conta e comece a ter insights poderosos do seu Instagram" 
           : "Acesse sua conta e tenha insights poderosos do seu Instagram"
         }
-        heroImageSrc="https://images.unsplash.com/photo-611605698323-e18cd23d2c57?w=2160&q=80" 
+        heroImageSrc="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1&mute=1&loop=1&playlist=dQw4w9WgXcQ&controls=0&showinfo=0&modestbranding=1" 
         testimonials={sampleTestimonials} 
         onSignIn={isSignUp ? handleSignUp : handleSignIn}
         onGoogleSignIn={handleGoogleSignIn} 
