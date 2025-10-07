@@ -193,6 +193,7 @@ export type Database = {
           is_active: boolean | null
           leader_title: string | null
           nome: string | null
+          onboarding_completed: boolean | null
         }
         Insert: {
           avatar_url?: string | null
@@ -203,6 +204,7 @@ export type Database = {
           is_active?: boolean | null
           leader_title?: string | null
           nome?: string | null
+          onboarding_completed?: boolean | null
         }
         Update: {
           avatar_url?: string | null
@@ -213,6 +215,7 @@ export type Database = {
           is_active?: boolean | null
           leader_title?: string | null
           nome?: string | null
+          onboarding_completed?: boolean | null
         }
         Relationships: []
       }

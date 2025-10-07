@@ -1,14 +1,37 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Bell, Search, Plus, Filter, Grid3x3, List } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { AppNavigation } from "@/components/layout/AppNavigation";
 import eterLogo from "@/assets/eter-logo.png";
+import { supabase } from "@/integrations/supabase/client";
+import { useInstagramPosts } from "@/hooks/useInstagramPosts";
+import { PostsGrid } from "@/components/conteudo/PostsGrid";
 
 const Conteudo = () => {
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+  const [userProfile, setUserProfile] = useState<any>(null);
+  const { posts, isLoading, error } = useInstagramPosts();
+
+  useEffect(() => {
+    loadUserProfile();
+  }, []);
+
+  const loadUserProfile = async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) return;
+
+    const { data: profile } = await supabase
+      .from('users')
+      .select('*')
+      .eq('id', session.user.id)
+      .single();
+
+    if (profile) {
+      setUserProfile(profile);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -30,8 +53,8 @@ const Conteudo = () => {
               <Bell className="w-5 h-5" />
             </Button>
             <Avatar className="border-2 border-border/40">
-              <AvatarImage src="/placeholder.svg" />
-              <AvatarFallback>U</AvatarFallback>
+              <AvatarImage src={userProfile?.avatar_url} alt={userProfile?.nome} />
+              <AvatarFallback>{userProfile?.nome?.[0] || "U"}</AvatarFallback>
             </Avatar>
           </div>
         </div>
@@ -93,35 +116,19 @@ const Conteudo = () => {
               Todos
             </button>
             <button className="pb-3 text-muted-foreground hover:text-foreground transition-colors">
-              Rascunhos
+              Reels
             </button>
             <button className="pb-3 text-muted-foreground hover:text-foreground transition-colors">
-              Publicados
+              Posts
             </button>
             <button className="pb-3 text-muted-foreground hover:text-foreground transition-colors">
-              Agendados
+              Stories
             </button>
           </div>
         </div>
 
-        {/* Empty State */}
-        <div className="flex flex-col items-center justify-center py-20">
-          <Card className="p-12 text-center max-w-md border-dashed border-2">
-            <div className="w-20 h-20 rounded-full bg-muted mx-auto mb-6 flex items-center justify-center">
-              <Plus className="w-10 h-10 text-muted-foreground" />
-            </div>
-            
-            <h3 className="text-2xl font-bold mb-3">Nenhum conteúdo ainda</h3>
-            <p className="text-muted-foreground mb-6">
-              Comece a criar seu primeiro conteúdo e gerencie suas publicações de forma eficiente.
-            </p>
-            
-            <Button className="gap-2">
-              <Plus className="w-5 h-5" />
-              Criar Primeiro Conteúdo
-            </Button>
-          </Card>
-        </div>
+        {/* Posts Grid */}
+        <PostsGrid posts={posts} isLoading={isLoading} error={error} />
       </main>
     </div>
   );

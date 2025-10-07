@@ -29,7 +29,7 @@ const Dashboard = () => {
 
   const loadUserProfile = async () => {
     const { data: { session } } = await supabase.auth.getSession();
-    if (!session) return;
+    if (!session) return null;
 
     const { data: profile } = await supabase
       .from('users')
@@ -40,6 +40,8 @@ const Dashboard = () => {
     if (profile) {
       setUserProfile(profile);
     }
+    
+    return profile;
   };
 
   useEffect(() => {
@@ -51,9 +53,10 @@ const Dashboard = () => {
         return;
       }
 
-      await loadUserProfile();
+      const profile = await loadUserProfile();
 
-      if (!userProfile?.instagram_username) {
+      // Verifica se precisa fazer onboarding
+      if (profile && !profile.onboarding_completed) {
         setShowOnboarding(true);
       }
     };

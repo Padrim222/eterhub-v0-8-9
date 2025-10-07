@@ -56,11 +56,14 @@ export const OnboardingModal = ({ isOpen, onComplete }: OnboardingModalProps) =>
       }
 
       // 3. USAR UPSERT ao invés de UPDATE (garante que salva mesmo se não existir)
+      // Salva o @ como nome do líder também
       const { error } = await supabase
         .from('users')
         .upsert({ 
           id: user.id,
           instagram_username: cleanHandle,
+          nome: cleanHandle,
+          onboarding_completed: true,
         }, {
           onConflict: 'id'
         });
