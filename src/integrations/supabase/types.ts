@@ -14,196 +14,109 @@ export type Database = {
   }
   public: {
     Tables: {
-      ai_analysis: {
+      analyses: {
         Row: {
-          analysis_type: string | null
+          ai_insights: string | null
           analyzed_at: string | null
-          created_at: string | null
+          communication_errors: Json | null
+          engagement_score: number | null
           id: string
-          insights: Json | null
+          imov_score: number | null
           post_id: string
-          recommendations: string[] | null
+          recommendations: Json | null
+          retention_score: number | null
+          user_id: string
         }
         Insert: {
-          analysis_type?: string | null
+          ai_insights?: string | null
           analyzed_at?: string | null
-          created_at?: string | null
+          communication_errors?: Json | null
+          engagement_score?: number | null
           id?: string
-          insights?: Json | null
+          imov_score?: number | null
           post_id: string
-          recommendations?: string[] | null
+          recommendations?: Json | null
+          retention_score?: number | null
+          user_id: string
         }
         Update: {
-          analysis_type?: string | null
+          ai_insights?: string | null
           analyzed_at?: string | null
-          created_at?: string | null
+          communication_errors?: Json | null
+          engagement_score?: number | null
           id?: string
-          insights?: Json | null
+          imov_score?: number | null
           post_id?: string
-          recommendations?: string[] | null
+          recommendations?: Json | null
+          retention_score?: number | null
+          user_id?: string
         }
         Relationships: [
           {
-            foreignKeyName: "ai_analysis_post_id_fkey"
+            foreignKeyName: "analyses_post_id_fkey"
             columns: ["post_id"]
             isOneToOne: false
-            referencedRelation: "instagram_posts"
+            referencedRelation: "ig_posts"
             referencedColumns: ["id"]
           },
-        ]
-      }
-      instagram_accounts: {
-        Row: {
-          account_id: string | null
-          created_at: string | null
-          followers_count: number | null
-          following_count: number | null
-          id: string
-          is_active: boolean | null
-          last_sync_at: string | null
-          posts_count: number | null
-          profile_picture_url: string | null
-          updated_at: string | null
-          user_id: string
-          username: string
-        }
-        Insert: {
-          account_id?: string | null
-          created_at?: string | null
-          followers_count?: number | null
-          following_count?: number | null
-          id?: string
-          is_active?: boolean | null
-          last_sync_at?: string | null
-          posts_count?: number | null
-          profile_picture_url?: string | null
-          updated_at?: string | null
-          user_id: string
-          username: string
-        }
-        Update: {
-          account_id?: string | null
-          created_at?: string | null
-          followers_count?: number | null
-          following_count?: number | null
-          id?: string
-          is_active?: boolean | null
-          last_sync_at?: string | null
-          posts_count?: number | null
-          profile_picture_url?: string | null
-          updated_at?: string | null
-          user_id?: string
-          username?: string
-        }
-        Relationships: [
           {
-            foreignKeyName: "instagram_accounts_user_id_fkey"
+            foreignKeyName: "analyses_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
-            referencedRelation: "profiles"
+            referencedRelation: "users"
             referencedColumns: ["id"]
           },
         ]
       }
-      instagram_posts: {
-        Row: {
-          caption: string | null
-          created_at: string | null
-          id: string
-          instagram_account_id: string
-          media_url: string | null
-          permalink: string | null
-          post_id: string
-          post_type: string | null
-          posted_at: string | null
-          thumbnail_url: string | null
-          updated_at: string | null
-        }
-        Insert: {
-          caption?: string | null
-          created_at?: string | null
-          id?: string
-          instagram_account_id: string
-          media_url?: string | null
-          permalink?: string | null
-          post_id: string
-          post_type?: string | null
-          posted_at?: string | null
-          thumbnail_url?: string | null
-          updated_at?: string | null
-        }
-        Update: {
-          caption?: string | null
-          created_at?: string | null
-          id?: string
-          instagram_account_id?: string
-          media_url?: string | null
-          permalink?: string | null
-          post_id?: string
-          post_type?: string | null
-          posted_at?: string | null
-          thumbnail_url?: string | null
-          updated_at?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "instagram_posts_instagram_account_id_fkey"
-            columns: ["instagram_account_id"]
-            isOneToOne: false
-            referencedRelation: "instagram_accounts"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      post_metrics: {
+      ig_posts: {
         Row: {
           comments: number | null
-          created_at: string | null
           engagement_rate: number | null
           id: string
           likes: number | null
-          measured_at: string | null
-          post_id: string
-          reach: number | null
-          retention_rate: number | null
+          post_type: string | null
+          post_url: string | null
+          published_at: string | null
           saves: number | null
+          scraped_at: string | null
           shares: number | null
+          user_id: string
           views: number | null
         }
         Insert: {
           comments?: number | null
-          created_at?: string | null
           engagement_rate?: number | null
           id?: string
           likes?: number | null
-          measured_at?: string | null
-          post_id: string
-          reach?: number | null
-          retention_rate?: number | null
+          post_type?: string | null
+          post_url?: string | null
+          published_at?: string | null
           saves?: number | null
+          scraped_at?: string | null
           shares?: number | null
+          user_id: string
           views?: number | null
         }
         Update: {
           comments?: number | null
-          created_at?: string | null
           engagement_rate?: number | null
           id?: string
           likes?: number | null
-          measured_at?: string | null
-          post_id?: string
-          reach?: number | null
-          retention_rate?: number | null
+          post_type?: string | null
+          post_url?: string | null
+          published_at?: string | null
           saves?: number | null
+          scraped_at?: string | null
           shares?: number | null
+          user_id?: string
           views?: number | null
         }
         Relationships: [
           {
-            foreignKeyName: "post_metrics_post_id_fkey"
-            columns: ["post_id"]
+            foreignKeyName: "ig_posts_user_id_fkey"
+            columns: ["user_id"]
             isOneToOne: false
-            referencedRelation: "instagram_posts"
+            referencedRelation: "users"
             referencedColumns: ["id"]
           },
         ]
@@ -235,14 +148,13 @@ export type Database = {
         }
         Relationships: []
       }
-      transcriptions: {
+      transcripts: {
         Row: {
           created_at: string | null
           duration_seconds: number | null
           id: string
           language: string | null
           post_id: string
-          transcribed_at: string | null
           transcript_text: string | null
         }
         Insert: {
@@ -251,7 +163,6 @@ export type Database = {
           id?: string
           language?: string | null
           post_id: string
-          transcribed_at?: string | null
           transcript_text?: string | null
         }
         Update: {
@@ -260,18 +171,44 @@ export type Database = {
           id?: string
           language?: string | null
           post_id?: string
-          transcribed_at?: string | null
           transcript_text?: string | null
         }
         Relationships: [
           {
-            foreignKeyName: "transcriptions_post_id_fkey"
+            foreignKeyName: "transcripts_post_id_fkey"
             columns: ["post_id"]
             isOneToOne: false
-            referencedRelation: "instagram_posts"
+            referencedRelation: "ig_posts"
             referencedColumns: ["id"]
           },
         ]
+      }
+      users: {
+        Row: {
+          created_at: string | null
+          email: string | null
+          id: string
+          instagram_username: string | null
+          is_active: boolean | null
+          nome: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          email?: string | null
+          id?: string
+          instagram_username?: string | null
+          is_active?: boolean | null
+          nome?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          email?: string | null
+          id?: string
+          instagram_username?: string | null
+          is_active?: boolean | null
+          nome?: string | null
+        }
+        Relationships: []
       }
     }
     Views: {
