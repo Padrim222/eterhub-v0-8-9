@@ -41,30 +41,47 @@ export const OnboardingModal = ({ isOpen, onComplete }: OnboardingModalProps) =>
     setLoading(true);
 
     try {
-      const { data: { user } } = await supabase.auth.getUser();
+      // 1. Verificar autenticação
+      const { data: { user }, error: authError } = await supabase.auth.getUser();
       
-      if (!user) throw new Error("Usuário não autenticado");
+      if (authError || !user) {
+        throw new Error('Sessão expirada. Faça login novamente.');
+      }
 
-      const cleanHandle = instagramHandle.replace('@', '');
+      // 2. Limpar e validar handle do Instagram
+      const cleanHandle = instagramHandle.replace('@', '').trim();
 
+      if (!cleanHandle || cleanHandle.length < 3) {
+        throw new Error('Instagram handle inválido (mínimo 3 caracteres)');
+      }
+
+      // 3. USAR UPSERT ao invés de UPDATE (garante que salva mesmo se não existir)
       const { error } = await supabase
         .from('users')
-        .update({ instagram_username: cleanHandle })
-        .eq('id', user.id);
+        .upsert({ 
+          id: user.id,
+          instagram_username: cleanHandle,
+        }, {
+          onConflict: 'id'
+        });
 
       if (error) throw error;
 
+      // 4. Sucesso!
       toast({
-        title: "Perfil configurado!",
-        description: "Agora vamos começar a analisar seu Instagram.",
+        title: "✅ Configuração salva!",
+        description: `Instagram @${cleanHandle} vinculado com sucesso.`,
       });
 
       onComplete();
+      
     } catch (error: any) {
+      console.error('❌ Erro no onboarding:', error);
+      
       toast({
-        title: "Erro",
-        description: error.message || "Falha ao salvar informações",
         variant: "destructive",
+        title: "❌ Erro ao salvar configuração",
+        description: error.message || "Tente novamente em alguns instantes.",
       });
     } finally {
       setLoading(false);
