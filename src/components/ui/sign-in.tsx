@@ -190,15 +190,18 @@ export const SignInPage: React.FC<SignInPageProps> = ({
         </div>
       </section>
 
-      {/* Right column: hero image/gradient */}
+      {/* Right column: Instagram Reels embed */}
       {heroImageSrc && (
         <section className="hidden md:block flex-1 relative p-4">
           <div className="absolute inset-4 rounded-3xl overflow-hidden bg-gradient-to-br from-primary/20 via-primary/10 to-background shadow-2xl">
-            <img
+            <iframe
               src={heroImageSrc}
-              className="w-full h-full object-cover opacity-50"
-              alt="Hero"
-            />
+              className="w-full h-full"
+              frameBorder="0"
+              scrolling="no"
+              allowFullScreen
+              allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
+            ></iframe>
           </div>
         </section>
       )}
