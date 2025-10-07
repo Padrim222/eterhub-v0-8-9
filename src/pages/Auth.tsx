@@ -11,11 +11,14 @@ const Auth = () => {
   } = useToast();
   const [loading, setLoading] = useState(false);
   const [isSignUp, setIsSignUp] = useState(false);
-  
   useEffect(() => {
     // Check if user is already logged in
     const checkUser = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
+      const {
+        data: {
+          session
+        }
+      } = await supabase.auth.getSession();
       if (session) {
         navigate("/dashboard");
       }
@@ -23,9 +26,12 @@ const Auth = () => {
     checkUser();
 
     // Listen for auth state changes (email confirmation, etc)
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+    const {
+      data: {
+        subscription
+      }
+    } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log('Auth event:', event);
-      
       if (event === 'SIGNED_IN' && session) {
         toast({
           title: "Login realizado!",
@@ -33,7 +39,6 @@ const Auth = () => {
         });
         navigate("/dashboard");
       }
-      
       if (event === 'USER_UPDATED') {
         toast({
           title: "Email confirmado!",
@@ -41,7 +46,6 @@ const Auth = () => {
         });
       }
     });
-
     return () => subscription.unsubscribe();
   }, [navigate, toast]);
   const handleSignIn = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -104,12 +108,13 @@ const Auth = () => {
     const formData = new FormData(event.currentTarget);
     const email = formData.get("email") as string;
     const password = formData.get("password") as string;
-    
     try {
       // Get current origin for redirect
       const redirectUrl = window.location.origin;
-      
-      const { data, error } = await supabase.auth.signUp({
+      const {
+        data,
+        error
+      } = await supabase.auth.signUp({
         email,
         password,
         options: {
@@ -119,9 +124,8 @@ const Auth = () => {
           }
         }
       });
-      
       if (error) throw error;
-      
+
       // Check if email confirmation is disabled (auto-confirm)
       if (data?.user && data?.session) {
         toast({
@@ -147,28 +151,13 @@ const Auth = () => {
       setLoading(false);
     }
   };
-  
   const handleCreateAccount = () => {
     setIsSignUp(true);
   };
   return <div className="bg-background text-foreground">
-      <SignInPage 
-        logoSrc={eterLogo} 
-        title={<span className="font-semibold text-foreground tracking-tight">
-          {isSignUp ? "Criar Conta no" : "Bem-vindo ao"} <span className="text-primary">IMOV</span>
-        </span>} 
-        description={isSignUp 
-          ? "Crie sua conta e comece a ter insights poderosos do seu Instagram" 
-          : "Acesse sua conta e tenha insights poderosos do seu Instagram"
-        }
-        heroImageSrc="https://www.instagram.com/p/DOUffdoEfYF/embed"
-        onSignIn={isSignUp ? handleSignUp : handleSignIn}
-        onGoogleSignIn={handleGoogleSignIn} 
-        onResetPassword={handleResetPassword} 
-        onCreateAccount={handleCreateAccount}
-        isSignUp={isSignUp}
-        onSwitchToSignIn={() => setIsSignUp(false)}
-      />
+      <SignInPage logoSrc={eterLogo} title={<span className="font-semibold text-foreground tracking-tight">
+          {isSignUp ? "Criar Conta no" : "Bem-vindo ao"} <span className="text-primary">Seu Movimento.</span>
+        </span>} description={isSignUp ? "Crie sua conta e comece a ter insights poderosos do seu Instagram" : "Acesse sua conta e tenha insights poderosos do seu Instagram"} heroImageSrc="https://www.instagram.com/p/DOUffdoEfYF/embed" onSignIn={isSignUp ? handleSignUp : handleSignIn} onGoogleSignIn={handleGoogleSignIn} onResetPassword={handleResetPassword} onCreateAccount={handleCreateAccount} isSignUp={isSignUp} onSwitchToSignIn={() => setIsSignUp(false)} />
     </div>;
 };
 export default Auth;
