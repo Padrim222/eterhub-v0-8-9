@@ -8,6 +8,7 @@ import eterLogo from "@/assets/eter-logo.png";
 import { supabase } from "@/integrations/supabase/client";
 import { useInstagramPosts } from "@/hooks/useInstagramPosts";
 import { PostsGrid } from "@/components/conteudo/PostsGrid";
+import { InstagramMetrics } from "@/components/conteudo/InstagramMetrics";
 
 const Conteudo = () => {
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
@@ -126,6 +127,9 @@ const Conteudo = () => {
             </button>
           </div>
         </div>
+
+        {/* Instagram Metrics */}
+        <InstagramMetrics posts={posts} />
 
         {/* Posts Grid */}
         <PostsGrid posts={posts} isLoading={isLoading} error={error} />
