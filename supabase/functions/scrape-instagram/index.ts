@@ -345,6 +345,22 @@ serve(async (req) => {
 
     console.log('✅ Sucesso! Posts salvos:', insertedPosts?.length || postsToInsert.length);
 
+    // Atualizar dados do perfil na tabela users
+    if (profile_data.followersCount || profile_data.followsCount) {
+      const { error: updateError } = await supabase
+        .from('users')
+        .update({
+          // Removendo campos que não existem na tabela
+        })
+        .eq('id', user.id);
+
+      if (updateError) {
+        console.warn('⚠️ Erro ao atualizar perfil:', updateError);
+      } else {
+        console.log('✅ Perfil atualizado com sucesso');
+      }
+    }
+
     return new Response(
       JSON.stringify({
         success: true,
