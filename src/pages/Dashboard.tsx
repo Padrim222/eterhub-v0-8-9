@@ -119,29 +119,31 @@ const Dashboard = () => {
         onComplete={() => setShowOnboarding(false)}
       />
 
-      {/* Header */}
-      <header className="fixed top-0 left-0 right-0 z-50 backdrop-blur-md bg-background/80 border-b border-border/30 px-6 py-4">
+      {/* Header - Mobile Optimized */}
+      <header className="fixed top-0 left-0 right-0 z-50 backdrop-blur-md bg-background/80 border-b border-border/30 px-3 sm:px-6 py-3 sm:py-4">
         <div className="flex items-center justify-between max-w-[1600px] mx-auto">
-          <div className="flex items-center gap-8">
-            <img src={eterLogo} alt="ETER" className="h-10 w-auto" />
-            <AppNavigation />
+          <div className="flex items-center gap-3 sm:gap-8">
+            <img src={eterLogo} alt="ETER" className="h-8 sm:h-10 w-auto" />
+            <div className="hide-mobile">
+              <AppNavigation />
+            </div>
           </div>
 
-          <div className="flex items-center gap-3">
-            <Button variant="ghost" size="icon" className="rounded-full border border-border/40 hover:bg-muted/30">
-              <Search className="w-5 h-5" />
+          <div className="flex items-center gap-2 sm:gap-3">
+            <Button variant="ghost" size="icon" className="touch-target rounded-full border border-border/40 hover:bg-muted/30">
+              <Search className="w-4 h-4 sm:w-5 sm:h-5" />
             </Button>
-            <Button variant="ghost" size="icon" className="rounded-full border border-border/40 hover:bg-muted/30">
-              <Bell className="w-5 h-5" />
+            <Button variant="ghost" size="icon" className="touch-target rounded-full border border-border/40 hover:bg-muted/30">
+              <Bell className="w-4 h-4 sm:w-5 sm:h-5" />
             </Button>
             <Button
               variant="ghost"
               onClick={handleSignOut}
-              className="text-sm text-muted-foreground hover:text-foreground"
+              className="text-xs sm:text-sm text-muted-foreground hover:text-foreground hide-mobile"
             >
               Sair
             </Button>
-            <Avatar className="border-2 border-border/40">
+            <Avatar className="border-2 border-border/40 h-8 w-8 sm:h-10 sm:w-10">
               <AvatarImage src="/placeholder.svg" />
               <AvatarFallback>{userProfile?.nome?.charAt(0) || 'U'}</AvatarFallback>
             </Avatar>
@@ -149,16 +151,16 @@ const Dashboard = () => {
         </div>
       </header>
 
-      {/* Main Content */}
-      <main className="pt-24 px-6 pb-12 max-w-[1600px] mx-auto">
+      {/* Main Content - Mobile Optimized */}
+      <main className="pt-16 sm:pt-24 px-3 sm:px-6 pb-8 sm:pb-12 max-w-[1600px] mx-auto">
         {/* Loading State */}
         {isLoading && (
-          <div className="space-y-6">
-            <Skeleton className="h-12 w-64" />
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              <Skeleton className="h-96 rounded-3xl" />
-              <Skeleton className="h-96 rounded-3xl" />
-              <Skeleton className="h-96 rounded-3xl" />
+          <div className="space-y-4 sm:space-y-6">
+            <Skeleton className="h-10 sm:h-12 w-48 sm:w-64" />
+            <div className="grid grid-cols-1 gap-4 sm:gap-6">
+              <Skeleton className="h-64 sm:h-96 rounded-3xl" />
+              <Skeleton className="h-64 sm:h-96 rounded-3xl" />
+              <Skeleton className="h-64 sm:h-96 rounded-3xl" />
             </div>
           </div>
         )}
@@ -183,28 +185,29 @@ const Dashboard = () => {
 
         {!isLoading && !error && (
           <>
-            <div className="mb-10">
-              <h1 className="text-5xl font-bold mb-8 tracking-tight">Dashboard</h1>
+            <div className="mb-6 sm:mb-10">
+              <h1 className="mobile-h1 font-bold mb-4 sm:mb-8 tracking-tight">Dashboard</h1>
           
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-8">
-              <button className="pb-3 border-b-2 border-primary font-semibold text-foreground">
-                Todos
-              </button>
-              <button className="pb-3 text-muted-foreground hover:text-foreground transition-colors">
-                Redes Sociais
-              </button>
-              <button className="pb-3 text-muted-foreground hover:text-foreground transition-colors">
-                Finanças
-              </button>
-              <button className="pb-3 text-muted-foreground hover:text-foreground transition-colors">
-                Conversão
-              </button>
-            </div>
+            <div className="flex items-center justify-between">
+              {/* Mobile: Show dropdown for filters, Desktop: Show tabs */}
+              <div className="flex items-center gap-3 sm:gap-8 w-full overflow-x-auto hide-scrollbar">
+                <button className="pb-2 sm:pb-3 border-b-2 border-primary font-semibold text-foreground text-sm sm:text-base whitespace-nowrap">
+                  Todos
+                </button>
+                <button className="pb-2 sm:pb-3 text-muted-foreground hover:text-foreground transition-colors text-sm sm:text-base whitespace-nowrap hide-mobile">
+                  Redes Sociais
+                </button>
+                <button className="pb-2 sm:pb-3 text-muted-foreground hover:text-foreground transition-colors text-sm sm:text-base whitespace-nowrap hide-mobile">
+                  Finanças
+                </button>
+                <button className="pb-2 sm:pb-3 text-muted-foreground hover:text-foreground transition-colors text-sm sm:text-base whitespace-nowrap hide-mobile">
+                  Conversão
+                </button>
+              </div>
 
-            <div className="flex items-center gap-2">
-              <Button variant="ghost" size="icon" className="rounded-full border-2 border-border/50 hover:bg-muted/30 hover:border-primary/50 transition-all">
-                <Menu className="w-5 h-5" />
+              <div className="flex items-center gap-2 hide-mobile">
+                <Button variant="ghost" size="icon" className="touch-target rounded-full border-2 border-border/50 hover:bg-muted/30 hover:border-primary/50 transition-all">
+                  <Menu className="w-5 h-5" />
               </Button>
             </div>
           </div>
@@ -220,19 +223,19 @@ const Dashboard = () => {
           )}
         </div>
 
-        {/* Grid Layout - Top Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
+        {/* Grid Layout - Mobile: 1 column, Tablet: 2 columns, Desktop: 3 columns */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-4 sm:mb-6">
           
-          {/* Conversão & Funil Card */}
-          <Card className="backdrop-blur-md bg-card/95 p-6 rounded-3xl border-2 border-border/60 shadow-xl hover:shadow-2xl transition-all">
-            <div className="flex items-start justify-between mb-4">
-              <h3 className="text-base font-semibold text-card-foreground leading-tight">Conversão<br/>& Funil</h3>
+          {/* Conversão & Funil Card - Mobile Optimized */}
+          <Card className="backdrop-blur-md bg-card/95 p-4 sm:p-6 rounded-2xl sm:rounded-3xl border-2 border-border/60 shadow-xl hover:shadow-2xl transition-all">
+            <div className="flex items-start justify-between mb-3 sm:mb-4">
+              <h3 className="mobile-h3 font-semibold text-card-foreground leading-tight">Conversão<br/>& Funil</h3>
               <div className="flex items-center gap-1">
-                <Button variant="ghost" size="icon" className="h-7 w-7 hover:bg-card-foreground/10 rounded-full">
-                  <Bell className="w-4 h-4 text-card-foreground/60" />
+                <Button variant="ghost" size="icon" className="h-8 w-8 sm:h-7 sm:w-7 hover:bg-card-foreground/10 rounded-full">
+                  <Bell className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-card-foreground/60" />
                 </Button>
-                <Button variant="ghost" size="icon" className="h-7 w-7 hover:bg-card-foreground/10 rounded-full">
-                  <ArrowUpRight className="w-4 h-4 text-card-foreground/60" />
+                <Button variant="ghost" size="icon" className="h-8 w-8 sm:h-7 sm:w-7 hover:bg-card-foreground/10 rounded-full hide-mobile">
+                  <ArrowUpRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-card-foreground/60" />
                 </Button>
               </div>
             </div>
@@ -246,7 +249,7 @@ const Dashboard = () => {
             />
             
             {!userProfile?.instagram_username && (
-              <div className="mt-4 p-3 bg-primary/10 border border-primary/30 rounded-xl text-xs text-center">
+              <div className="mt-3 sm:mt-4 p-2.5 sm:p-3 bg-primary/10 border border-primary/30 rounded-xl text-xs sm:text-xs text-center">
                 ⚠️ Configure seu @ do Instagram para ver métricas
               </div>
             )}
@@ -254,8 +257,8 @@ const Dashboard = () => {
             {/* Webhook Configuration */}
             <Dialog>
               <DialogTrigger asChild>
-                <Button variant="outline" size="sm" className="w-full mt-4 border-2 border-border/60 hover:border-primary/60">
-                  <LinkIcon className="w-4 h-4 mr-2" />
+                <Button variant="outline" size="sm" className="w-full mt-3 sm:mt-4 touch-target border-2 border-border/60 hover:border-primary/60 text-xs sm:text-sm">
+                  <LinkIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-2" />
                   Configurar Webhook
                 </Button>
               </DialogTrigger>
@@ -286,36 +289,36 @@ const Dashboard = () => {
             </Dialog>
           </Card>
 
-          {/* Instagram Card */}
-          <Card className="backdrop-blur-md bg-card-dark/95 p-6 rounded-3xl border-2 border-border/30 shadow-xl hover:shadow-2xl transition-all">
-            <div className="flex items-start justify-between mb-4">
-              <div className="flex items-center gap-2">
-                <Instagram className="w-5 h-5 text-primary" />
-                <h3 className="text-base font-semibold text-card-dark-foreground">Instagram</h3>
+          {/* Instagram Card - Mobile Optimized */}
+          <Card className="backdrop-blur-md bg-card-dark/95 p-4 sm:p-6 rounded-2xl sm:rounded-3xl border-2 border-border/30 shadow-xl hover:shadow-2xl transition-all">
+            <div className="flex items-start justify-between mb-3 sm:mb-4">
+              <div className="flex items-center gap-1.5 sm:gap-2">
+                <Instagram className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
+                <h3 className="mobile-h3 font-semibold text-card-dark-foreground">Instagram</h3>
               </div>
-              <div className="flex items-center gap-1">
-                <Button variant="ghost" size="icon" className="h-7 w-7 hover:bg-white/5 rounded-full">
-                  <ArrowUpRight className="w-4 h-4 text-white/60" />
+              <div className="flex items-center gap-1 hide-mobile">
+                <Button variant="ghost" size="icon" className="h-8 w-8 sm:h-7 sm:w-7 hover:bg-white/5 rounded-full">
+                  <ArrowUpRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white/60" />
                 </Button>
               </div>
             </div>
             
             <div className="mb-2">
-              <div className="text-sm text-muted-foreground mb-1">
+              <div className="mobile-caption text-muted-foreground mb-1">
                 {userProfile?.instagram_username ? `@${userProfile.instagram_username}` : 'Não configurado'}
               </div>
-              <div className="text-3xl font-bold text-primary">{totalPosts}</div>
-              <div className="text-xs text-muted-foreground">Posts analisados</div>
+              <div className="text-2xl sm:text-3xl font-bold text-primary">{totalPosts}</div>
+              <div className="mobile-caption text-muted-foreground">Posts analisados</div>
             </div>
 
-            <div className="mt-4 space-y-2">
-              <div className="flex justify-between text-sm">
+            <div className="mt-3 sm:mt-4 space-y-1.5 sm:space-y-2">
+              <div className="flex justify-between mobile-caption">
                 <span className="text-muted-foreground">Engajamento:</span>
                 <span className="text-card-dark-foreground font-semibold">
                   {totalEngagement > 0 ? totalEngagement.toLocaleString() : '—'}
                 </span>
               </div>
-              <div className="flex justify-between text-sm">
+              <div className="flex justify-between mobile-caption">
                 <span className="text-muted-foreground">Alcance:</span>
                 <span className="text-card-dark-foreground font-semibold">
                   {totalReach > 0 ? totalReach.toLocaleString() : '—'}
@@ -326,8 +329,8 @@ const Dashboard = () => {
             {/* Competitor Research */}
             <Dialog>
               <DialogTrigger asChild>
-                <Button variant="outline" size="sm" className="w-full mt-4 border-2 border-border/40 hover:border-primary/60">
-                  <Users className="w-4 h-4 mr-2" />
+                <Button variant="outline" size="sm" className="w-full mt-3 sm:mt-4 touch-target border-2 border-border/40 hover:border-primary/60 text-xs sm:text-sm">
+                  <Users className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-2" />
                   Pesquisar Concorrentes
                 </Button>
               </DialogTrigger>
@@ -355,11 +358,11 @@ const Dashboard = () => {
             </Dialog>
           </Card>
 
-          {/* MOVQL Card */}
-          <Card className="backdrop-blur-md bg-card-dark/95 p-6 rounded-3xl border-2 border-border/30 shadow-xl hover:shadow-2xl transition-all">
-            <div className="flex items-start justify-between mb-4">
-              <h3 className="text-base font-semibold text-card-dark-foreground">MOVQL</h3>
-              <div className="flex items-center gap-1">
+          {/* MOVQL Card - Mobile Optimized */}
+          <Card className="backdrop-blur-md bg-card-dark/95 p-4 sm:p-6 rounded-2xl sm:rounded-3xl border-2 border-border/30 shadow-xl hover:shadow-2xl transition-all">
+            <div className="flex items-start justify-between mb-3 sm:mb-4">
+              <h3 className="mobile-h3 font-semibold text-card-dark-foreground">MOVQL</h3>
+              <div className="flex items-center gap-1 hide-mobile">
                 <Button variant="ghost" size="icon" className="h-7 w-7 hover:bg-white/5 rounded-full">
                   <Bell className="w-4 h-4 text-white/60" />
                 </Button>
@@ -370,11 +373,11 @@ const Dashboard = () => {
             </div>
             
             <div className="mb-2">
-              <span className="text-4xl font-bold text-primary">640 </span>
-              <span className="text-xs text-muted-foreground">Leads</span>
+              <span className="text-3xl sm:text-4xl font-bold text-primary">640 </span>
+              <span className="mobile-caption text-muted-foreground">Leads</span>
             </div>
             
-            <ResponsiveContainer width="100%" height={100}>
+            <ResponsiveContainer width="100%" height={80} className="sm:h-[100px]">
               <LineChart data={movqlData}>
                 <Line 
                   type="monotone" 
@@ -386,9 +389,9 @@ const Dashboard = () => {
               </LineChart>
             </ResponsiveContainer>
             
-            <div className="flex items-center justify-between text-xs text-muted-foreground mt-2">
+            <div className="flex items-center justify-between mobile-caption text-muted-foreground mt-2">
               {movqlData.map((item, idx) => (
-                <span key={idx} className={item.highlighted ? "text-primary font-bold" : ""}>
+                <span key={idx} className={item.highlighted ? "text-primary font-bold text-xs sm:text-sm" : "text-xs sm:text-sm"}>
                   {item.month.substring(0, 3)}
                 </span>
               ))}
@@ -396,16 +399,16 @@ const Dashboard = () => {
           </Card>
         </div>
 
-        {/* IMOVI Card - Adjusted Size */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-          <Card className="lg:col-span-2 backdrop-blur-md bg-card/95 p-8 rounded-3xl border-2 border-border/60 shadow-xl hover:shadow-2xl transition-all">
-            <div className="flex items-start justify-between mb-6">
+        {/* IMOVI Card - Mobile Optimized */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 mb-4 sm:mb-6">
+          <Card className="lg:col-span-2 backdrop-blur-md bg-card/95 p-4 sm:p-6 lg:p-8 rounded-2xl sm:rounded-3xl border-2 border-border/60 shadow-xl hover:shadow-2xl transition-all">
+            <div className="flex items-start justify-between mb-4 sm:mb-6">
               <div>
-                <h2 className="text-2xl font-bold text-card-foreground mb-1">IMOVI</h2>
-                <p className="text-sm text-card-foreground/60 font-medium">Índice de Movimento e Influência</p>
+                <h2 className="mobile-h2 font-bold text-card-foreground mb-1">IMOVI</h2>
+                <p className="mobile-caption text-card-foreground/60 font-medium">Índice de Movimento e Influência</p>
               </div>
               
-              <div className="flex items-center gap-1">
+              <div className="flex items-center gap-1 hide-mobile">
                 <Button variant="ghost" size="icon" className="hover:bg-card-foreground/5 rounded-full">
                   <Menu className="w-5 h-5 text-card-foreground/60" />
                 </Button>
@@ -415,21 +418,33 @@ const Dashboard = () => {
               </div>
             </div>
             
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              <div className="lg:col-span-2">
-                <ResponsiveContainer width="100%" height={240}>
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
+              {/* Chart - Mobile: full width, Desktop: 2/3 */}
+              <div className="lg:col-span-2 order-2 lg:order-1">
+                <ResponsiveContainer width="100%" height={180} className="sm:h-[200px] lg:h-[240px]">
                   <BarChart data={imoviHistory}>
                     <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.3} />
-                    <XAxis dataKey="month" stroke="hsl(var(--muted-foreground))" fontSize={12} />
-                    <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} domain={[0, 10]} />
+                    <XAxis 
+                      dataKey="month" 
+                      stroke="hsl(var(--muted-foreground))" 
+                      fontSize={10}
+                      className="sm:text-xs"
+                    />
+                    <YAxis 
+                      stroke="hsl(var(--muted-foreground))" 
+                      fontSize={10}
+                      className="sm:text-xs"
+                      domain={[0, 10]} 
+                    />
                     <Tooltip 
                       contentStyle={{ 
                         backgroundColor: 'hsl(var(--card-dark))',
                         border: '1px solid hsl(var(--border))',
-                        borderRadius: '12px'
+                        borderRadius: '12px',
+                        fontSize: '12px'
                       }}
                     />
-                    <Bar dataKey="value" radius={[12, 12, 0, 0]}>
+                    <Bar dataKey="value" radius={[8, 8, 0, 0]}>
                       {imoviHistory.map((entry, index) => (
                         <Cell 
                           key={`cell-${index}`} 
@@ -443,16 +458,17 @@ const Dashboard = () => {
                 </ResponsiveContainer>
               </div>
               
-              <div className="flex flex-col justify-center items-center bg-card-dark rounded-3xl p-6 border-2 border-border/40">
-                <div className="text-xs text-muted-foreground mb-2 font-medium tracking-wide">ÍNDICE IMOVI</div>
+              {/* Score Display - Mobile: above chart, Desktop: right side */}
+              <div className="flex flex-col justify-center items-center bg-card-dark rounded-2xl sm:rounded-3xl p-4 sm:p-6 border-2 border-border/40 order-1 lg:order-2">
+                <div className="mobile-caption text-muted-foreground mb-2 font-medium tracking-wide">ÍNDICE IMOVI</div>
                 <div 
-                  className="text-6xl font-bold mb-2"
+                  className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-2"
                   style={{ color: currentImovi.color }}
                 >
                   {currentImovi.score.toFixed(1)}
                 </div>
                 <div 
-                  className="text-sm font-bold mb-4 px-4 py-1 rounded-full"
+                  className="text-xs sm:text-sm font-bold mb-3 sm:mb-4 px-3 sm:px-4 py-1 rounded-full"
                   style={{ 
                     backgroundColor: `${currentImovi.color}20`,
                     color: currentImovi.color
@@ -461,7 +477,7 @@ const Dashboard = () => {
                   {currentImovi.level}
                 </div>
                 
-                <div className="text-xs text-muted-foreground text-center leading-relaxed">
+                <div className="mobile-caption text-muted-foreground text-center leading-relaxed">
                   <div className="mb-1">0-3 <span className="text-red-500">RUIM</span></div>
                   <div className="mb-1">3-5 <span className="text-yellow-500">OK</span></div>
                   <div className="mb-1">5-8 <span className="text-green-500">BOM</span></div>
@@ -471,14 +487,14 @@ const Dashboard = () => {
             </div>
           </Card>
 
-          {/* Líder Card - Bigger */}
-          <Card className="backdrop-blur-md bg-card-dark/95 rounded-3xl overflow-hidden border-2 border-border/30 shadow-xl hover:shadow-2xl hover:scale-[1.02] transition-all">
-            <div className="p-6">
-              <h3 className="text-xl font-bold text-card-dark-foreground mb-1">Líder</h3>
-              <p className="text-sm text-card-dark-foreground mb-4">Davi Ribas</p>
+          {/* Líder Card - Mobile Optimized */}
+          <Card className="backdrop-blur-md bg-card-dark/95 rounded-2xl sm:rounded-3xl overflow-hidden border-2 border-border/30 shadow-xl hover:shadow-2xl hover:scale-[1.02] transition-all">
+            <div className="p-4 sm:p-6">
+              <h3 className="mobile-h3 font-bold text-card-dark-foreground mb-1">Líder</h3>
+              <p className="mobile-caption text-card-dark-foreground mb-3 sm:mb-4">Davi Ribas</p>
               
-              <Button variant="outline" size="sm" className="w-full border-2 border-border/50 hover:border-primary/60">
-                <Upload className="w-4 h-4 mr-2" />
+              <Button variant="outline" size="sm" className="w-full touch-target border-2 border-border/50 hover:border-primary/60 text-xs sm:text-sm">
+                <Upload className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-2" />
                 Alterar Foto
               </Button>
             </div>
@@ -492,23 +508,23 @@ const Dashboard = () => {
           </Card>
         </div>
 
-        {/* Insights IA Card */}
-        <Card className="backdrop-blur-md bg-card-dark/95 p-8 rounded-3xl border-2 border-border/30 shadow-xl hover:shadow-2xl transition-all">
-          <div className="flex items-start justify-between mb-6">
-            <div>
-              <h2 className="text-2xl font-bold text-card-dark-foreground mb-1">Insights IA</h2>
-              <p className="text-sm text-muted-foreground font-medium">Impulsione seu Movimento com nossa IA</p>
+        {/* Insights IA Card - Mobile Optimized */}
+        <Card className="backdrop-blur-md bg-card-dark/95 p-4 sm:p-6 lg:p-8 rounded-2xl sm:rounded-3xl border-2 border-border/30 shadow-xl hover:shadow-2xl transition-all">
+          <div className="flex flex-col sm:flex-row items-start sm:items-start justify-between gap-3 sm:gap-4 mb-4 sm:mb-6">
+            <div className="flex-1">
+              <h2 className="mobile-h2 font-bold text-card-dark-foreground mb-1">Insights IA</h2>
+              <p className="mobile-caption text-muted-foreground font-medium">Impulsione seu Movimento com nossa IA</p>
             </div>
             
-            <Button className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg hover:shadow-xl transition-all">
-              <Sparkles className="w-4 h-4 mr-2" />
+            <Button className="w-full sm:w-auto touch-target bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg hover:shadow-xl transition-all text-xs sm:text-sm">
+              <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-2" />
               Gerar Insights
             </Button>
           </div>
           
-          <div className="text-center py-12">
-            <Sparkles className="w-12 h-12 text-muted-foreground mx-auto mb-4 opacity-50" />
-            <p className="text-muted-foreground">
+          <div className="text-center py-8 sm:py-12">
+            <Sparkles className="w-10 h-10 sm:w-12 sm:h-12 text-muted-foreground mx-auto mb-3 sm:mb-4 opacity-50" />
+            <p className="mobile-body text-muted-foreground">
               Nenhum insight gerado ainda. Clique em "Gerar Insights" para obter recomendações personalizadas.
             </p>
           </div>

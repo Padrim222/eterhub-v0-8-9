@@ -73,28 +73,28 @@ export const SignInPage: React.FC<SignInPageProps> = ({
 
   return (
     <div className="min-h-screen flex flex-col md:flex-row w-full">
-      {/* Left column: sign-in form */}
-      <section className="flex-1 flex items-center justify-center p-4 md:p-8">
+      {/* Left column: sign-in form - Mobile optimized */}
+      <section className="flex-1 flex items-center justify-center p-4 sm:p-6 md:p-8">
         <div className="w-full max-w-md">
-          <div className="flex flex-col gap-6">
+          <div className="flex flex-col gap-4 sm:gap-6">
             {logoSrc && (
-              <div className="mb-2 md:mb-4">
-                <img src={logoSrc} alt="Logo" className="h-10 md:h-12 w-auto" />
+              <div className="mb-2 sm:mb-2 md:mb-4">
+                <img src={logoSrc} alt="Logo" className="h-8 sm:h-10 md:h-12 w-auto" />
               </div>
             )}
             
-            <h1 className="text-3xl md:text-4xl lg:text-5xl font-semibold leading-tight">{title}</h1>
-            <p className="text-sm md:text-base text-muted-foreground">{description}</p>
+            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-semibold leading-tight">{title}</h1>
+            <p className="text-xs sm:text-sm md:text-base text-muted-foreground">{description}</p>
 
-            <form className="space-y-4 md:space-y-5" onSubmit={onSignIn}>
+            <form className="space-y-3 sm:space-y-4 md:space-y-5" onSubmit={onSignIn}>
               <div>
-                <label className="text-xs md:text-sm font-medium text-muted-foreground">Endereço de Email</label>
+                <label className="text-xs sm:text-sm font-medium text-muted-foreground">Endereço de Email</label>
                 <GlassInputWrapper>
                   <input 
                     name="email" 
                     type="email" 
                     placeholder="Digite seu endereço de email" 
-                    className="w-full bg-transparent text-sm p-4 rounded-2xl focus:outline-none" 
+                    className="w-full bg-transparent text-xs sm:text-sm p-3 sm:p-4 rounded-2xl focus:outline-none" 
                     required
                   />
                 </GlassInputWrapper>
@@ -108,18 +108,19 @@ export const SignInPage: React.FC<SignInPageProps> = ({
                       name="password" 
                       type={showPassword ? 'text' : 'password'} 
                       placeholder="Digite sua senha" 
-                      className="w-full bg-transparent text-sm p-4 pr-12 rounded-2xl focus:outline-none" 
+                      className="w-full bg-transparent text-xs sm:text-sm p-3 sm:p-4 pr-10 sm:pr-12 rounded-2xl focus:outline-none" 
                       required
                     />
                     <button 
                       type="button" 
                       onClick={() => setShowPassword(!showPassword)} 
-                      className="absolute inset-y-0 right-3 flex items-center"
+                      className="absolute inset-y-0 right-2 sm:right-3 flex items-center touch-target"
+                      aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
                     >
                       {showPassword ? (
-                        <EyeOff className="w-5 h-5 text-muted-foreground hover:text-foreground transition-colors" />
+                        <EyeOff className="w-4 h-4 sm:w-5 sm:h-5 text-muted-foreground hover:text-foreground transition-colors" />
                       ) : (
-                        <Eye className="w-5 h-5 text-muted-foreground hover:text-foreground transition-colors" />
+                        <Eye className="w-4 h-4 sm:w-5 sm:h-5 text-muted-foreground hover:text-foreground transition-colors" />
                       )}
                     </button>
                   </div>
@@ -127,15 +128,15 @@ export const SignInPage: React.FC<SignInPageProps> = ({
               </div>
 
               {!isSignUp && (
-                <div className="flex items-center justify-between text-xs md:text-sm">
-                  <label className="flex items-center gap-2 md:gap-3 cursor-pointer">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-3 text-xs sm:text-sm">
+                  <label className="flex items-center gap-2 cursor-pointer touch-target">
                     <input type="checkbox" name="rememberMe" className="h-4 w-4 rounded border-border" />
                     <span className="text-foreground/90">Manter-me conectado</span>
                   </label>
                   <a 
                     href="#" 
                     onClick={(e) => { e.preventDefault(); onResetPassword?.(); }} 
-                    className="hover:underline text-primary transition-colors whitespace-nowrap"
+                    className="hover:underline text-primary transition-colors whitespace-nowrap touch-target inline-block"
                   >
                     Redefinir senha
                   </a>
@@ -144,20 +145,20 @@ export const SignInPage: React.FC<SignInPageProps> = ({
 
               <button 
                 type="submit" 
-                className="w-full rounded-2xl bg-primary py-3 md:py-4 text-sm md:text-base font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
+                className="w-full min-h-[44px] sm:min-h-[48px] rounded-2xl bg-primary py-2.5 sm:py-3 md:py-4 text-sm sm:text-base font-medium text-primary-foreground hover:bg-primary/90 active:scale-[0.98] transition-all shadow-lg hover:shadow-xl"
               >
                 {isSignUp ? "Criar Conta" : "Entrar"}
               </button>
             </form>
 
-            <div className="relative flex items-center justify-center">
+            <div className="relative flex items-center justify-center my-4 sm:my-5">
               <span className="w-full border-t border-border"></span>
-              <span className="px-4 text-sm text-muted-foreground bg-background absolute">Ou continue com</span>
+              <span className="px-3 sm:px-4 text-xs sm:text-sm text-muted-foreground bg-background absolute">Ou continue com</span>
             </div>
 
             <button 
               onClick={onGoogleSignIn} 
-              className="w-full flex items-center justify-center gap-3 border border-border rounded-2xl py-3 md:py-4 text-sm md:text-base hover:bg-secondary transition-colors"
+              className="w-full min-h-[44px] sm:min-h-[48px] flex items-center justify-center gap-2 sm:gap-3 border border-border rounded-2xl py-2.5 sm:py-3 md:py-4 text-xs sm:text-sm md:text-base hover:bg-secondary active:scale-[0.98] transition-all"
             >
               <GoogleIcon />
               Continuar com Google
@@ -190,7 +191,7 @@ export const SignInPage: React.FC<SignInPageProps> = ({
         </div>
       </section>
 
-      {/* Right column: Instagram Reels embed */}
+      {/* Right column: Instagram Reels embed - Hidden on mobile */}
       {heroImageSrc && (
         <section className="hidden md:block flex-1 relative p-4">
           <div className="absolute inset-4 rounded-3xl overflow-hidden bg-gradient-to-br from-primary/20 via-primary/10 to-background shadow-2xl">

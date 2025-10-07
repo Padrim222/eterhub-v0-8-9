@@ -119,3 +119,96 @@ All colors MUST be HSL.
     @apply bg-background text-foreground;
   }
 }
+
+/* 🎯 MOBILE-FIRST OPTIMIZATION (360px viewport) */
+/* Following Laws of UX: Fitts's Law, Miller's Law, Hick's Law, Aesthetic-Usability Effect */
+
+@layer utilities {
+  /* Touch Target Optimization (Fitts's Law) */
+  .touch-target {
+    @apply min-h-[44px] min-w-[44px];
+  }
+
+  .touch-target-lg {
+    @apply min-h-[56px] min-w-[56px];
+  }
+
+  /* Safe spacing for interactive elements */
+  .interactive-spacing {
+    @apply space-y-2 sm:space-y-3;
+  }
+
+  /* Mobile-optimized text hierarchy */
+  .mobile-h1 {
+    @apply text-2xl sm:text-4xl lg:text-5xl;
+  }
+
+  .mobile-h2 {
+    @apply text-xl sm:text-2xl lg:text-3xl;
+  }
+
+  .mobile-h3 {
+    @apply text-lg sm:text-xl lg:text-2xl;
+  }
+
+  .mobile-body {
+    @apply text-sm sm:text-base;
+  }
+
+  .mobile-caption {
+    @apply text-xs sm:text-sm;
+  }
+}
+
+/* Mobile-specific responsive breakpoint adjustments */
+@media (max-width: 640px) {
+  /* Container adjustments */
+  .container {
+    @apply px-4;
+  }
+
+  /* Reduce padding on mobile cards */
+  .card-mobile {
+    @apply p-4;
+  }
+
+  /* Stack grids on mobile */
+  .grid-mobile-stack {
+    @apply grid-cols-1;
+  }
+
+  /* Full-width buttons on mobile */
+  .btn-mobile-full {
+    @apply w-full;
+  }
+
+  /* Compact header on mobile */
+  .header-mobile {
+    @apply py-3 px-4;
+  }
+
+  /* Hide on mobile (Miller's Law - reduce cognitive load) */
+  .hide-mobile {
+    @apply hidden;
+  }
+
+  /* Show only on mobile */
+  .show-mobile {
+    @apply block sm:hidden;
+  }
+
+  /* Optimize chart heights for mobile */
+  .chart-mobile {
+    @apply h-32 sm:h-48 lg:h-64;
+  }
+
+  /* Touch-friendly spacing */
+  .section-mobile {
+    @apply space-y-4 sm:space-y-6;
+  }
+
+  /* Mobile-optimized modal */
+  .modal-mobile {
+    @apply m-2 max-w-[calc(100vw-1rem)];
+  }
+}
