@@ -68,9 +68,19 @@ const Auth = () => {
       });
       navigate("/dashboard");
     } catch (error: any) {
+      let errorMessage = "Falha ao fazer login. Tente novamente.";
+      
+      if (error.message.includes("Invalid login credentials")) {
+        errorMessage = "Email ou senha incorretos. Verifique suas credenciais.";
+      } else if (error.message.includes("Email not confirmed")) {
+        errorMessage = "Conta não ativada. Verifique seu email para confirmar sua conta.";
+      } else if (error.message.includes("User not found")) {
+        errorMessage = "Conta não encontrada. Verifique o email ou crie uma nova conta.";
+      }
+      
       toast({
-        title: "Error",
-        description: error.message || "Failed to sign in. Please try again.",
+        title: "Erro ao fazer login",
+        description: errorMessage,
         variant: "destructive"
       });
     } finally {

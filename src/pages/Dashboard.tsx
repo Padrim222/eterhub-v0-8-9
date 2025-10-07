@@ -26,6 +26,7 @@ import { InstagramMetricsCard } from "@/components/dashboard/InstagramMetricsCar
 const Dashboard = () => {
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [userProfile, setUserProfile] = useState<any>(null);
+  const [activeFilter, setActiveFilter] = useState("Todos");
   const navigate = useNavigate();
 
   const loadUserProfile = async () => {
@@ -164,21 +165,19 @@ const Dashboard = () => {
               
               <div className="flex items-center justify-between mb-8">
                 <div className="flex items-center gap-8 border-b border-gray-800 pb-4">
-                  <button className="border-b-2 border-primary font-semibold text-white pb-2">
-                    Todos
-                  </button>
-                  <button className="text-gray-400 hover:text-white transition-colors pb-2">
-                    Redes Sociais
-                  </button>
-                  <button className="text-gray-400 hover:text-white transition-colors pb-2">
-                    Finanças
-                  </button>
-                  <button className="text-gray-400 hover:text-white transition-colors pb-2">
-                    Conversão
-                  </button>
-                  <button className="text-gray-400 hover:text-white transition-colors pb-2">
-                    Webinários
-                  </button>
+                  {["Todos", "Redes Sociais", "Finanças", "Conversão", "Webinários"].map((filter) => (
+                    <button
+                      key={filter}
+                      onClick={() => setActiveFilter(filter)}
+                      className={`pb-2 transition-colors font-medium ${
+                        activeFilter === filter
+                          ? "border-b-2 border-primary text-white"
+                          : "text-gray-400 hover:text-white"
+                      }`}
+                    >
+                      {filter}
+                    </button>
+                  ))}
                 </div>
 
                 <div className="flex items-center gap-2">
