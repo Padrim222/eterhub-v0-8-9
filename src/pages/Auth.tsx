@@ -26,6 +26,8 @@ const Auth = () => {
     toast
   } = useToast();
   const [loading, setLoading] = useState(false);
+  const [isSignUp, setIsSignUp] = useState(false);
+  
   useEffect(() => {
     // Check if user is already logged in
     const checkUser = async () => {
@@ -94,16 +96,62 @@ const Auth = () => {
       description: "Funcionalidade de redefinição de senha em breve!"
     });
   };
+  const handleSignUp = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setLoading(true);
+    const formData = new FormData(event.currentTarget);
+    const email = formData.get("email") as string;
+    const password = formData.get("password") as string;
+    
+    try {
+      const { error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          emailRedirectTo: `${window.location.origin}/dashboard`
+        }
+      });
+      
+      if (error) throw error;
+      
+      toast({
+        title: "Conta criada!",
+        description: "Verifique seu email para confirmar sua conta."
+      });
+      setIsSignUp(false);
+    } catch (error: any) {
+      toast({
+        title: "Erro",
+        description: error.message || "Falha ao criar conta. Tente novamente.",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+  
   const handleCreateAccount = () => {
-    toast({
-      title: "Criar Conta",
-      description: "Funcionalidade de cadastro em breve!"
-    });
+    setIsSignUp(true);
   };
   return <div className="bg-background text-foreground">
-      <SignInPage logoSrc={eterLogo} title={<span className="font-semibold text-foreground tracking-tight">
-            Welcome to <span className="text-primary">IMOV</span>
-          </span>} description="Acesse sua conta e tenha insights poderosos do seu Instagram" heroImageSrc="https://images.unsplash.com/photo-611605698323-e18cd23d2c57?w=2160&q=80" testimonials={sampleTestimonials} onSignIn={handleSignIn} onGoogleSignIn={handleGoogleSignIn} onResetPassword={handleResetPassword} onCreateAccount={handleCreateAccount} />
+      <SignInPage 
+        logoSrc={eterLogo} 
+        title={<span className="font-semibold text-foreground tracking-tight">
+          {isSignUp ? "Criar Conta no" : "Bem-vindo ao"} <span className="text-primary">IMOV</span>
+        </span>} 
+        description={isSignUp 
+          ? "Crie sua conta e comece a ter insights poderosos do seu Instagram" 
+          : "Acesse sua conta e tenha insights poderosos do seu Instagram"
+        }
+        heroImageSrc="https://images.unsplash.com/photo-611605698323-e18cd23d2c57?w=2160&q=80" 
+        testimonials={sampleTestimonials} 
+        onSignIn={isSignUp ? handleSignUp : handleSignIn}
+        onGoogleSignIn={handleGoogleSignIn} 
+        onResetPassword={handleResetPassword} 
+        onCreateAccount={handleCreateAccount}
+        isSignUp={isSignUp}
+        onSwitchToSignIn={() => setIsSignUp(false)}
+      />
     </div>;
 };
 export default Auth;
