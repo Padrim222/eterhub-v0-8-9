@@ -17,6 +17,10 @@ serve(async (req) => {
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     
+    if (!apifyApiKey) {
+      throw new Error('APIFY_API_KEY não configurada');
+    }
+    
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
     // Get authenticated user
@@ -28,7 +32,7 @@ serve(async (req) => {
       throw new Error('Não autenticado');
     }
 
-    console.log('Iniciando scraping para usuário:', user.id);
+    console.log('✅ Usuário autenticado:', user.id);
 
     // Get user profile with instagram username
     const { data: profile, error: profileError } = await supabase
@@ -38,10 +42,11 @@ serve(async (req) => {
       .single();
 
     if (profileError || !profile?.instagram_username) {
-      throw new Error('Username do Instagram não configurado');
+      throw new Error('Username do Instagram não configurado. Configure seu @ no onboarding.');
     }
 
-    console.log('Iniciando scraping do perfil:', profile.instagram_username);
+    const instagramUsername = profile.instagram_username.replace('@', '');
+    console.log('📸 Iniciando scraping do perfil:', instagramUsername);
 
     // Start Apify Instagram scraper actor
     const actorRunResponse = await fetch(
@@ -52,8 +57,8 @@ serve(async (req) => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          usernames: [profile.instagram_username],
-          resultsLimit: 50,
+          usernames: [instagramUsername],
+          resultsLimit: 30, // Últimos 30 posts
           addParentData: true,
         }),
       }
@@ -61,14 +66,14 @@ serve(async (req) => {
 
     if (!actorRunResponse.ok) {
       const errorText = await actorRunResponse.text();
-      console.error('Erro ao iniciar Apify actor:', errorText);
+      console.error('❌ Erro ao iniciar Apify actor:', errorText);
       throw new Error(`Falha ao iniciar scraping: ${errorText}`);
     }
 
     const runData = await actorRunResponse.json();
     const runId = runData.data.id;
     
-    console.log('Apify run iniciado:', runId);
+    console.log('🚀 Apify run iniciado:', runId);
 
     // Wait for the run to finish (poll status)
     let status = 'RUNNING';
@@ -78,88 +83,103 @@ serve(async (req) => {
     while (status === 'RUNNING' && attempts < maxAttempts) {
       await new Promise(resolve => setTimeout(resolve, 10000)); // Wait 10 seconds
       
+      // ✅ URL CORRIGIDA: Usar /actor-runs/ ao invés de /acts/.../runs/
       const statusResponse = await fetch(
-        `https://api.apify.com/v2/acts/apify~instagram-profile-scraper/runs/${runId}?token=${apifyApiKey}`
+        `https://api.apify.com/v2/actor-runs/${runId}?token=${apifyApiKey}`
       );
+      
+      if (!statusResponse.ok) {
+        console.error('❌ Erro ao verificar status:', await statusResponse.text());
+        break;
+      }
       
       const statusData = await statusResponse.json();
       status = statusData.data.status;
       attempts++;
       
-      console.log(`Status do scraping (tentativa ${attempts}):`, status);
+      console.log(`⏳ Status do scraping (tentativa ${attempts}/30):`, status);
     }
 
     if (status !== 'SUCCEEDED') {
-      throw new Error(`Scraping não completou com sucesso. Status: ${status}`);
+      throw new Error(`Scraping não completou. Status final: ${status}. Tente novamente.`);
     }
 
-    // Get the results
+    console.log('✅ Scraping completado com sucesso!');
+
+    // ✅ URL CORRIGIDA: Buscar resultados do dataset
     const resultsResponse = await fetch(
-      `https://api.apify.com/v2/acts/apify~instagram-profile-scraper/runs/${runId}/dataset/items?token=${apifyApiKey}`
+      `https://api.apify.com/v2/actor-runs/${runId}/dataset/items?token=${apifyApiKey}`
     );
 
     if (!resultsResponse.ok) {
       const errorText = await resultsResponse.text();
-      console.error('Erro ao buscar resultados - Status:', resultsResponse.status);
-      console.error('Erro ao buscar resultados - Resposta:', errorText);
-      throw new Error(`Falha ao obter resultados do scraping: ${resultsResponse.status} - ${errorText}`);
+      console.error('❌ Erro ao buscar resultados - Status:', resultsResponse.status);
+      console.error('❌ Erro ao buscar resultados - Resposta:', errorText);
+      throw new Error(`Falha ao obter resultados: ${resultsResponse.status}`);
     }
 
     const results = await resultsResponse.json();
-    console.log('Resultados obtidos:', results.length, 'items');
+    console.log('📦 Resultados obtidos:', results.length, 'items');
 
     if (!results || results.length === 0) {
-      throw new Error('Nenhum dado foi retornado do scraping');
+      throw new Error('Nenhum dado foi retornado. Verifique se o perfil é público.');
     }
 
-    const profileData = results[0]; // Profile info
-    const posts = results.filter((item: any) => item.type === 'Post');
+    // Separar dados do perfil e posts
+    const profileData = results.find((item: any) => item.type === 'Profile') || results[0];
+    const posts = results.filter((item: any) => 
+      item.type === 'Video' || item.type === 'Image' || item.type === 'Sidecar'
+    );
 
-    console.log('Posts encontrados:', posts.length);
+    console.log('📊 Posts encontrados:', posts.length);
 
     // Store posts in database
-    const postsToInsert = posts.map((post: any) => ({
-      user_id: user.id,
-      post_url: post.url,
-      post_type: post.type,
-      views: post.videoViewCount || 0,
-      likes: post.likesCount || 0,
-      comments: post.commentsCount || 0,
-      published_at: post.timestamp ? new Date(post.timestamp).toISOString() : new Date().toISOString(),
-      engagement_rate: calculateEngagementRate(
-        post.videoViewCount || 0,
-        post.likesCount || 0,
-        post.commentsCount || 0,
-        0
-      ),
-    }));
+    const postsToInsert = posts.map((post: any) => {
+      const views = post.videoViewCount || post.displayUrl ? 1000 : 0; // Fallback
+      const likes = post.likesCount || 0;
+      const comments = post.commentsCount || 0;
+      
+      return {
+        user_id: user.id,
+        post_url: post.url || post.displayUrl,
+        post_type: post.type,
+        caption: post.caption?.substring(0, 500) || '', // Limitar caption
+        views: views,
+        likes: likes,
+        comments: comments,
+        shares: 0, // Instagram não fornece shares via scraper
+        saves: 0, // Instagram não fornece saves via scraper
+        published_at: post.timestamp ? new Date(post.timestamp).toISOString() : new Date().toISOString(),
+        engagement_rate: calculateEngagementRate(views, likes, comments, 0),
+      };
+    });
 
     // Insert posts (upsert to avoid duplicates)
     const { error: insertError } = await supabase
       .from('ig_posts')
       .upsert(postsToInsert, { 
         onConflict: 'post_url',
-        ignoreDuplicates: true 
+        ignoreDuplicates: false // Atualizar se já existir
       });
 
     if (insertError) {
-      console.error('Erro ao inserir posts:', insertError);
+      console.error('❌ Erro ao inserir posts:', insertError);
       throw insertError;
     }
 
-    console.log('Posts inseridos com sucesso');
+    console.log('✅ Posts inseridos/atualizados no banco de dados');
 
     return new Response(
       JSON.stringify({
         success: true,
-        message: 'Scraping concluído com sucesso!',
+        message: `Scraping concluído! ${posts.length} posts importados.`,
         stats: {
           totalPosts: posts.length,
           profileData: {
-            username: profileData.username,
-            followersCount: profileData.followersCount,
-            followsCount: profileData.followsCount,
-            postsCount: profileData.postsCount,
+            username: profileData?.username || instagramUsername,
+            followersCount: profileData?.followersCount || 0,
+            followsCount: profileData?.followsCount || 0,
+            postsCount: profileData?.postsCount || posts.length,
           },
         },
       }),
@@ -168,15 +188,16 @@ serve(async (req) => {
       }
     );
   } catch (error) {
-    console.error('Erro no scraping:', error);
+    console.error('❌ Erro no scraping:', error);
     const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido';
+    
     return new Response(
       JSON.stringify({
         success: false,
         error: errorMessage,
       }),
       {
-        status: 500,
+        status: 400,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       }
     );

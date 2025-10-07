@@ -70,6 +70,7 @@ export type Database = {
       }
       ig_posts: {
         Row: {
+          caption: string | null
           comments: number | null
           engagement_rate: number | null
           id: string
@@ -84,6 +85,7 @@ export type Database = {
           views: number | null
         }
         Insert: {
+          caption?: string | null
           comments?: number | null
           engagement_rate?: number | null
           id?: string
@@ -98,6 +100,7 @@ export type Database = {
           views?: number | null
         }
         Update: {
+          caption?: string | null
           comments?: number | null
           engagement_rate?: number | null
           id?: string
