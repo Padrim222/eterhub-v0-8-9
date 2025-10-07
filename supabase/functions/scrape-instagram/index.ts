@@ -99,7 +99,10 @@ serve(async (req) => {
     );
 
     if (!resultsResponse.ok) {
-      throw new Error('Falha ao obter resultados do scraping');
+      const errorText = await resultsResponse.text();
+      console.error('Erro ao buscar resultados - Status:', resultsResponse.status);
+      console.error('Erro ao buscar resultados - Resposta:', errorText);
+      throw new Error(`Falha ao obter resultados do scraping: ${resultsResponse.status} - ${errorText}`);
     }
 
     const results = await resultsResponse.json();
