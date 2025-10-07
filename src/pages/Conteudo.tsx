@@ -57,75 +57,85 @@ const Conteudo = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="min-h-screen bg-black text-white">
       {/* Header */}
-      <header className="fixed top-0 left-0 right-0 z-50 backdrop-blur-md bg-background/80 border-b border-border/30 px-6 py-4">
+      <header className="border-b border-gray-800 px-8 py-4">
         <div className="flex items-center justify-between max-w-[1600px] mx-auto">
-          {/* Logo */}
           <div className="flex items-center gap-8">
             <img src={eterLogo} alt="ETER" className="h-10 w-auto" />
             <AppNavigation />
           </div>
 
-          {/* Right side */}
           <div className="flex items-center gap-3">
-            <Button variant="ghost" size="icon" className="rounded-full border border-border/40 hover:bg-muted/30">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="rounded-full border border-gray-700 hover:bg-gray-800"
+            >
               <Search className="w-5 h-5" />
             </Button>
-            <Button variant="ghost" size="icon" className="rounded-full border border-border/40 hover:bg-muted/30">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="rounded-full border border-gray-700 hover:bg-gray-800"
+            >
               <Bell className="w-5 h-5" />
             </Button>
-            <Avatar className="border-2 border-border/40">
-              <AvatarImage src={userProfile?.avatar_url} alt={userProfile?.nome} />
-              <AvatarFallback>{userProfile?.nome?.[0] || "U"}</AvatarFallback>
+            <Avatar className="border-2 border-gray-700 h-10 w-10">
+              <AvatarImage src={userProfile?.avatar_url || "/leader-default.png"} />
+              <AvatarFallback>{userProfile?.nome?.charAt(0) || 'U'}</AvatarFallback>
             </Avatar>
           </div>
         </div>
       </header>
 
       {/* Main Content */}
-      <main className="pt-24 px-6 pb-12 max-w-[1600px] mx-auto">
-        {/* Header Section */}
+      <main className="px-8 py-8 max-w-[1600px] mx-auto">
         <div className="mb-8">
-          <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center justify-between mb-8">
             <h1 className="text-5xl font-bold tracking-tight">Conteúdo</h1>
-            
-            <Button className="gap-2">
-              <Plus className="w-5 h-5" />
+            <Button className="bg-primary hover:bg-primary/90 text-black font-medium rounded-full px-6">
+              <Plus className="w-4 h-4 mr-2" />
               Novo Conteúdo
             </Button>
           </div>
-
-          {/* Filters and Search */}
-          <div className="flex items-center gap-4 mb-6">
+          
+          {/* Search and Filters */}
+          <div className="flex items-center justify-between mb-8">
             <div className="flex-1 max-w-md">
-              <Input
-                type="search"
-                placeholder="Buscar conteúdo..."
-                className="w-full"
-              />
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <Input
+                  placeholder="Buscar conteúdo..."
+                  className="pl-10 bg-black border-gray-700 rounded-full text-white placeholder:text-gray-500 focus:border-gray-600"
+                />
+              </div>
             </div>
 
-            <div className="flex items-center gap-2">
-              <Button variant="outline" size="sm" className="gap-2">
+            <div className="flex items-center gap-3">
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="gap-2 border border-gray-700 rounded-full hover:bg-gray-800"
+              >
                 <Filter className="w-4 h-4" />
                 Filtros
               </Button>
-
-              <div className="flex items-center gap-1 border border-border/40 rounded-md p-1">
+              
+              <div className="flex items-center gap-1 border border-gray-700 rounded-full p-1 bg-black">
                 <Button
                   variant={viewMode === "grid" ? "default" : "ghost"}
-                  size="icon"
-                  className="h-8 w-8"
+                  size="sm"
                   onClick={() => setViewMode("grid")}
+                  className={`px-3 rounded-full ${viewMode === "grid" ? "bg-gray-800" : ""}`}
                 >
                   <Grid3x3 className="w-4 h-4" />
                 </Button>
                 <Button
                   variant={viewMode === "list" ? "default" : "ghost"}
-                  size="icon"
-                  className="h-8 w-8"
+                  size="sm"
                   onClick={() => setViewMode("list")}
+                  className={`px-3 rounded-full ${viewMode === "list" ? "bg-primary text-black" : ""}`}
                 >
                   <List className="w-4 h-4" />
                 </Button>
@@ -138,23 +148,35 @@ const Conteudo = () => {
         </div>
 
         {/* Tabs and Content */}
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="bg-muted/50 backdrop-blur-sm border border-border/40">
-            <TabsTrigger value="todos" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-8">
+          <TabsList className="mb-6 bg-black border-b border-gray-800 rounded-none h-auto p-0 gap-8">
+            <TabsTrigger 
+              value="todos" 
+              className="data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none pb-4 px-0 text-white/60 hover:text-white"
+            >
               Todos ({posts.length})
             </TabsTrigger>
-            <TabsTrigger value="reels" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+            <TabsTrigger 
+              value="reels"
+              className="data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none pb-4 px-0 text-white/60 hover:text-white"
+            >
               Reels ({posts.filter(p => p.post_type?.toLowerCase().includes("reel")).length})
             </TabsTrigger>
-            <TabsTrigger value="posts" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+            <TabsTrigger 
+              value="posts"
+              className="data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none pb-4 px-0 text-white/60 hover:text-white"
+            >
               Posts ({posts.filter(p => !p.post_type?.toLowerCase().includes("reel") && !p.post_type?.toLowerCase().includes("story")).length})
             </TabsTrigger>
-            <TabsTrigger value="stories" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+            <TabsTrigger 
+              value="stories"
+              className="data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none pb-4 px-0 text-white/60 hover:text-white"
+            >
               Stories ({posts.filter(p => p.post_type?.toLowerCase().includes("story")).length})
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value={activeTab} className="space-y-6">
+          <TabsContent value={activeTab}>
             {viewMode === "grid" ? (
               <PostsGrid posts={filteredPosts} isLoading={isLoading} error={error} />
             ) : (

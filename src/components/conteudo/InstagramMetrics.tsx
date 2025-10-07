@@ -89,32 +89,29 @@ export const InstagramMetrics = ({ posts }: InstagramMetricsProps) => {
   }
 
   return (
-    <div className="mb-8 space-y-4">
-      <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold">Métricas do Instagram</h2>
-        <div className="text-sm text-muted-foreground">
-          Baseado em {totalPosts} {totalPosts === 1 ? 'post' : 'posts'}
-        </div>
+    <div className="mb-8">
+      <div className="flex items-center justify-between mb-6">
+        <h2 className="text-2xl font-bold text-white">Métricas do Instagram</h2>
+        <span className="text-sm text-gray-400">Baseado em {totalPosts} post{totalPosts !== 1 ? 's' : ''}</span>
       </div>
-
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {metrics.map((metric, index) => {
           const Icon = metric.icon;
           return (
             <Card
               key={index}
-              className="bg-gradient-to-br from-background to-muted/20 border-muted p-6 hover:shadow-md transition-all"
+              className="bg-black rounded-3xl p-6 border border-gray-800 hover:border-gray-700 transition-all"
             >
-              <div className="flex items-start justify-between mb-4">
-                <div className={`p-3 rounded-xl ${metric.bgColor}`}>
-                  <Icon className={`w-5 h-5 ${metric.color}`} />
+              <div className="flex items-center gap-3 mb-3">
+                <div className={`p-2 rounded-lg bg-gray-900 ${metric.color}`}>
+                  <Icon className="w-5 h-5" />
                 </div>
               </div>
               <div className="space-y-1">
-                <p className="text-sm text-muted-foreground">{metric.label}</p>
-                <p className="text-3xl font-bold tracking-tight">{metric.value}</p>
+                <p className="text-sm text-gray-400">{metric.label}</p>
+                <p className="text-2xl font-bold text-white">{metric.value}</p>
                 {metric.subtitle && (
-                  <p className="text-xs text-muted-foreground">{metric.subtitle}</p>
+                  <p className="text-xs text-gray-500">{metric.subtitle}</p>
                 )}
               </div>
             </Card>
