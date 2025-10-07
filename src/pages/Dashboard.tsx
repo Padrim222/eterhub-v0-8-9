@@ -21,6 +21,7 @@ import {
 } from "recharts";
 import leaderImage from "@/assets/leader-davi.png";
 import eterLogo from "@/assets/eter-logo.png";
+import { AppNavigation } from "@/components/layout/AppNavigation";
 
 const Dashboard = () => {
   const [expandedInfo, setExpandedInfo] = useState(false);
@@ -56,28 +57,10 @@ const Dashboard = () => {
       <header className="fixed top-0 left-0 right-0 z-50 backdrop-blur-md bg-background/80 border-b border-border/30 px-6 py-4">
         <div className="flex items-center justify-between max-w-[1600px] mx-auto">
           {/* Logo */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-8">
             <img src={eterLogo} alt="ETER" className="h-10 w-auto" />
+            <AppNavigation />
           </div>
-
-          {/* Navigation */}
-          <nav className="flex items-center gap-2">
-            <Button variant="outline" size="sm" className="rounded-full border-border/40 hover:bg-muted/30">
-              Overview
-            </Button>
-            <Button variant="ghost" size="sm" className="rounded-full text-muted-foreground hover:text-foreground">
-              Insights IA
-            </Button>
-            <Button variant="ghost" size="sm" className="rounded-full text-muted-foreground hover:text-foreground">
-              Educação
-            </Button>
-            <Button variant="ghost" size="sm" className="rounded-full text-muted-foreground hover:text-foreground">
-              Suporte
-            </Button>
-            <Button variant="ghost" size="sm" className="rounded-full text-muted-foreground hover:text-foreground">
-              Nuvem
-            </Button>
-          </nav>
 
           {/* Right side */}
           <div className="flex items-center gap-3">
