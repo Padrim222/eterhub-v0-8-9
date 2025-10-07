@@ -161,7 +161,7 @@ const Auth = () => {
           ? "Crie sua conta e comece a ter insights poderosos do seu Instagram" 
           : "Acesse sua conta e tenha insights poderosos do seu Instagram"
         }
-        heroImageSrc="https://www.instagram.com/reel/C_m7nRGxfGl/embed"
+        heroImageSrc="https://www.instagram.com/p/DOUffdoEfYF/embed"
         onSignIn={isSignUp ? handleSignUp : handleSignIn}
         onGoogleSignIn={handleGoogleSignIn} 
         onResetPassword={handleResetPassword} 
