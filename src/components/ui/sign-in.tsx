@@ -193,14 +193,13 @@ export const SignInPage: React.FC<SignInPageProps> = ({
       {/* Right column: hero video + testimonials */}
       {heroImageSrc && (
         <section className="hidden md:block flex-1 relative p-4">
-          <div className="absolute inset-4 rounded-3xl overflow-hidden bg-black">
+          <div className="absolute inset-4 rounded-3xl overflow-hidden bg-black shadow-2xl">
             <iframe
-              src="https://www.instagram.com/p/DOUffdoEfYF/embed"
+              src={heroImageSrc}
               className="w-full h-full"
               frameBorder="0"
-              scrolling="no"
-              allowTransparency={true}
-              allow="autoplay; encrypted-media"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
             ></iframe>
           </div>
           {testimonials.length > 0 && (
