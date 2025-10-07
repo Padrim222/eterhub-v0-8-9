@@ -1,68 +1,129 @@
-import { useState } from "react";
-import { Bell, ArrowUpRight, Search, Menu, ChevronDown, X, Instagram, Youtube } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Bell, ArrowUpRight, Search, Menu, ChevronDown, Instagram, Sparkles, Upload } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Progress } from "@/components/ui/progress";
+import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 import {
   BarChart,
   Bar,
   LineChart,
   Line,
-  PieChart,
-  Pie,
-  Cell,
   XAxis,
   YAxis,
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
+  Cell,
 } from "recharts";
 import leaderImage from "@/assets/leader-davi.png";
 import eterLogo from "@/assets/eter-logo.png";
 import { AppNavigation } from "@/components/layout/AppNavigation";
+import { FunnelVisualization } from "@/components/dashboard/FunnelVisualization";
+import { OnboardingModal } from "@/components/dashboard/OnboardingModal";
+import { calculateImovi, getImoviColor } from "@/utils/imoviCalculations";
 
 const Dashboard = () => {
   const [expandedInfo, setExpandedInfo] = useState(false);
+  const [showOnboarding, setShowOnboarding] = useState(false);
+  const [userProfile, setUserProfile] = useState<any>(null);
+  const navigate = useNavigate();
+  const { toast } = useToast();
 
-  // Chart data
+  // Check authentication and load user profile
+  useEffect(() => {
+    const checkAuth = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session) {
+        navigate("/");
+        return;
+      }
+
+      // Load user profile
+      const { data: profile, error } = await supabase
+        .from('users')
+        .select('*')
+        .eq('id', session.user.id)
+        .single();
+
+      if (error) {
+        console.error("Erro ao carregar perfil:", error);
+        return;
+      }
+
+      setUserProfile(profile);
+
+      // Show onboarding if no Instagram username
+      if (!profile?.instagram_username) {
+        setShowOnboarding(true);
+      }
+    };
+
+    checkAuth();
+
+    // Subscribe to auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_OUT' || !session) {
+        navigate("/");
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, [navigate]);
+
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    navigate("/");
+  };
+
+  // Sample data - será substituído por dados reais do Supabase
   const imoviData = [
-    { month: "Mai", value: 10, label: "Início" },
-    { month: "Jun", value: 20 },
-    { month: "Jul", value: 31 },
-    { month: "Ago", value: 64, highlighted: true },
+    { month: "Mai", value: 0 },
+    { month: "Jun", value: 2.1, label: "Início" },
+    { month: "Jul", value: 3.2 },
+    { month: "Ago", value: 6.4, highlighted: true },
     { month: "Set", value: 0 },
     { month: "Out", value: 0 },
     { month: "Nov", value: 0 },
     { month: "Dez", value: 0 },
   ];
 
-  const launchData = [
+  const movqlData = [
     { month: "Julho", leads: 200 },
     { month: "Agosto", leads: 350 },
     { month: "Setembro", leads: 640, highlighted: true },
-    { month: "Outubro", leads: 400 },
-    { month: "Novembro", leads: 300 },
+    { month: "Outubro", leads: 0 },
+    { month: "Novembro", leads: 0 },
   ];
 
-  const engagementData = [
-    { name: "Instagram", value: 70, color: "#38EE38" },
-    { name: "Youtube", value: 30, color: "#6B7280" },
-  ];
+  // Cálculo do IMOVI atual
+  const currentImovi = calculateImovi({
+    views: 5000,
+    retention: 65,
+    interactions: 450,
+    movql: 35
+  });
 
   return (
     <div className="min-h-screen bg-background text-foreground">
+      <OnboardingModal 
+        isOpen={showOnboarding} 
+        onComplete={() => setShowOnboarding(false)}
+      />
+
       {/* Header */}
       <header className="fixed top-0 left-0 right-0 z-50 backdrop-blur-md bg-background/80 border-b border-border/30 px-6 py-4">
         <div className="flex items-center justify-between max-w-[1600px] mx-auto">
-          {/* Logo */}
           <div className="flex items-center gap-8">
             <img src={eterLogo} alt="ETER" className="h-10 w-auto" />
             <AppNavigation />
           </div>
 
-          {/* Right side */}
           <div className="flex items-center gap-3">
             <Button variant="ghost" size="icon" className="rounded-full border border-border/40 hover:bg-muted/30">
               <Search className="w-5 h-5" />
@@ -70,9 +131,16 @@ const Dashboard = () => {
             <Button variant="ghost" size="icon" className="rounded-full border border-border/40 hover:bg-muted/30">
               <Bell className="w-5 h-5" />
             </Button>
+            <Button
+              variant="ghost"
+              onClick={handleSignOut}
+              className="text-sm text-muted-foreground hover:text-foreground"
+            >
+              Sair
+            </Button>
             <Avatar className="border-2 border-border/40">
               <AvatarImage src="/placeholder.svg" />
-              <AvatarFallback>U</AvatarFallback>
+              <AvatarFallback>{userProfile?.nome?.charAt(0) || 'U'}</AvatarFallback>
             </Avatar>
           </div>
         </div>
@@ -80,12 +148,10 @@ const Dashboard = () => {
 
       {/* Main Content */}
       <main className="pt-24 px-6 pb-12 max-w-[1600px] mx-auto">
-        {/* Dashboard Title Section */}
         <div className="mb-10">
           <h1 className="text-5xl font-bold mb-8 tracking-tight">Dashboard</h1>
           
           <div className="flex items-center justify-between">
-            {/* Tabs */}
             <div className="flex items-center gap-8">
               <button className="pb-3 border-b-2 border-primary font-semibold text-foreground">
                 Todos
@@ -99,19 +165,9 @@ const Dashboard = () => {
               <button className="pb-3 text-muted-foreground hover:text-foreground transition-colors">
                 Conversão
               </button>
-              <button className="pb-3 text-muted-foreground hover:text-foreground transition-colors">
-                Webinarios
-              </button>
             </div>
 
-            {/* Filters */}
             <div className="flex items-center gap-2">
-              <Button variant="secondary" size="sm" className="rounded-full border-border/40 font-medium">
-                Semanal <X className="w-4 h-4 ml-2" />
-              </Button>
-              <Button variant="secondary" size="sm" className="rounded-full border-border/40 font-medium">
-                Última 1 hora <X className="w-4 h-4 ml-2" />
-              </Button>
               <Button variant="ghost" size="icon" className="rounded-full border border-border/40 hover:bg-muted/30">
                 <Menu className="w-5 h-5" />
               </Button>
@@ -119,44 +175,11 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* Grid Layout */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
-          {/* Receita Total Card */}
-          <Card className="backdrop-blur-md bg-card/80 p-6 rounded-[20px] hover:scale-[1.01] transition-all duration-300 border-border/50 shadow-sm hover:bg-card/90">
-            <div className="flex items-start justify-between mb-4">
-              <h3 className="text-base font-semibold text-card-foreground">Receita Total</h3>
-              <div className="flex items-center gap-1">
-                <Button variant="ghost" size="icon" className="h-7 w-7 hover:bg-card-foreground/5">
-                  <Bell className="w-4 h-4 text-card-foreground/60" />
-                </Button>
-                <Button variant="ghost" size="icon" className="h-7 w-7 hover:bg-card-foreground/5">
-                  <ArrowUpRight className="w-4 h-4 text-card-foreground/60" />
-                </Button>
-              </div>
-            </div>
-            
-            <div className="mb-3">
-              <span className="text-sm text-muted-foreground">R$ </span>
-              <span className="text-5xl font-bold text-foreground tracking-tight">320.0K</span>
-            </div>
-            
-            <div className="flex items-center justify-between mb-3">
-              <span className="text-xs text-card-foreground/50 font-medium">Meta: 500k</span>
-            </div>
-            
-            <div className="relative h-6 bg-card-foreground/10 rounded-full overflow-hidden">
-              <div 
-                className="absolute inset-y-0 left-0 bg-primary rounded-full"
-                style={{
-                  width: '64%',
-                  backgroundImage: 'repeating-linear-gradient(45deg, transparent, transparent 8px, rgba(0,0,0,0.15) 8px, rgba(0,0,0,0.15) 16px)'
-                }}
-              />
-            </div>
-          </Card>
-
+        {/* Grid Layout - Top Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
+          
           {/* Conversão & Funil Card */}
-          <Card className="backdrop-blur-md bg-card/80 p-6 rounded-[20px] hover:scale-[1.01] transition-all duration-300 border-border/50 shadow-sm hover:bg-card/90">
+          <Card className="backdrop-blur-md bg-card/90 p-6 rounded-3xl border-2 border-border/40 shadow-lg">
             <div className="flex items-start justify-between mb-4">
               <h3 className="text-base font-semibold text-card-foreground leading-tight">Conversão<br/>& Funil</h3>
               <div className="flex items-center gap-1">
@@ -169,88 +192,59 @@ const Dashboard = () => {
               </div>
             </div>
             
-            <div className="flex items-center gap-4 mb-4">
-              <div>
-                <div className="text-3xl font-bold text-card-foreground">36</div>
-                <div className="text-xs text-card-foreground/60 leading-tight">Campanhas<br/>ativas totais</div>
+            <FunnelVisualization 
+              attention={0}
+              retention={0}
+              engagement={0}
+              conversion={0}
+              movqlScore={0}
+            />
+            
+            {!userProfile?.instagram_username && (
+              <div className="mt-4 p-3 bg-primary/10 border border-primary/30 rounded-xl text-xs text-center">
+                ⚠️ Configure seu @ do Instagram para ver métricas
               </div>
-              
-              <div className="flex-1 flex items-center gap-2">
-                <div className="relative h-32 w-24">
-                  <div 
-                    className="absolute bottom-0 left-0 right-0 bg-primary rounded-t-xl"
-                    style={{ 
-                      height: '60%',
-                      backgroundImage: 'repeating-linear-gradient(0deg, transparent, transparent 4px, rgba(0,0,0,0.1) 4px, rgba(0,0,0,0.1) 8px)'
-                    }}
-                  >
-                    <div className="absolute -top-6 left-1/2 -translate-x-1/2 bg-primary text-black text-xs font-bold px-2 py-1 rounded">
-                      +35%
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="w-16 h-16 rounded-full bg-secondary flex items-center justify-center">
-                  <div className="text-xs text-foreground font-semibold text-center">~40%<br/>ROI</div>
-                </div>
-              </div>
-            </div>
+            )}
           </Card>
 
-          {/* Engajamento das Redes Card */}
-          <Card className="backdrop-blur-md bg-card-dark/80 p-6 rounded-[20px] hover:scale-[1.01] transition-all duration-300 border-border/20 shadow-sm hover:bg-card-dark/90">
+          {/* Instagram Engagement */}
+          <Card className="backdrop-blur-md bg-card-dark/90 p-6 rounded-3xl border-2 border-border/20 shadow-lg">
             <div className="flex items-start justify-between mb-4">
               <div className="flex items-center gap-2">
                 <Instagram className="w-5 h-5 text-primary" />
-                <h3 className="text-base font-semibold text-card-dark-foreground leading-tight">Engajamento<br/>Instagram</h3>
+                <h3 className="text-base font-semibold text-card-dark-foreground">Instagram</h3>
               </div>
               <div className="flex items-center gap-1">
-                <Button variant="ghost" size="icon" className="h-7 w-7 hover:bg-white/5">
-                  <Bell className="w-4 h-4 text-white/60" />
-                </Button>
                 <Button variant="ghost" size="icon" className="h-7 w-7 hover:bg-white/5">
                   <ArrowUpRight className="w-4 h-4 text-white/60" />
                 </Button>
               </div>
             </div>
             
-            <div className="flex items-center justify-center mb-4">
-              <ResponsiveContainer width="100%" height={120}>
-                <PieChart>
-                  <Pie
-                    data={engagementData}
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={35}
-                    outerRadius={55}
-                    paddingAngle={0}
-                    dataKey="value"
-                    strokeWidth={0}
-                  >
-                    {engagementData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
-                    ))}
-                  </Pie>
-                </PieChart>
-              </ResponsiveContainer>
-            </div>
-            
-            <div className="space-y-2.5">
-              <div className="flex items-center gap-2.5">
-                <Instagram className="w-4 h-4 text-primary" />
-                <span className="text-sm text-card-dark-foreground font-medium">Instagram: 70%</span>
+            <div className="mb-2">
+              <div className="text-sm text-muted-foreground mb-1">
+                {userProfile?.instagram_username ? `@${userProfile.instagram_username}` : 'Não configurado'}
               </div>
-              <div className="flex items-center gap-2.5">
-                <Youtube className="w-4 h-4 text-muted" />
-                <span className="text-sm text-card-dark-foreground/60 font-medium">Youtube: 30%</span>
+              <div className="text-3xl font-bold text-primary">0</div>
+              <div className="text-xs text-muted-foreground">Posts analisados</div>
+            </div>
+
+            <div className="mt-4 space-y-2">
+              <div className="flex justify-between text-sm">
+                <span className="text-muted-foreground">Engajamento:</span>
+                <span className="text-card-dark-foreground font-semibold">—</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-muted-foreground">Alcance:</span>
+                <span className="text-card-dark-foreground font-semibold">—</span>
               </div>
             </div>
           </Card>
 
-          {/* Lançamentos Card */}
-          <Card className="backdrop-blur-md bg-card-dark/80 p-6 rounded-[20px] hover:scale-[1.01] transition-all duration-300 border-border/20 shadow-sm hover:bg-card-dark/90">
+          {/* MOVQL Card */}
+          <Card className="backdrop-blur-md bg-card-dark/90 p-6 rounded-3xl border-2 border-border/20 shadow-lg">
             <div className="flex items-start justify-between mb-4">
-              <h3 className="text-base font-semibold text-card-dark-foreground">Lançamentos</h3>
+              <h3 className="text-base font-semibold text-card-dark-foreground">MOVQL</h3>
               <div className="flex items-center gap-1">
                 <Button variant="ghost" size="icon" className="h-7 w-7 hover:bg-white/5">
                   <Bell className="w-4 h-4 text-white/60" />
@@ -262,43 +256,35 @@ const Dashboard = () => {
             </div>
             
             <div className="mb-2">
-              <span className="text-3xl font-bold text-primary">640 </span>
+              <span className="text-4xl font-bold text-primary">640 </span>
               <span className="text-xs text-muted-foreground">Leads</span>
             </div>
             
             <ResponsiveContainer width="100%" height={100}>
-              <LineChart data={launchData}>
+              <LineChart data={movqlData}>
                 <Line 
                   type="monotone" 
                   dataKey="leads" 
-                  stroke="#38EE38" 
+                  stroke="hsl(var(--primary))" 
                   strokeWidth={2}
-                  dot={{ fill: '#38EE38', r: 4 }}
+                  dot={{ fill: 'hsl(var(--primary))', r: 4 }}
                 />
               </LineChart>
             </ResponsiveContainer>
             
             <div className="flex items-center justify-between text-xs text-muted-foreground mt-2">
-              {launchData.map((item, idx) => (
-                <span key={idx} className={item.highlighted ? "text-primary font-bold bg-primary/10 border border-primary rounded px-2 py-0.5" : ""}>
-                  {item.month}
+              {movqlData.map((item, idx) => (
+                <span key={idx} className={item.highlighted ? "text-primary font-bold" : ""}>
+                  {item.month.substring(0, 3)}
                 </span>
               ))}
             </div>
-            
-            <button 
-              onClick={() => setExpandedInfo(!expandedInfo)}
-              className="mt-4 text-sm text-muted-foreground hover:text-foreground flex items-center gap-2 transition-colors"
-            >
-              Mais Informações
-              <ChevronDown className={`w-4 h-4 transition-transform ${expandedInfo ? 'rotate-180' : ''}`} />
-            </button>
           </Card>
         </div>
 
         {/* IMOVI Card - Large */}
         <div className="mb-6">
-          <Card className="backdrop-blur-md bg-card/80 p-8 rounded-[20px] hover:scale-[1.005] transition-all duration-300 border-border/50 shadow-sm hover:bg-card/90">
+          <Card className="backdrop-blur-md bg-card/90 p-8 rounded-3xl border-2 border-border/40 shadow-lg">
             <div className="flex items-start justify-between mb-6">
               <div>
                 <h2 className="text-2xl font-bold text-card-foreground mb-1">IMOVI</h2>
@@ -312,9 +298,6 @@ const Dashboard = () => {
                 <Button variant="ghost" size="icon" className="hover:bg-card-foreground/5">
                   <ArrowUpRight className="w-5 h-5 text-card-foreground/60" />
                 </Button>
-                <Button variant="ghost" size="icon" className="hover:bg-card-foreground/5">
-                  <Bell className="w-5 h-5 text-card-foreground/60" />
-                </Button>
               </div>
             </div>
             
@@ -322,17 +305,23 @@ const Dashboard = () => {
               <div className="lg:col-span-2">
                 <ResponsiveContainer width="100%" height={280}>
                   <BarChart data={imoviData}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#e0e0e0" />
-                    <XAxis dataKey="month" stroke="#666" fontSize={12} />
-                    <YAxis stroke="#666" fontSize={12} />
+                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.3} />
+                    <XAxis dataKey="month" stroke="hsl(var(--muted-foreground))" fontSize={12} />
+                    <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} domain={[0, 10]} />
+                    <Tooltip 
+                      contentStyle={{ 
+                        backgroundColor: 'hsl(var(--card-dark))',
+                        border: '1px solid hsl(var(--border))',
+                        borderRadius: '12px'
+                      }}
+                    />
                     <Bar dataKey="value" radius={[12, 12, 0, 0]}>
                       {imoviData.map((entry, index) => (
                         <Cell 
                           key={`cell-${index}`} 
-                          fill={entry.highlighted ? "#38EE38" : entry.value > 0 ? "#d0d0d0" : "#f0f0f0"}
-                          style={{
-                            backgroundImage: entry.value > 0 ? 'repeating-linear-gradient(0deg, transparent, transparent 4px, rgba(0,0,0,0.05) 4px, rgba(0,0,0,0.05) 8px)' : 'none'
-                          }}
+                          fill={entry.highlighted 
+                            ? getImoviColor(entry.value) 
+                            : entry.value > 0 ? 'hsl(var(--muted))' : 'hsl(var(--card))'}
                         />
                       ))}
                     </Bar>
@@ -340,22 +329,27 @@ const Dashboard = () => {
                 </ResponsiveContainer>
               </div>
               
-              <div className="flex flex-col justify-center items-center bg-background rounded-2xl p-6 border border-border/30">
+              <div className="flex flex-col justify-center items-center bg-card-dark rounded-3xl p-6 border-2 border-border/30">
                 <div className="text-xs text-muted-foreground mb-2 font-medium tracking-wide">ÍNDICE IMOVI</div>
-                <div className="text-7xl font-bold text-card-foreground mb-6">64</div>
+                <div 
+                  className="text-7xl font-bold mb-2"
+                  style={{ color: currentImovi.color }}
+                >
+                  {currentImovi.score.toFixed(1)}
+                </div>
+                <div 
+                  className="text-sm font-bold mb-6 px-4 py-1 rounded-full"
+                  style={{ 
+                    backgroundColor: `${currentImovi.color}20`,
+                    color: currentImovi.color
+                  }}
+                >
+                  {currentImovi.level}
+                </div>
                 
                 <div className="space-y-2 w-full">
-                  <div className="bg-primary text-primary-foreground text-sm font-semibold px-3 py-2 rounded-full flex items-center justify-between">
-                    <span>55% Growth</span>
-                    <ArrowUpRight className="w-4 h-4" />
-                  </div>
-                  <div className="bg-primary/80 text-primary-foreground text-sm font-semibold px-3 py-2 rounded-full flex items-center justify-between">
-                    <span>35% Leads</span>
-                    <ArrowUpRight className="w-4 h-4" />
-                  </div>
-                  <div className="bg-primary/60 text-primary-foreground text-sm font-semibold px-3 py-2 rounded-full flex items-center justify-between">
-                    <span>40% Engage</span>
-                    <ArrowUpRight className="w-4 h-4" />
+                  <div className="text-xs text-muted-foreground mb-3 text-center">
+                    Escala: 0-3 RUIM | 3-5 OK | 5-8 BOM | 8-10 MUITO BOM
                   </div>
                 </div>
               </div>
@@ -366,91 +360,42 @@ const Dashboard = () => {
         {/* Bottom Section */}
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
           {/* Insights IA Card */}
-          <Card className="lg:col-span-3 backdrop-blur-md bg-card-dark/80 p-8 rounded-[20px] border-border/20 shadow-sm hover:bg-card-dark/90 transition-colors">
+          <Card className="lg:col-span-3 backdrop-blur-md bg-card-dark/90 p-8 rounded-3xl border-2 border-border/20 shadow-lg">
             <div className="flex items-start justify-between mb-6">
               <div>
                 <h2 className="text-2xl font-bold text-card-dark-foreground mb-1">Insights IA</h2>
                 <p className="text-sm text-muted-foreground font-medium">Impulsione seu Movimento com nossa IA</p>
               </div>
               
-              <Button variant="ghost" className="text-muted-foreground hover:text-foreground">
-                Lista Completa <ArrowUpRight className="w-4 h-4 ml-2" />
+              <Button className="bg-primary hover:bg-primary/90 text-primary-foreground">
+                <Sparkles className="w-4 h-4 mr-2" />
+                Gerar Insights
               </Button>
             </div>
             
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead>
-                  <tr className="border-b border-border">
-                    <th className="text-left py-3 px-4 text-sm font-semibold text-muted-foreground w-12"></th>
-                    <th className="text-left py-3 px-4 text-sm font-semibold text-muted-foreground">Nome</th>
-                    <th className="text-left py-3 px-4 text-sm font-semibold text-muted-foreground">Data</th>
-                    <th className="text-left py-3 px-4 text-sm font-semibold text-muted-foreground">Priority</th>
-                    <th className="text-left py-3 px-4 text-sm font-semibold text-muted-foreground">Anexo</th>
-                    <th className="text-left py-3 px-4 text-sm font-semibold text-muted-foreground">Parceiro</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr className="border-b border-border hover:bg-muted/5 transition-colors">
-                    <td className="py-4 px-4">
-                      <Checkbox checked />
-                    </td>
-                    <td className="py-4 px-4 text-card-dark-foreground">Melhore seu ROI com...</td>
-                    <td className="py-4 px-4 text-muted-foreground">06,Setembro, 2025</td>
-                    <td className="py-4 px-4">
-                      <span className="bg-primary text-primary-foreground text-xs font-semibold px-3 py-1 rounded-full">
-                        Alta
-                      </span>
-                    </td>
-                    <td className="py-4 px-4">
-                      <div className="w-8 h-8 bg-muted rounded flex items-center justify-center">
-                        📄
-                      </div>
-                    </td>
-                    <td className="py-4 px-4">
-                      <Avatar className="w-8 h-8">
-                        <AvatarFallback>DR</AvatarFallback>
-                      </Avatar>
-                    </td>
-                  </tr>
-                  
-                  <tr className="hover:bg-muted/5 transition-colors">
-                    <td className="py-4 px-4">
-                      <Checkbox />
-                    </td>
-                    <td className="py-4 px-4 text-card-dark-foreground">Eleve seu IMOVI através...</td>
-                    <td className="py-4 px-4 text-muted-foreground">09,Setembro, 2025</td>
-                    <td className="py-4 px-4">
-                      <span className="bg-yellow-500 text-black text-xs font-semibold px-3 py-1 rounded-full">
-                        Média
-                      </span>
-                    </td>
-                    <td className="py-4 px-4">
-                      <div className="w-8 h-8 bg-muted rounded flex items-center justify-center">
-                        📄
-                      </div>
-                    </td>
-                    <td className="py-4 px-4">
-                      <Avatar className="w-8 h-8">
-                        <AvatarFallback>DR</AvatarFallback>
-                      </Avatar>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
+            <div className="text-center py-12">
+              <Sparkles className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+              <p className="text-muted-foreground">
+                Nenhum insight gerado ainda. Clique em "Gerar Insights" para obter recomendações personalizadas.
+              </p>
             </div>
           </Card>
 
-          {/* Líder Sobre Card */}
-          <Card className="backdrop-blur-md bg-card-dark/80 rounded-[20px] overflow-hidden hover:scale-[1.02] transition-transform hover:bg-card-dark/90">
+          {/* Líder Card */}
+          <Card className="backdrop-blur-md bg-card-dark/90 rounded-3xl overflow-hidden border-2 border-border/20 shadow-lg hover:scale-[1.02] transition-transform">
             <div className="p-6">
               <h3 className="text-xl font-bold text-card-dark-foreground mb-1">Líder</h3>
-              <p className="text-sm text-card-dark-foreground">Davi Ribas</p>
+              <p className="text-sm text-card-dark-foreground mb-4">Davi Ribas</p>
+              
+              <Button variant="outline" size="sm" className="w-full border-border/40">
+                <Upload className="w-4 h-4 mr-2" />
+                Alterar Foto
+              </Button>
             </div>
             <div className="relative aspect-[3/4]">
               <img 
                 src={leaderImage} 
-                alt="Davi Ribas apresentando" 
+                alt="Líder do Movimento" 
                 className="w-full h-full object-cover"
               />
             </div>
