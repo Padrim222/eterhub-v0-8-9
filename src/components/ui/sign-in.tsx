@@ -190,33 +190,16 @@ export const SignInPage: React.FC<SignInPageProps> = ({
         </div>
       </section>
 
-      {/* Right column: hero video + testimonials */}
+      {/* Right column: hero image/gradient */}
       {heroImageSrc && (
         <section className="hidden md:block flex-1 relative p-4">
-          <div className="absolute inset-4 rounded-3xl overflow-hidden bg-black shadow-2xl">
-            <iframe
+          <div className="absolute inset-4 rounded-3xl overflow-hidden bg-gradient-to-br from-primary/20 via-primary/10 to-background shadow-2xl">
+            <img
               src={heroImageSrc}
-              className="w-full h-full"
-              frameBorder="0"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-            ></iframe>
+              className="w-full h-full object-cover opacity-50"
+              alt="Hero"
+            />
           </div>
-          {testimonials.length > 0 && (
-            <div className="absolute bottom-4 md:bottom-8 left-1/2 -translate-x-1/2 flex gap-3 md:gap-4 px-4 md:px-8 w-full justify-center overflow-x-auto">
-              <TestimonialCard testimonial={testimonials[0]} delay="" />
-              {testimonials[1] && (
-                <div className="hidden xl:flex">
-                  <TestimonialCard testimonial={testimonials[1]} delay="" />
-                </div>
-              )}
-              {testimonials[2] && (
-                <div className="hidden 2xl:flex">
-                  <TestimonialCard testimonial={testimonials[2]} delay="" />
-                </div>
-              )}
-            </div>
-          )}
         </section>
       )}
     </div>

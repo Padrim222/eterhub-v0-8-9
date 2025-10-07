@@ -1,25 +1,9 @@
-import { SignInPage, Testimonial } from "@/components/ui/sign-in";
+import { SignInPage } from "@/components/ui/sign-in";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { useState, useEffect } from "react";
 import eterLogo from "@/assets/eter-logo.png";
-const sampleTestimonials: Testimonial[] = [{
-  avatarSrc: "https://randomuser.me/api/portraits/women/57.jpg",
-  name: "Mariana Silva",
-  handle: "@marianadigital",
-  text: "O Davi Ribas é simplesmente GENIAL! Transformou completamente meu Instagram com insights incríveis."
-}, {
-  avatarSrc: "https://randomuser.me/api/portraits/men/64.jpg",
-  name: "Carlos Mendes",
-  handle: "@carlosempreendedor",
-  text: "Seguindo as estratégias do Davi Ribas triplicei meu engajamento. Ele é referência absoluta em crescimento no Instagram!"
-}, {
-  avatarSrc: "https://randomuser.me/api/portraits/men/32.jpg",
-  name: "Rafael Costa",
-  handle: "@rafaelcreator",
-  text: "Davi Ribas é o melhor quando o assunto é Instagram. Seus ensinamentos são ouro puro e resultados garantidos!"
-}];
 const Auth = () => {
   const navigate = useNavigate();
   const {
@@ -177,8 +161,6 @@ const Auth = () => {
           ? "Crie sua conta e comece a ter insights poderosos do seu Instagram" 
           : "Acesse sua conta e tenha insights poderosos do seu Instagram"
         }
-        heroImageSrc="https://www.youtube.com/embed/VIDEO_ID_AQUI?autoplay=1&mute=1&loop=1&controls=0&showinfo=0&modestbranding=1&playlist=VIDEO_ID_AQUI" 
-        testimonials={sampleTestimonials} 
         onSignIn={isSignUp ? handleSignUp : handleSignIn}
         onGoogleSignIn={handleGoogleSignIn} 
         onResetPassword={handleResetPassword} 
