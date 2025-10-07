@@ -55,8 +55,8 @@ const TestimonialCard = ({ testimonial, delay }: { testimonial: Testimonial, del
 // --- MAIN COMPONENT ---
 
 export const SignInPage: React.FC<SignInPageProps> = ({
-  title = <span className="font-light text-foreground tracking-tighter">Welcome</span>,
-  description = "Access your account and continue your journey with us",
+  title = <span className="font-light text-foreground tracking-tighter">Bem-vindo</span>,
+  description = "Acesse sua conta e continue sua jornada conosco",
   heroImageSrc,
   logoSrc,
   testimonials = [],
@@ -84,12 +84,12 @@ export const SignInPage: React.FC<SignInPageProps> = ({
 
             <form className="space-y-5" onSubmit={onSignIn}>
               <div>
-                <label className="text-sm font-medium text-muted-foreground">Email Address</label>
+                <label className="text-sm font-medium text-muted-foreground">Endereço de Email</label>
                 <GlassInputWrapper>
                   <input 
                     name="email" 
                     type="email" 
-                    placeholder="Enter your email address" 
+                    placeholder="Digite seu endereço de email" 
                     className="w-full bg-transparent text-sm p-4 rounded-2xl focus:outline-none" 
                     required
                   />
@@ -97,13 +97,13 @@ export const SignInPage: React.FC<SignInPageProps> = ({
               </div>
 
               <div>
-                <label className="text-sm font-medium text-muted-foreground">Password</label>
+                <label className="text-sm font-medium text-muted-foreground">Senha</label>
                 <GlassInputWrapper>
                   <div className="relative">
                     <input 
                       name="password" 
                       type={showPassword ? 'text' : 'password'} 
-                      placeholder="Enter your password" 
+                      placeholder="Digite sua senha" 
                       className="w-full bg-transparent text-sm p-4 pr-12 rounded-2xl focus:outline-none" 
                       required
                     />
@@ -125,14 +125,14 @@ export const SignInPage: React.FC<SignInPageProps> = ({
               <div className="flex items-center justify-between text-sm">
                 <label className="flex items-center gap-3 cursor-pointer">
                   <input type="checkbox" name="rememberMe" className="h-4 w-4 rounded border-border" />
-                  <span className="text-foreground/90">Keep me signed in</span>
+                  <span className="text-foreground/90">Manter-me conectado</span>
                 </label>
                 <a 
                   href="#" 
                   onClick={(e) => { e.preventDefault(); onResetPassword?.(); }} 
                   className="hover:underline text-primary transition-colors"
                 >
-                  Reset password
+                  Redefinir senha
                 </a>
               </div>
 
@@ -140,13 +140,13 @@ export const SignInPage: React.FC<SignInPageProps> = ({
                 type="submit" 
                 className="w-full rounded-2xl bg-primary py-4 font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
               >
-                Sign In
+                Entrar
               </button>
             </form>
 
             <div className="relative flex items-center justify-center">
               <span className="w-full border-t border-border"></span>
-              <span className="px-4 text-sm text-muted-foreground bg-background absolute">Or continue with</span>
+              <span className="px-4 text-sm text-muted-foreground bg-background absolute">Ou continue com</span>
             </div>
 
             <button 
@@ -154,17 +154,17 @@ export const SignInPage: React.FC<SignInPageProps> = ({
               className="w-full flex items-center justify-center gap-3 border border-border rounded-2xl py-4 hover:bg-secondary transition-colors"
             >
               <GoogleIcon />
-              Continue with Google
+              Continuar com Google
             </button>
 
             <p className="text-center text-sm text-muted-foreground">
-              New to our platform?{' '}
+              Novo em nossa plataforma?{' '}
               <a 
                 href="#" 
                 onClick={(e) => { e.preventDefault(); onCreateAccount?.(); }} 
                 className="text-primary hover:underline transition-colors"
               >
-                Create Account
+                Criar Conta
               </a>
             </p>
           </div>
@@ -181,7 +181,7 @@ export const SignInPage: React.FC<SignInPageProps> = ({
               frameBorder="0"
               scrolling="no"
               allowTransparency={true}
-              allow="encrypted-media"
+              allow="autoplay; encrypted-media"
             ></iframe>
           </div>
           {testimonials.length > 0 && (

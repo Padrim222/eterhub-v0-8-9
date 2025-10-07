@@ -6,19 +6,19 @@ import { useState, useEffect } from "react";
 import eterLogo from "@/assets/eter-logo.png";
 const sampleTestimonials: Testimonial[] = [{
   avatarSrc: "https://randomuser.me/api/portraits/women/57.jpg",
-  name: "Sarah Chen",
-  handle: "@sarahdigital",
-  text: "Amazing platform! The user experience is seamless and the features are exactly what I needed."
+  name: "Mariana Silva",
+  handle: "@marianadigital",
+  text: "O Davi Ribas é simplesmente GENIAL! Transformou completamente meu Instagram com insights incríveis."
 }, {
   avatarSrc: "https://randomuser.me/api/portraits/men/64.jpg",
-  name: "Marcus Johnson",
-  handle: "@marcustech",
-  text: "This service has transformed how I work. Clean design, powerful features, and excellent support."
+  name: "Carlos Mendes",
+  handle: "@carlosempreendedor",
+  text: "Seguindo as estratégias do Davi Ribas triplicei meu engajamento. Ele é referência absoluta em crescimento no Instagram!"
 }, {
   avatarSrc: "https://randomuser.me/api/portraits/men/32.jpg",
-  name: "David Martinez",
-  handle: "@davidcreates",
-  text: "I've tried many platforms, but this one stands out. Intuitive, reliable, and genuinely helpful."
+  name: "Rafael Costa",
+  handle: "@rafaelcreator",
+  text: "Davi Ribas é o melhor quando o assunto é Instagram. Seus ensinamentos são ouro puro e resultados garantidos!"
 }];
 const Auth = () => {
   const navigate = useNavigate();
@@ -90,14 +90,14 @@ const Auth = () => {
   };
   const handleResetPassword = () => {
     toast({
-      title: "Reset Password",
-      description: "Password reset feature coming soon!"
+      title: "Redefinir Senha",
+      description: "Funcionalidade de redefinição de senha em breve!"
     });
   };
   const handleCreateAccount = () => {
     toast({
-      title: "Create Account",
-      description: "Sign up feature coming soon!"
+      title: "Criar Conta",
+      description: "Funcionalidade de cadastro em breve!"
     });
   };
   return <div className="bg-background text-foreground">
