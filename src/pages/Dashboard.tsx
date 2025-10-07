@@ -20,6 +20,7 @@ import { IMOVICard } from "@/components/dashboard/IMOVICard";
 import { LancamentosCard } from "@/components/dashboard/LancamentosCard";
 import { InsightsIACard } from "@/components/dashboard/InsightsIACard";
 import { LeaderCard } from "@/components/dashboard/LeaderCard";
+import { ScrapingCard } from "@/components/dashboard/ScrapingCard";
 
 const Dashboard = () => {
   const [showOnboarding, setShowOnboarding] = useState(false);
@@ -196,8 +197,9 @@ const Dashboard = () => {
               </div>
             </div>
 
-            {/* Grid Row 1: 3 Cards */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+            {/* Grid Row 1: 4 Cards - Scraping + 3 Cards principais */}
+            <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-6">
+              <ScrapingCard />
               <ReceitaTotalCard />
               <ConversaoFunilCard />
               <EngajamentoRedesCard />
