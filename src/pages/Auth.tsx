@@ -4,129 +4,106 @@ import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { useState, useEffect } from "react";
 import eterLogo from "@/assets/eter-logo.png";
-
-const sampleTestimonials: Testimonial[] = [
-  {
-    avatarSrc: "https://randomuser.me/api/portraits/women/57.jpg",
-    name: "Sarah Chen",
-    handle: "@sarahdigital",
-    text: "Amazing platform! The user experience is seamless and the features are exactly what I needed."
-  },
-  {
-    avatarSrc: "https://randomuser.me/api/portraits/men/64.jpg",
-    name: "Marcus Johnson",
-    handle: "@marcustech",
-    text: "This service has transformed how I work. Clean design, powerful features, and excellent support."
-  },
-  {
-    avatarSrc: "https://randomuser.me/api/portraits/men/32.jpg",
-    name: "David Martinez",
-    handle: "@davidcreates",
-    text: "I've tried many platforms, but this one stands out. Intuitive, reliable, and genuinely helpful."
-  },
-];
-
+const sampleTestimonials: Testimonial[] = [{
+  avatarSrc: "https://randomuser.me/api/portraits/women/57.jpg",
+  name: "Sarah Chen",
+  handle: "@sarahdigital",
+  text: "Amazing platform! The user experience is seamless and the features are exactly what I needed."
+}, {
+  avatarSrc: "https://randomuser.me/api/portraits/men/64.jpg",
+  name: "Marcus Johnson",
+  handle: "@marcustech",
+  text: "This service has transformed how I work. Clean design, powerful features, and excellent support."
+}, {
+  avatarSrc: "https://randomuser.me/api/portraits/men/32.jpg",
+  name: "David Martinez",
+  handle: "@davidcreates",
+  text: "I've tried many platforms, but this one stands out. Intuitive, reliable, and genuinely helpful."
+}];
 const Auth = () => {
   const navigate = useNavigate();
-  const { toast } = useToast();
+  const {
+    toast
+  } = useToast();
   const [loading, setLoading] = useState(false);
-
   useEffect(() => {
     // Check if user is already logged in
     const checkUser = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
+      const {
+        data: {
+          session
+        }
+      } = await supabase.auth.getSession();
       if (session) {
         navigate("/dashboard");
       }
     };
     checkUser();
   }, [navigate]);
-
   const handleSignIn = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setLoading(true);
-
     const formData = new FormData(event.currentTarget);
     const email = formData.get("email") as string;
     const password = formData.get("password") as string;
-
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+      const {
+        error
+      } = await supabase.auth.signInWithPassword({
         email,
-        password,
+        password
       });
-
       if (error) throw error;
-
       toast({
         title: "Success!",
-        description: "You've been signed in successfully.",
+        description: "You've been signed in successfully."
       });
-
       navigate("/dashboard");
     } catch (error: any) {
       toast({
         title: "Error",
         description: error.message || "Failed to sign in. Please try again.",
-        variant: "destructive",
+        variant: "destructive"
       });
     } finally {
       setLoading(false);
     }
   };
-
   const handleGoogleSignIn = async () => {
     try {
-      const { error } = await supabase.auth.signInWithOAuth({
+      const {
+        error
+      } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: `${window.location.origin}/dashboard`,
-        },
+          redirectTo: `${window.location.origin}/dashboard`
+        }
       });
-
       if (error) throw error;
     } catch (error: any) {
       toast({
         title: "Error",
         description: error.message || "Failed to sign in with Google.",
-        variant: "destructive",
+        variant: "destructive"
       });
     }
   };
-
   const handleResetPassword = () => {
     toast({
       title: "Reset Password",
-      description: "Password reset feature coming soon!",
+      description: "Password reset feature coming soon!"
     });
   };
-
   const handleCreateAccount = () => {
     toast({
       title: "Create Account",
-      description: "Sign up feature coming soon!",
+      description: "Sign up feature coming soon!"
     });
   };
-
-  return (
-    <div className="bg-background text-foreground">
-      <SignInPage
-        logoSrc={eterLogo}
-        title={
-          <span className="font-semibold text-foreground tracking-tight">
-            Welcome to <span className="text-primary">ETER Hub</span>
-          </span>
-        }
-        description="Acesse sua conta e tenha insights poderosos do seu Instagram"
-        heroImageSrc="https://images.unsplash.com/photo-611605698323-e18cd23d2c57?w=2160&q=80"
-        testimonials={sampleTestimonials}
-        onSignIn={handleSignIn}
-        onGoogleSignIn={handleGoogleSignIn}
-        onResetPassword={handleResetPassword}
-        onCreateAccount={handleCreateAccount}
-      />
-    </div>
-  );
+  return <div className="bg-background text-foreground">
+      <SignInPage logoSrc={eterLogo} title={<span className="font-semibold text-foreground tracking-tight">
+            Welcome to <span className="text-primary">IMOV</span>
+          </span>} description="Acesse sua conta e tenha insights poderosos do seu Instagram" heroImageSrc="https://images.unsplash.com/photo-611605698323-e18cd23d2c57?w=2160&q=80" testimonials={sampleTestimonials} onSignIn={handleSignIn} onGoogleSignIn={handleGoogleSignIn} onResetPassword={handleResetPassword} onCreateAccount={handleCreateAccount} />
+    </div>;
 };
-
 export default Auth;
