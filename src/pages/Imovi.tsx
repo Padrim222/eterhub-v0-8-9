@@ -12,6 +12,8 @@ import { ReceitaTotalCard } from "@/components/dashboard/ReceitaTotalCard";
 import { ConversaoFunilCard } from "@/components/dashboard/ConversaoFunilCard";
 import { EngajamentoRedesCard } from "@/components/dashboard/EngajamentoRedesCard";
 import { LancamentosCard } from "@/components/dashboard/LancamentosCard";
+import { LeaderCard } from "@/components/dashboard/LeaderCard";
+import { InstagramImportCard } from "@/components/dashboard/InstagramImportCard";
 import { useDashboardData } from "@/hooks/useDashboardData";
 
 const Imovi = () => {
@@ -141,6 +143,14 @@ const Imovi = () => {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <LeaderCard 
+              userProfile={userProfile} 
+              onProfileUpdate={loadUserProfile}
+            />
+            <InstagramImportCard 
+              userProfile={userProfile}
+              onProfileUpdate={loadUserProfile}
+            />
             <IMOVICard 
               imoviHistory={data.imoviHistory} 
               currentImovi={data.currentImovi}
