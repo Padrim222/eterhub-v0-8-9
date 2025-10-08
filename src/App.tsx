@@ -6,8 +6,14 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ErrorBoundary } from 'react-error-boundary';
 import { AlertCircle } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import Dashboard from "./pages/Dashboard";
-import Conteudo from "./pages/Conteudo";
+import Imovi from "./pages/Imovi";
+import RedesSociais from "./pages/RedesSociais";
+import Conteudo from "./pages/redes-sociais/Conteudo";
+import Concorrentes from "./pages/redes-sociais/Concorrentes";
+import Funil from "./pages/redes-sociais/Funil";
+import Movqls from "./pages/Movqls";
+import Vendas from "./pages/Vendas";
+import Agenda from "./pages/Agenda";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
 
@@ -48,7 +54,18 @@ const App = () => (
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Auth />} />
-            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/imov" element={<Imovi />} />
+            <Route path="/redes-sociais" element={<RedesSociais />}>
+              <Route index element={<Conteudo />} />
+              <Route path="conteudo" element={<Conteudo />} />
+              <Route path="concorrentes" element={<Concorrentes />} />
+              <Route path="funil" element={<Funil />} />
+            </Route>
+            <Route path="/movqls" element={<Movqls />} />
+            <Route path="/vendas" element={<Vendas />} />
+            <Route path="/agenda" element={<Agenda />} />
+            {/* Legacy routes for backwards compatibility */}
+            <Route path="/dashboard" element={<Imovi />} />
             <Route path="/conteudo" element={<Conteudo />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
