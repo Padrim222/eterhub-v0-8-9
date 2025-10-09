@@ -1,9 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { MainNavigation } from "@/components/layout/MainNavigation";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Search, Bell } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
 import { OnboardingModal } from "@/components/dashboard/OnboardingModal";
@@ -73,25 +70,7 @@ const Imovi = () => {
   const { isLoading, error } = data;
 
   return (
-    <div className="min-h-screen bg-black text-white">
-      <header className="border-b border-gray-800 bg-black sticky top-0 z-50">
-        <div className="flex items-center justify-between px-8 py-4">
-          <img src="/src/assets/eter-logo.png" alt="Eter" className="h-8" />
-          <MainNavigation />
-          <div className="flex items-center gap-4">
-            <Search className="w-5 h-5 text-gray-400 cursor-pointer hover:text-white transition-colors" />
-            <Bell className="w-5 h-5 text-gray-400 cursor-pointer hover:text-white transition-colors" />
-            <Avatar>
-              <AvatarImage src={userProfile?.avatar_url} />
-              <AvatarFallback className="bg-primary text-black">
-                {userProfile?.full_name?.[0] || userProfile?.email?.[0]?.toUpperCase() || 'U'}
-              </AvatarFallback>
-            </Avatar>
-          </div>
-        </div>
-      </header>
-
-      <main className="p-8">
+    <div className="space-y-8">
         <div className="mb-8 flex items-center justify-between">
           <h1 className="text-4xl font-bold">IMOV</h1>
         </div>
@@ -176,7 +155,6 @@ const Imovi = () => {
             <LancamentosCard />
           </div>
         )}
-      </main>
 
       <OnboardingModal 
         isOpen={showOnboarding} 
