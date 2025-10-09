@@ -2,11 +2,11 @@ import { NavLink } from "react-router-dom";
 import { cn } from "@/lib/utils";
 
 const navigationItems = [
-  { name: "DASHBOARD", path: "/dashboard", enabled: true },
-  { name: "Conteúdo", path: "/conteudo", enabled: true },
-  { name: "Deep Research", path: "#", enabled: false },
-  { name: "Oratória", path: "#", enabled: false },
-  { name: "Tribes.ai", path: "#", enabled: false },
+  { name: "Home", path: "/home", enabled: true },
+  { name: "Comunicação", path: "/comunicacao", enabled: true },
+  { name: "Research", path: "/research", enabled: false },
+  { name: "Eterflow.ai", path: "/eterflow", enabled: false },
+  { name: "Tribes.ai", path: "/tribes", enabled: false },
 ];
 
 export const AppNavigation = () => {

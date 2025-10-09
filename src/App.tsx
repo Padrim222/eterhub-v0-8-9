@@ -6,6 +6,9 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ErrorBoundary } from 'react-error-boundary';
 import { AlertCircle } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import Index from "./pages/Index";
+import Home from "./pages/Home";
+import Comunicacao from "./pages/Comunicacao";
 import Imovi from "./pages/Imovi";
 import RedesSociais from "./pages/RedesSociais";
 import Conteudo from "./pages/redes-sociais/Conteudo";
@@ -53,7 +56,25 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <Routes>
-            <Route path="/" element={<Auth />} />
+            <Route path="/" element={<Index />} />
+            <Route path="/auth" element={<Auth />} />
+            
+            {/* Home with sub-navigation (IMOV, MOVQL's, Vendas) */}
+            <Route path="/home" element={<Home />}>
+              <Route path="imov" element={<Imovi />} />
+              <Route path="movqls" element={<Movqls />} />
+              <Route path="vendas" element={<Vendas />} />
+            </Route>
+            
+            {/* Comunicação with sub-navigation (Conteúdo, Concorrentes, Funil) */}
+            <Route path="/comunicacao" element={<Comunicacao />}>
+              <Route path="conteudo" element={<Conteudo />} />
+              <Route path="concorrentes" element={<Concorrentes />} />
+              <Route path="funil" element={<Funil />} />
+            </Route>
+            
+            {/* Legacy routes for backwards compatibility */}
+            <Route path="/dashboard" element={<Imovi />} />
             <Route path="/imov" element={<Imovi />} />
             <Route path="/redes-sociais" element={<RedesSociais />}>
               <Route index element={<Conteudo />} />
@@ -63,10 +84,8 @@ const App = () => (
             </Route>
             <Route path="/movqls" element={<Movqls />} />
             <Route path="/vendas" element={<Vendas />} />
-            <Route path="/agenda" element={<Agenda />} />
-            {/* Legacy routes for backwards compatibility */}
-            <Route path="/dashboard" element={<Imovi />} />
             <Route path="/conteudo" element={<Conteudo />} />
+            
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

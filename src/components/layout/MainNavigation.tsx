@@ -3,11 +3,9 @@ import { cn } from "@/lib/utils";
 import { BarChart3, Share2, Target, ShoppingBag, Calendar } from "lucide-react";
 
 const navigationItems = [
-  { name: "IMOV", path: "/imov", icon: BarChart3 },
-  { name: "Redes Sociais", path: "/redes-sociais", icon: Share2 },
-  { name: "MOVQL's", path: "/movqls", icon: Target },
-  { name: "Vendas", path: "/vendas", icon: ShoppingBag },
-  { name: "Agenda", path: "/agenda", icon: Calendar },
+  { name: "IMOV", path: "/home/imov", icon: BarChart3 },
+  { name: "MOVQL's", path: "/home/movqls", icon: Target },
+  { name: "Vendas", path: "/home/vendas", icon: ShoppingBag },
 ];
 
 export const MainNavigation = () => {
