@@ -7,6 +7,10 @@ import { PostsGrid } from "@/components/conteudo/PostsGrid";
 import { PostsTable } from "@/components/conteudo/PostsTable";
 import { InstagramMetrics } from "@/components/conteudo/InstagramMetrics";
 import { useInstagramPosts } from "@/hooks/useInstagramPosts";
+import { PerformanceOverviewCard } from "@/components/redes-sociais/PerformanceOverviewCard";
+import { ContentTypeAnalysisCard } from "@/components/redes-sociais/ContentTypeAnalysisCard";
+import { TopPerformingPostsCard } from "@/components/redes-sociais/TopPerformingPostsCard";
+import { EngagementTrendsCard } from "@/components/redes-sociais/EngagementTrendsCard";
 
 const Conteudo = () => {
   const [viewMode, setViewMode] = useState<"grid" | "list">("list");
@@ -70,6 +74,19 @@ const Conteudo = () => {
             </Button>
           </div>
         </div>
+      </div>
+
+      <div className="mb-8">
+        <PerformanceOverviewCard />
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        <EngagementTrendsCard />
+        <ContentTypeAnalysisCard />
+      </div>
+
+      <div className="mb-8">
+        <TopPerformingPostsCard />
       </div>
 
       <InstagramMetrics posts={posts} />
