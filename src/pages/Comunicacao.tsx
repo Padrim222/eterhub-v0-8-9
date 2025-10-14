@@ -9,8 +9,6 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 const subNavigationItems = [
-  { name: "Conteúdo", path: "/comunicacao/conteudo" },
-  { name: "Concorrentes", path: "/comunicacao/concorrentes" },
   { name: "Funil", path: "/comunicacao/funil" },
 ];
 
@@ -39,10 +37,10 @@ const Comunicacao = () => {
     checkAuth();
   }, [navigate]);
 
-  // Redirect to content by default
+  // Redirect to funil by default
   useEffect(() => {
     if (location.pathname === "/comunicacao" || location.pathname === "/comunicacao/") {
-      navigate("/comunicacao/conteudo", { replace: true });
+      navigate("/comunicacao/funil", { replace: true });
     }
   }, [location.pathname, navigate]);
 

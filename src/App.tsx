@@ -66,10 +66,8 @@ const App = () => (
               <Route path="agenda" element={<Agenda />} />
             </Route>
             
-            {/* Comunicação with sub-navigation (Conteúdo, Concorrentes, Funil) */}
+            {/* Comunicação with sub-navigation (Funil only) */}
             <Route path="/comunicacao" element={<Comunicacao />}>
-              <Route path="conteudo" element={<Conteudo />} />
-              <Route path="concorrentes" element={<Concorrentes />} />
               <Route path="funil" element={<Funil />} />
             </Route>
             
@@ -78,8 +76,9 @@ const App = () => (
             <Route path="/imov" element={<Navigate to="/home/imov" replace />} />
             <Route path="/movqls" element={<Navigate to="/home/movqls" replace />} />
             <Route path="/vendas" element={<Navigate to="/home/vendas" replace />} />
-            <Route path="/conteudo" element={<Navigate to="/comunicacao/conteudo" replace />} />
-            <Route path="/redes-sociais/*" element={<Navigate to="/comunicacao/conteudo" replace />} />
+            <Route path="/conteudo" element={<Navigate to="/home/imov" replace />} />
+            <Route path="/concorrentes" element={<Navigate to="/home/imov" replace />} />
+            <Route path="/redes-sociais/*" element={<Navigate to="/home/imov" replace />} />
             
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
