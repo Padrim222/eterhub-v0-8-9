@@ -6,6 +6,7 @@ const navigationItems = [
   { name: "IMOV", path: "/home/imov", icon: BarChart3 },
   { name: "MOVQL's", path: "/home/movqls", icon: Target },
   { name: "Vendas", path: "/home/vendas", icon: ShoppingBag },
+  { name: "Agenda", path: "/home/agenda", icon: Calendar },
 ];
 
 export const MainNavigation = () => {

@@ -20,7 +20,7 @@ const Auth = () => {
         }
       } = await supabase.auth.getSession();
       if (session) {
-        navigate("/dashboard");
+        navigate("/home/imov");
       }
     };
     checkUser();
@@ -35,9 +35,9 @@ const Auth = () => {
       if (event === 'SIGNED_IN' && session) {
         toast({
           title: "Login realizado!",
-          description: "Redirecionando para o dashboard..."
+          description: "Redirecionando..."
         });
-        navigate("/dashboard");
+        navigate("/home/imov");
       }
       if (event === 'USER_UPDATED') {
         toast({
@@ -66,7 +66,7 @@ const Auth = () => {
         title: "Success!",
         description: "You've been signed in successfully."
       });
-      navigate("/dashboard");
+      navigate("/home/imov");
     } catch (error: any) {
       let errorMessage = "Falha ao fazer login. Tente novamente.";
       
@@ -94,7 +94,7 @@ const Auth = () => {
       } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: `${window.location.origin}/dashboard`
+          redirectTo: `${window.location.origin}/home/imov`
         }
       });
       if (error) throw error;
@@ -142,7 +142,7 @@ const Auth = () => {
           title: "Conta criada!",
           description: "Login realizado com sucesso."
         });
-        navigate("/dashboard");
+        navigate("/home/imov");
       } else {
         toast({
           title: "Verifique seu email",
