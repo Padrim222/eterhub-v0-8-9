@@ -12,6 +12,10 @@ import { LancamentosCard } from "@/components/dashboard/LancamentosCard";
 import { LeaderCard } from "@/components/dashboard/LeaderCard";
 import { InstagramImportCard } from "@/components/dashboard/InstagramImportCard";
 import { useDashboardData } from "@/hooks/useDashboardData";
+import { TopPerformingPostsCard } from "@/components/redes-sociais/TopPerformingPostsCard";
+import { ContentTypeAnalysisCard } from "@/components/redes-sociais/ContentTypeAnalysisCard";
+import { PerformanceOverviewCard } from "@/components/redes-sociais/PerformanceOverviewCard";
+import { EngagementTrendsCard } from "@/components/redes-sociais/EngagementTrendsCard";
 
 const Imovi = () => {
   const navigate = useNavigate();
@@ -121,39 +125,62 @@ const Imovi = () => {
             Erro ao carregar dados do dashboard
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <LeaderCard 
-              userProfile={userProfile} 
-              onProfileUpdate={loadUserProfile}
-            />
-            <InstagramImportCard 
-              userProfile={userProfile}
-              onProfileUpdate={loadUserProfile}
-            />
-            <IMOVICard 
-              imoviHistory={data.imoviHistory} 
-              currentImovi={data.currentImovi}
-            />
-            <ReceitaTotalCard 
-              totalViews={data.totalReach}
-              previousViews={data.previousPeriodData.totalReach}
-            />
-            <ConversaoFunilCard 
-              totalEngagement={data.totalEngagement}
-              previousEngagement={data.previousPeriodData.totalEngagement}
-              avgEngagementRate={data.avgEngagementRate}
-              previousEngagementRate={data.previousPeriodData.avgEngagementRate}
-            />
-            <EngajamentoRedesCard 
-              totalLikes={data.totalLikes}
-              previousLikes={data.previousPeriodData.totalLikes}
-              totalComments={data.totalComments}
-              previousComments={data.previousPeriodData.totalComments}
-              totalSaves={data.totalSaves}
-              previousSaves={data.previousPeriodData.totalSaves}
-            />
-            <LancamentosCard />
-          </div>
+          <>
+            {activeFilter === "redes-sociais" ? (
+              <div className="space-y-6">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  <LeaderCard 
+                    userProfile={userProfile} 
+                    onProfileUpdate={loadUserProfile}
+                  />
+                  <InstagramImportCard 
+                    userProfile={userProfile}
+                    onProfileUpdate={loadUserProfile}
+                  />
+                </div>
+                <PerformanceOverviewCard />
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  <EngagementTrendsCard />
+                  <ContentTypeAnalysisCard />
+                </div>
+                <TopPerformingPostsCard />
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <LeaderCard 
+                  userProfile={userProfile} 
+                  onProfileUpdate={loadUserProfile}
+                />
+                <InstagramImportCard 
+                  userProfile={userProfile}
+                  onProfileUpdate={loadUserProfile}
+                />
+                <IMOVICard 
+                  imoviHistory={data.imoviHistory} 
+                  currentImovi={data.currentImovi}
+                />
+                <ReceitaTotalCard 
+                  totalViews={data.totalReach}
+                  previousViews={data.previousPeriodData.totalReach}
+                />
+                <ConversaoFunilCard 
+                  totalEngagement={data.totalEngagement}
+                  previousEngagement={data.previousPeriodData.totalEngagement}
+                  avgEngagementRate={data.avgEngagementRate}
+                  previousEngagementRate={data.previousPeriodData.avgEngagementRate}
+                />
+                <EngajamentoRedesCard 
+                  totalLikes={data.totalLikes}
+                  previousLikes={data.previousPeriodData.totalLikes}
+                  totalComments={data.totalComments}
+                  previousComments={data.previousPeriodData.totalComments}
+                  totalSaves={data.totalSaves}
+                  previousSaves={data.previousPeriodData.totalSaves}
+                />
+                <LancamentosCard />
+              </div>
+            )}
+          </>
         )}
 
       <OnboardingModal 
