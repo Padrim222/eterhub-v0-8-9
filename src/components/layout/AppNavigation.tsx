@@ -3,7 +3,10 @@ import { cn } from "@/lib/utils";
 
 const navigationItems = [
   { name: "Home", path: "/home", enabled: true },
-  { name: "Comunicação", path: "/comunicacao", enabled: true },
+  { name: "Central do Cliente", path: "/central-cliente", enabled: true },
+  { name: "Educação", path: "/educacao", enabled: true },
+  { name: "Etherflow", path: "/etherflow", enabled: true },
+  { name: "Tribes", path: "/tribes", enabled: true },
 ];
 
 export const AppNavigation = () => {

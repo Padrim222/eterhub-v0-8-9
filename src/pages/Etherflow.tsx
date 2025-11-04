@@ -1,13 +1,14 @@
-import { Outlet, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { AppNavigation } from "@/components/layout/AppNavigation";
 import eterLogo from "@/assets/eter-logo.png";
 import { Bell, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Card } from "@/components/ui/card";
 
-const Comunicacao = () => {
+const Etherflow = () => {
   const navigate = useNavigate();
   const [userProfile, setUserProfile] = useState<any>(null);
 
@@ -55,10 +56,15 @@ const Comunicacao = () => {
       </header>
 
       <main className="p-8">
-        <Outlet />
+        <div className="max-w-7xl mx-auto">
+          <h1 className="text-3xl font-bold mb-8">Etherflow</h1>
+          <Card className="bg-gray-900 border-gray-800 p-8">
+            <p className="text-white/60">Conteúdo em desenvolvimento...</p>
+          </Card>
+        </div>
       </main>
     </div>
   );
 };
 
-export default Comunicacao;
+export default Etherflow;

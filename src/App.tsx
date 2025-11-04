@@ -8,9 +8,11 @@ import { AlertCircle } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import Index from "./pages/Index";
 import Home from "./pages/Home";
-import Comunicacao from "./pages/Comunicacao";
+import CentralCliente from "./pages/CentralCliente";
+import Educacao from "./pages/Educacao";
+import Etherflow from "./pages/Etherflow";
+import Tribes from "./pages/Tribes";
 import Imovi from "./pages/Imovi";
-import Funil from "./pages/redes-sociais/Funil";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
 
@@ -58,10 +60,17 @@ const App = () => (
               <Route index element={<Imovi />} />
             </Route>
             
-            {/* Comunicação */}
-            <Route path="/comunicacao" element={<Comunicacao />}>
-              <Route index element={<Funil />} />
-            </Route>
+            {/* Central do Cliente */}
+            <Route path="/central-cliente" element={<CentralCliente />} />
+            
+            {/* Educação */}
+            <Route path="/educacao" element={<Educacao />} />
+            
+            {/* Etherflow */}
+            <Route path="/etherflow" element={<Etherflow />} />
+            
+            {/* Tribes */}
+            <Route path="/tribes" element={<Tribes />} />
             
             {/* Legacy redirects */}
             <Route path="/dashboard" element={<Navigate to="/home" replace />} />
