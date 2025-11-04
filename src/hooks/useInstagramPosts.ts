@@ -5,6 +5,7 @@ export interface InstagramPost {
   id: string;
   user_id: string;
   post_url: string | null;
+  thumbnail_url?: string | null;
   post_type: string | null;
   views: number | null;
   likes: number | null;

@@ -212,7 +212,8 @@ async function scrapeReels(username: string, apiKey: string): Promise<ApifyPost[
 }
 
 function normalizePost(post: ApifyPost, userId: string) {
-  const url = post.url || post.displayUrl || '';
+  const url = post.url || '';
+  const thumbnailUrl = post.displayUrl || '';
   const likes = post.likesCount || 0;
   const comments = post.commentsCount || 0;
   
@@ -228,6 +229,7 @@ function normalizePost(post: ApifyPost, userId: string) {
   return {
     user_id: userId,
     post_url: url,
+    thumbnail_url: thumbnailUrl,
     post_type: post.type || 'Image',
     caption: (post.caption || '').substring(0, 1000),
     views: views,

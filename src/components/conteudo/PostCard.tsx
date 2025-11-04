@@ -41,6 +41,23 @@ export const PostCard = ({ post, onClick }: PostCardProps) => {
   const postTypeInfo = getPostTypeInfo(post.post_type);
   const PostTypeIcon = postTypeInfo.icon;
 
+  // Tentar extrair thumbnail da URL do Instagram
+  const getThumbnailUrl = () => {
+    if (post.thumbnail_url) return post.thumbnail_url;
+    if (!post.post_url) return null;
+    
+    // URLs do Instagram seguem padrão: instagram.com/p/{shortcode} ou /reel/{shortcode}
+    const match = post.post_url.match(/instagram\.com\/(p|reel|reels)\/([^/?]+)/);
+    if (match) {
+      const shortcode = match[2];
+      // Usar o Instagram oEmbed para pegar thumbnail
+      return `https://www.instagram.com/p/${shortcode}/media/?size=l`;
+    }
+    return null;
+  };
+
+  const thumbnailUrl = getThumbnailUrl();
+
   return (
     <Card 
       className="bg-background border-border rounded-2xl overflow-hidden hover:shadow-lg transition-all hover:scale-[1.02] cursor-pointer"
@@ -48,22 +65,40 @@ export const PostCard = ({ post, onClick }: PostCardProps) => {
     >
       <div className="space-y-0">
         {/* Thumbnail com tipo de post */}
-        <div className="relative aspect-square bg-muted">
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div className={`p-6 rounded-full ${postTypeInfo.color}`}>
-              <PostTypeIcon className="w-12 h-12" />
+        <div className="relative aspect-square bg-muted overflow-hidden">
+          {thumbnailUrl ? (
+            <img
+              src={thumbnailUrl}
+              alt={postTypeInfo.label}
+              className="w-full h-full object-cover"
+              onError={(e) => {
+                // Fallback se imagem não carregar
+                e.currentTarget.style.display = 'none';
+              }}
+            />
+          ) : null}
+          {/* Overlay icon quando não há thumbnail */}
+          {!thumbnailUrl && (
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className={`p-6 rounded-full ${postTypeInfo.color}`}>
+                <PostTypeIcon className="w-12 h-12" />
+              </div>
             </div>
-          </div>
+          )}
+          {/* Badge de tipo de post */}
           <div className="absolute top-4 left-4">
             <Badge variant="secondary" className="bg-background/80 backdrop-blur-sm">
               {postTypeInfo.label}
             </Badge>
           </div>
+          {/* Badge de engajamento */}
           <div className="absolute top-4 right-4">
             <Badge variant="outline" className="bg-background/80 backdrop-blur-sm border-primary/20">
               {post.engagement_rate?.toFixed(1) || "0.0"}%
             </Badge>
           </div>
+          {/* Overlay gradiente */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
         </div>
 
         {/* Métricas */}
