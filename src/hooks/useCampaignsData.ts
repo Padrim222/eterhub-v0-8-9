@@ -21,6 +21,80 @@ export interface AverageDataPoint {
 
 export type PeriodFilter = "week" | "month" | "year";
 
+// Mock data generator
+const generateMockData = (periodFilter: PeriodFilter) => {
+  const { startDate, endDate } = getDateRange(periodFilter);
+  let intervals: Date[];
+
+  switch (periodFilter) {
+    case "week":
+      intervals = eachDayOfInterval({ start: startDate, end: endDate });
+      return intervals.map(date => ({
+        date: format(date, "dd/MM"),
+        leads: Math.floor(Math.random() * 15 + 5)
+      }));
+    
+    case "month":
+      intervals = eachDayOfInterval({ start: startDate, end: endDate });
+      return intervals.map(date => ({
+        date: format(date, "dd/MM"),
+        leads: Math.floor(Math.random() * 20 + 10)
+      }));
+    
+    case "year":
+      intervals = eachMonthOfInterval({ start: startDate, end: endDate });
+      return intervals.map(date => ({
+        date: format(date, "MMM/yy"),
+        leads: Math.floor(Math.random() * 200 + 100)
+      }));
+    
+    default:
+      return [];
+  }
+};
+
+const getDateRange = (period: PeriodFilter) => {
+  const today = new Date();
+  let startDate: Date;
+  
+  switch (period) {
+    case "week":
+      startDate = subWeeks(today, 1);
+      break;
+    case "month":
+      startDate = subMonths(today, 1);
+      break;
+    case "year":
+      startDate = subMonths(today, 12);
+      break;
+    default:
+      startDate = subMonths(today, 1);
+  }
+  
+  return { startDate, endDate: today };
+};
+
+const mockCampaigns: Campaign[] = [
+  {
+    id: "campaign-1",
+    name: "Campanha 1",
+    color: "#ef4444",
+    data: []
+  },
+  {
+    id: "campaign-2",
+    name: "Campanha 2",
+    color: "#22c55e",
+    data: []
+  },
+  {
+    id: "campaign-3",
+    name: "Campanha 3",
+    color: "#f59e0b",
+    data: []
+  }
+];
+
 export const useCampaignsData = (periodFilter: PeriodFilter = "month") => {
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
   const [averageLine, setAverageLine] = useState<AverageDataPoint[]>([]);
@@ -30,31 +104,11 @@ export const useCampaignsData = (periodFilter: PeriodFilter = "month") => {
     loadCampaigns();
   }, [periodFilter]);
 
-  const getDateRange = () => {
-    const today = new Date();
-    let startDate: Date;
-    
-    switch (periodFilter) {
-      case "week":
-        startDate = subWeeks(today, 1);
-        break;
-      case "month":
-        startDate = subMonths(today, 1);
-        break;
-      case "year":
-        startDate = subMonths(today, 12);
-        break;
-      default:
-        startDate = subMonths(today, 1);
-    }
-    
-    return { startDate, endDate: today };
-  };
 
   const aggregateDataByPeriod = (data: any[], period: PeriodFilter) => {
     if (!data.length) return [];
 
-    const { startDate, endDate } = getDateRange();
+    const { startDate, endDate } = getDateRange(period);
     let intervals: Date[];
 
     switch (period) {
@@ -121,12 +175,20 @@ export const useCampaignsData = (periodFilter: PeriodFilter = "month") => {
     setIsLoading(true);
     try {
       const { data: { session } } = await supabase.auth.getSession();
+      
+      // Use mock data if no session or if database has no campaigns
       if (!session) {
+        const mockCampaignsWithData = mockCampaigns.map(campaign => ({
+          ...campaign,
+          data: generateMockData(periodFilter)
+        }));
+        setCampaigns(mockCampaignsWithData);
+        setAverageLine(calculateAverage(mockCampaignsWithData));
         setIsLoading(false);
         return;
       }
 
-      const { startDate } = getDateRange();
+      const { startDate } = getDateRange(periodFilter);
       const startDateStr = format(startDate, "yyyy-MM-dd");
 
       // Fetch campaigns
@@ -136,6 +198,18 @@ export const useCampaignsData = (periodFilter: PeriodFilter = "month") => {
         .eq("user_id", session.user.id);
 
       if (campaignsError) throw campaignsError;
+
+      // If no campaigns in database, use mock data
+      if (!campaignsData || campaignsData.length === 0) {
+        const mockCampaignsWithData = mockCampaigns.map(campaign => ({
+          ...campaign,
+          data: generateMockData(periodFilter)
+        }));
+        setCampaigns(mockCampaignsWithData);
+        setAverageLine(calculateAverage(mockCampaignsWithData));
+        setIsLoading(false);
+        return;
+      }
 
       // Fetch campaign data for each campaign
       const campaignsWithData = await Promise.all(
@@ -162,6 +236,13 @@ export const useCampaignsData = (periodFilter: PeriodFilter = "month") => {
       setAverageLine(calculateAverage(campaignsWithData));
     } catch (error) {
       console.error("Error loading campaigns:", error);
+      // Fallback to mock data on error
+      const mockCampaignsWithData = mockCampaigns.map(campaign => ({
+        ...campaign,
+        data: generateMockData(periodFilter)
+      }));
+      setCampaigns(mockCampaignsWithData);
+      setAverageLine(calculateAverage(mockCampaignsWithData));
     } finally {
       setIsLoading(false);
     }
