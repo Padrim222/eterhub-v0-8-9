@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+import { Outlet, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { AppNavigation } from "@/components/layout/AppNavigation";
@@ -7,10 +7,6 @@ import eterLogo from "@/assets/eter-logo.png";
 import { Bell, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import Imovi from "./Imovi";
-import { ChannelsList } from "@/components/canais/ChannelsList";
-import Leads from "./Leads";
 
 const Home = () => {
   const navigate = useNavigate();
@@ -64,25 +60,7 @@ const Home = () => {
       </header>
 
       <main className="p-8">
-        <Tabs defaultValue="geral" className="w-full">
-          <TabsList className="mb-6">
-            <TabsTrigger value="geral">Geral</TabsTrigger>
-            <TabsTrigger value="canais">Canais</TabsTrigger>
-            <TabsTrigger value="leads">Leads</TabsTrigger>
-          </TabsList>
-          
-          <TabsContent value="geral">
-            <Imovi />
-          </TabsContent>
-          
-          <TabsContent value="canais">
-            <ChannelsList onChannelSelect={() => {}} />
-          </TabsContent>
-          
-          <TabsContent value="leads">
-            <Leads />
-          </TabsContent>
-        </Tabs>
+        <Outlet />
       </main>
 
       <ProfileModal
