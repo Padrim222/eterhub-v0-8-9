@@ -58,6 +58,7 @@ const App = () => (
             {/* Home - Dashboard único */}
             <Route path="/home" element={<Home />}>
               <Route index element={<Imovi />} />
+              <Route path="imov" element={<Imovi />} />
             </Route>
             
             {/* Central do Cliente */}
