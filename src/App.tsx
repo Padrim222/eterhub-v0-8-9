@@ -10,12 +10,7 @@ import Index from "./pages/Index";
 import Home from "./pages/Home";
 import Comunicacao from "./pages/Comunicacao";
 import Imovi from "./pages/Imovi";
-import Conteudo from "./pages/redes-sociais/Conteudo";
-import Concorrentes from "./pages/redes-sociais/Concorrentes";
 import Funil from "./pages/redes-sociais/Funil";
-import Movqls from "./pages/Movqls";
-import Vendas from "./pages/Vendas";
-import Agenda from "./pages/Agenda";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
 
@@ -58,27 +53,19 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/auth" element={<Auth />} />
             
-            {/* Home with sub-navigation (IMOV, MOVQL's, Vendas, Agenda) */}
+            {/* Home - Dashboard único */}
             <Route path="/home" element={<Home />}>
-              <Route path="imov" element={<Imovi />} />
-              <Route path="movqls" element={<Movqls />} />
-              <Route path="vendas" element={<Vendas />} />
-              <Route path="agenda" element={<Agenda />} />
+              <Route index element={<Imovi />} />
             </Route>
             
-            {/* Comunicação with sub-navigation (Funil only) */}
+            {/* Comunicação */}
             <Route path="/comunicacao" element={<Comunicacao />}>
-              <Route path="funil" element={<Funil />} />
+              <Route index element={<Funil />} />
             </Route>
             
-            {/* Legacy routes - redirects for backwards compatibility */}
-            <Route path="/dashboard" element={<Navigate to="/home/imov" replace />} />
-            <Route path="/imov" element={<Navigate to="/home/imov" replace />} />
-            <Route path="/movqls" element={<Navigate to="/home/movqls" replace />} />
-            <Route path="/vendas" element={<Navigate to="/home/vendas" replace />} />
-            <Route path="/conteudo" element={<Navigate to="/home/imov" replace />} />
-            <Route path="/concorrentes" element={<Navigate to="/home/imov" replace />} />
-            <Route path="/redes-sociais/*" element={<Navigate to="/home/imov" replace />} />
+            {/* Legacy redirects */}
+            <Route path="/dashboard" element={<Navigate to="/home" replace />} />
+            <Route path="/imov" element={<Navigate to="/home" replace />} />
             
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />

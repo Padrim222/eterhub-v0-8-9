@@ -1,20 +1,14 @@
-import { Outlet, useNavigate, useLocation } from "react-router-dom";
+import { Outlet, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { AppNavigation } from "@/components/layout/AppNavigation";
-import { SubNavigation } from "@/components/layout/SubNavigation";
 import eterLogo from "@/assets/eter-logo.png";
 import { Bell, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
-const subNavigationItems = [
-  { name: "Funil", path: "/comunicacao/funil" },
-];
-
 const Comunicacao = () => {
   const navigate = useNavigate();
-  const location = useLocation();
   const [userProfile, setUserProfile] = useState<any>(null);
 
   useEffect(() => {
@@ -37,13 +31,6 @@ const Comunicacao = () => {
     checkAuth();
   }, [navigate]);
 
-  // Redirect to funil by default
-  useEffect(() => {
-    if (location.pathname === "/comunicacao" || location.pathname === "/comunicacao/") {
-      navigate("/comunicacao/funil", { replace: true });
-    }
-  }, [location.pathname, navigate]);
-
   return (
     <div className="min-h-screen bg-black text-white">
       <header className="border-b border-gray-800 sticky top-0 z-50 bg-black/95 backdrop-blur-sm">
@@ -65,7 +52,6 @@ const Comunicacao = () => {
             </div>
           </div>
         </div>
-        <SubNavigation items={subNavigationItems} />
       </header>
 
       <main className="p-8">

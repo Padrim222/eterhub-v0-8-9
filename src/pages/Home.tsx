@@ -2,7 +2,6 @@ import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { AppNavigation } from "@/components/layout/AppNavigation";
-import { MainNavigation } from "@/components/layout/MainNavigation";
 import eterLogo from "@/assets/eter-logo.png";
 import { Bell, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -33,13 +32,6 @@ const Home = () => {
     checkAuth();
   }, [navigate]);
 
-  // Redirect to IMOV by default when on /home
-  useEffect(() => {
-    if (location.pathname === "/home" || location.pathname === "/home/") {
-      navigate("/home/imov", { replace: true });
-    }
-  }, [location.pathname, navigate]);
-
   return (
     <div className="min-h-screen bg-black text-white">
       <header className="border-b border-gray-800 sticky top-0 z-50 bg-black/95 backdrop-blur-sm">
@@ -60,7 +52,6 @@ const Home = () => {
               </Avatar>
             </div>
           </div>
-          <MainNavigation />
         </div>
       </header>
 

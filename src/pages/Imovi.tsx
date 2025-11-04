@@ -17,6 +17,7 @@ import { TopPerformingPostsCard } from "@/components/redes-sociais/TopPerforming
 import { ContentTypeAnalysisCard } from "@/components/redes-sociais/ContentTypeAnalysisCard";
 import { PerformanceOverviewCard } from "@/components/redes-sociais/PerformanceOverviewCard";
 import { EngagementTrendsCard } from "@/components/redes-sociais/EngagementTrendsCard";
+import { InsightsIACard } from "@/components/dashboard/InsightsIACard";
 import { LayoutGrid, List, Search as SearchIcon, SlidersHorizontal, Plus, TrendingUp, TrendingDown } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { PostsGrid } from "@/components/conteudo/PostsGrid";
@@ -136,22 +137,10 @@ const Imovi = () => {
               Redes Sociais
             </TabsTrigger>
             <TabsTrigger 
-              value="financas" 
+              value="comunicacao" 
               className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary px-6 py-3"
             >
-              Finanças
-            </TabsTrigger>
-            <TabsTrigger 
-              value="conversao" 
-              className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary px-6 py-3"
-            >
-              Conversão
-            </TabsTrigger>
-            <TabsTrigger 
-              value="webinarios" 
-              className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary px-6 py-3"
-            >
-              Webinários
+              Comunicação
             </TabsTrigger>
           </TabsList>
         </Tabs>
@@ -168,7 +157,7 @@ const Imovi = () => {
           </div>
         ) : (
           <>
-            {activeFilter === "redes-sociais" ? (
+            {activeFilter === "redes-sociais" || activeFilter === "comunicacao" ? (
               <div className="space-y-8">
                 {/* Performance Overview */}
                 <PerformanceOverviewCard />
@@ -326,14 +315,10 @@ const Imovi = () => {
                   </div>
                 </div>
               </div>
-            ) : (
+            ) : activeFilter === "todos" ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 <LeaderCard 
                   userProfile={userProfile} 
-                  onProfileUpdate={loadUserProfile}
-                />
-                <InstagramImportCard 
-                  userProfile={userProfile}
                   onProfileUpdate={loadUserProfile}
                 />
                 <IMOVICard 
@@ -344,23 +329,14 @@ const Imovi = () => {
                   totalViews={data.totalReach}
                   previousViews={data.previousPeriodData.totalReach}
                 />
-                <ConversaoFunilCard 
-                  totalEngagement={data.totalEngagement}
-                  previousEngagement={data.previousPeriodData.totalEngagement}
-                  avgEngagementRate={data.avgEngagementRate}
-                  previousEngagementRate={data.previousPeriodData.avgEngagementRate}
-                />
-                <EngajamentoRedesCard 
-                  totalLikes={data.totalLikes}
-                  previousLikes={data.previousPeriodData.totalLikes}
-                  totalComments={data.totalComments}
-                  previousComments={data.previousPeriodData.totalComments}
-                  totalSaves={data.totalSaves}
-                  previousSaves={data.previousPeriodData.totalSaves}
-                />
                 <LancamentosCard />
+                <InsightsIACard />
+                <InstagramImportCard 
+                  userProfile={userProfile}
+                  onProfileUpdate={loadUserProfile}
+                />
               </div>
-            )}
+            ) : null}
           </>
         )}
 
