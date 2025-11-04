@@ -77,7 +77,7 @@ const Imovi = () => {
   return (
     <div className="space-y-8">
         <div className="mb-8 flex items-center justify-between">
-          <h1 className="text-4xl font-bold">IMOV</h1>
+          <h1 className="text-4xl font-bold">HOME</h1>
         </div>
 
         <Tabs value={activeFilter} onValueChange={setActiveFilter} className="mb-8">
