@@ -2,6 +2,7 @@ import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { AppNavigation } from "@/components/layout/AppNavigation";
+import { ProfileModal } from "@/components/layout/ProfileModal";
 import eterLogo from "@/assets/eter-logo.png";
 import { Bell, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -11,25 +12,26 @@ const Home = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [userProfile, setUserProfile] = useState<any>(null);
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+
+  const loadProfile = async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) {
+      navigate("/auth");
+      return;
+    }
+
+    const { data: profile } = await supabase
+      .from("users")
+      .select("*")
+      .eq("id", session.user.id)
+      .maybeSingle();
+
+    setUserProfile(profile);
+  };
 
   useEffect(() => {
-    const checkAuth = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        navigate("/auth");
-        return;
-      }
-
-      const { data: profile } = await supabase
-        .from("users")
-        .select("*")
-        .eq("id", session.user.id)
-        .maybeSingle();
-
-      setUserProfile(profile);
-    };
-
-    checkAuth();
+    loadProfile();
   }, [navigate]);
 
   return (
@@ -46,7 +48,10 @@ const Home = () => {
               <Button variant="ghost" size="icon" className="rounded-full border border-gray-800 hover:bg-gray-900">
                 <Bell className="w-5 h-5" />
               </Button>
-              <Avatar className="border-2 border-gray-800">
+              <Avatar 
+                className="border-2 border-gray-800 cursor-pointer hover:border-primary/50 transition-colors"
+                onClick={() => setIsProfileModalOpen(true)}
+              >
                 <AvatarImage src={userProfile?.avatar_url || "/leader-default.png"} />
                 <AvatarFallback>{userProfile?.nome?.charAt(0) || "U"}</AvatarFallback>
               </Avatar>
@@ -58,6 +63,13 @@ const Home = () => {
       <main className="p-8">
         <Outlet />
       </main>
+
+      <ProfileModal
+        isOpen={isProfileModalOpen}
+        onClose={() => setIsProfileModalOpen(false)}
+        userProfile={userProfile}
+        onProfileUpdate={loadProfile}
+      />
     </div>
   );
 };
