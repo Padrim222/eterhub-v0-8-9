@@ -4,10 +4,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
 import { OnboardingModal } from "@/components/dashboard/OnboardingModal";
-import { ReceitaTotalCard } from "@/components/dashboard/ReceitaTotalCard";
-import { ConversaoFunilCard } from "@/components/dashboard/ConversaoFunilCard";
-import { EngajamentoRedesCard } from "@/components/dashboard/EngajamentoRedesCard";
-import { LancamentosCard } from "@/components/dashboard/LancamentosCard";
+import { MQLCard } from "@/components/dashboard/MQLCard";
+import { LeadsQuantityCard } from "@/components/dashboard/LeadsQuantityCard";
+import { ConversionRateCard } from "@/components/dashboard/ConversionRateCard";
+import { SalesNumberCard } from "@/components/dashboard/SalesNumberCard";
+import { QualificationRateCard } from "@/components/dashboard/QualificationRateCard";
 import { IMOVICard } from "@/components/dashboard/IMOVICard";
 import { InsightsIACard } from "@/components/dashboard/InsightsIACard";
 import { LeaderBanner } from "@/components/dashboard/LeaderBanner";
@@ -124,40 +125,41 @@ const Imovi = () => {
             {activeFilter === "canais" ? (
               <ChannelView />
             ) : activeFilter === "geral" ? (
-              <div className="space-y-6">
-                {/* First Row - 3 Cards */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  <ReceitaTotalCard 
-                    totalViews={data.totalReach}
-                    previousViews={data.previousPeriodData.totalReach}
+              <div className="space-y-4 md:space-y-6">
+                {/* First Row - 5 Metric Cards */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 md:gap-6">
+                  <MQLCard 
+                    mqlPercentage={25.5}
+                    previousPercentage={22.3}
                   />
-                  <ConversaoFunilCard 
-                    totalEngagement={data.totalEngagement}
-                    previousEngagement={data.previousPeriodData.totalEngagement}
-                    avgEngagementRate={data.avgEngagementRate}
-                    previousEngagementRate={data.previousPeriodData.avgEngagementRate}
+                  <LeadsQuantityCard 
+                    totalLeads={150}
+                    previousLeads={132}
                   />
-                  <EngajamentoRedesCard 
-                    totalLikes={data.totalLikes}
-                    previousLikes={data.previousPeriodData.totalLikes}
-                    totalComments={data.totalComments}
-                    previousComments={data.previousPeriodData.totalComments}
-                    totalSaves={data.totalSaves}
-                    previousSaves={data.previousPeriodData.totalSaves}
+                  <ConversionRateCard 
+                    conversionRate={12.8}
+                    previousRate={11.2}
+                  />
+                  <SalesNumberCard 
+                    totalSales={42}
+                    previousSales={38}
+                  />
+                  <QualificationRateCard 
+                    qualificationRate={68.5}
+                    previousRate={65.1}
                   />
                 </div>
 
-                {/* Second Row - IMOVI and Lançamentos */}
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                {/* Second Row - IMOVI Card */}
+                <div className="grid grid-cols-1">
                   <IMOVICard 
                     imoviHistory={data.imoviHistory} 
                     currentImovi={data.currentImovi}
                   />
-                  <LancamentosCard />
                 </div>
 
                 {/* Third Row - Insights IA and Leader Banner */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
                   <InsightsIACard />
                   <LeaderBanner 
                     userProfile={userProfile}
