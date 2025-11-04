@@ -1,93 +1,80 @@
-import { Bell, ArrowUpRight, TrendingUp, TrendingDown, Minus } from "lucide-react";
 import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { Bell, TrendingUp } from "lucide-react";
 
 interface ConversaoFunilCardProps {
-  totalEngagement: number;
-  previousEngagement: number;
-  avgEngagementRate: number;
-  previousEngagementRate: number;
+  totalEngagement?: number;
+  previousEngagement?: number;
+  avgEngagementRate?: number;
+  previousEngagementRate?: number;
 }
 
 export const ConversaoFunilCard = ({ 
-  totalEngagement, 
+  totalEngagement,
   previousEngagement,
   avgEngagementRate,
   previousEngagementRate
 }: ConversaoFunilCardProps) => {
-  const calculateTrend = (current: number, previous: number) => {
-    if (previous === 0) return { type: 'neutral', change: 0 };
-    const change = ((current - previous) / previous) * 100;
-    if (change > 5) return { type: 'up', change };
-    if (change < -5) return { type: 'down', change };
-    return { type: 'neutral', change };
-  };
-
-  const engagementTrend = calculateTrend(totalEngagement, previousEngagement);
-  const rateTrend = calculateTrend(avgEngagementRate, previousEngagementRate);
-
-  const getTrendIcon = (type: string) => {
-    if (type === 'up') return <TrendingUp className="w-4 h-4" />;
-    if (type === 'down') return <TrendingDown className="w-4 h-4" />;
-    return <Minus className="w-4 h-4" />;
-  };
-
-  const getTrendColor = (type: string) => {
-    if (type === 'up') return 'bg-green-500';
-    if (type === 'down') return 'bg-red-500';
-    return 'bg-yellow-500';
-  };
   return (
-    <Card className="bg-gradient-to-br from-gray-100 to-gray-200 rounded-3xl p-6 hover:shadow-xl transition-all">
-      <div className="flex justify-between items-start mb-6">
+    <Card className="bg-[#E8E8E8] border-black/5 p-6 rounded-3xl hover:border-primary/30 transition-all relative overflow-hidden">
+      {/* Action Icons */}
+      <div className="absolute top-4 right-4 flex gap-2">
+        <button className="w-8 h-8 rounded-full bg-black/10 flex items-center justify-center hover:bg-black/20 transition-colors">
+          <Bell className="w-4 h-4 text-black" />
+        </button>
+        <button className="w-8 h-8 rounded-full bg-black/10 flex items-center justify-center hover:bg-black/20 transition-colors">
+          <TrendingUp className="w-4 h-4 text-black" />
+        </button>
+      </div>
+
+      {/* Title */}
+      <h3 className="text-black text-sm font-medium mb-2">Conversão</h3>
+      <p className="text-black/60 text-xs mb-6">& Funil</p>
+
+      {/* Content */}
+      <div className="flex items-end justify-between">
+        {/* Left Side - Stats */}
         <div>
-          <h3 className="text-black/60 text-sm mb-1 font-medium">Conversão</h3>
-          <h3 className="text-black/60 text-sm font-medium">& Funil</h3>
+          <p className="text-black text-3xl font-bold mb-1">36</p>
+          <p className="text-black/60 text-xs leading-tight">Campanhas<br/>ativas totais</p>
         </div>
-        <div className="flex gap-2">
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-8 w-8 p-2 border border-gray-300 rounded-full hover:bg-gray-300 transition-all"
-          >
-            <Bell className="w-4 h-4 text-black" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-8 w-8 p-2 border border-gray-300 rounded-full hover:bg-gray-300 transition-all"
-          >
-            <ArrowUpRight className="w-4 h-4 text-black" />
-          </Button>
-        </div>
-      </div>
 
-      <div className="mb-3">
-        <div className="text-7xl font-bold text-black leading-none">
-          {(totalEngagement / 1000).toFixed(1)}K
-        </div>
-        <div className="text-black/60 text-sm mt-2 leading-tight">
-          Engajamento<br />total
-        </div>
-      </div>
-
-      <div className="flex gap-3 mt-6">
-        <div className={`relative flex-1 ${getTrendColor(engagementTrend.type)} rounded-2xl p-4 overflow-hidden`}>
-          <div className="absolute inset-0 bg-[repeating-linear-gradient(45deg,transparent,transparent_6px,rgba(255,255,255,0.1)_6px,rgba(255,255,255,0.1)_12px)]" />
-          <div className="relative flex items-center justify-center gap-1 mb-1">
-            {getTrendIcon(engagementTrend.type)}
-            <span className="text-white font-bold text-lg">{Math.abs(engagementTrend.change).toFixed(1)}%</span>
+        {/* Right Side - Charts */}
+        <div className="flex gap-3 items-end">
+          {/* Negative Badge */}
+          <div className="flex flex-col items-center">
+            <div className="w-16 h-16 rounded-full bg-black flex items-center justify-center mb-2">
+              <span className="text-white text-sm font-bold">-40%</span>
+            </div>
+            {/* Striped Bar - Gray */}
+            <div className="w-12 h-20 rounded-lg bg-gradient-to-b from-black/20 to-black/10 relative overflow-hidden">
+              <svg viewBox="0 0 100 100" className="w-full h-full opacity-30">
+                <defs>
+                  <pattern id="stripes-gray" patternUnits="userSpaceOnUse" width="8" height="8" patternTransform="rotate(45)">
+                    <line x1="0" y1="0" x2="0" y2="8" stroke="black" strokeWidth="1.5"/>
+                  </pattern>
+                </defs>
+                <rect width="100" height="100" fill="url(#stripes-gray)"/>
+              </svg>
+            </div>
           </div>
-          <div className="text-white/80 text-xs text-center">GROWTH</div>
-        </div>
 
-        <div className={`relative flex-1 ${getTrendColor(rateTrend.type)} rounded-2xl p-4 overflow-hidden`}>
-          <div className="absolute inset-0 bg-[repeating-linear-gradient(45deg,transparent,transparent_6px,rgba(255,255,255,0.1)_6px,rgba(255,255,255,0.1)_12px)]" />
-          <div className="relative flex items-center justify-center gap-1 mb-1">
-            {getTrendIcon(rateTrend.type)}
-            <span className="text-white font-bold text-lg">{avgEngagementRate.toFixed(1)}%</span>
+          {/* Positive Badge */}
+          <div className="flex flex-col items-center">
+            <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center mb-2">
+              <span className="text-black text-sm font-bold">+35%</span>
+            </div>
+            {/* Striped Bar - Green Neon */}
+            <div className="w-12 h-32 rounded-lg bg-primary relative overflow-hidden shadow-[0_0_20px_rgba(120,255,100,0.4)]">
+              <svg viewBox="0 0 100 100" className="w-full h-full opacity-40">
+                <defs>
+                  <pattern id="stripes-green" patternUnits="userSpaceOnUse" width="8" height="8" patternTransform="rotate(45)">
+                    <line x1="0" y1="0" x2="0" y2="8" stroke="white" strokeWidth="2"/>
+                  </pattern>
+                </defs>
+                <rect width="100" height="100" fill="url(#stripes-green)"/>
+              </svg>
+            </div>
           </div>
-          <div className="text-white/80 text-xs text-center">TAXA</div>
         </div>
       </div>
     </Card>

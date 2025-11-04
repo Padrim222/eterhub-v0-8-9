@@ -1,18 +1,17 @@
-import { Bell, ArrowUpRight, TrendingUp, TrendingDown, Minus } from "lucide-react";
 import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { PieChart, Pie, Cell, Label, ResponsiveContainer } from "recharts";
+import { Bell, TrendingUp } from "lucide-react";
+import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
 
 interface EngajamentoRedesCardProps {
-  totalLikes: number;
-  previousLikes: number;
-  totalComments: number;
-  previousComments: number;
-  totalSaves: number;
-  previousSaves: number;
+  totalLikes?: number;
+  previousLikes?: number;
+  totalComments?: number;
+  previousComments?: number;
+  totalSaves?: number;
+  previousSaves?: number;
 }
 
-export const EngajamentoRedesCard = ({
+export const EngajamentoRedesCard = ({ 
   totalLikes,
   previousLikes,
   totalComments,
@@ -20,121 +19,67 @@ export const EngajamentoRedesCard = ({
   totalSaves,
   previousSaves
 }: EngajamentoRedesCardProps) => {
-  const calculateTrend = (current: number, previous: number) => {
-    if (previous === 0) return { type: 'neutral', change: 0 };
-    const change = ((current - previous) / previous) * 100;
-    if (change > 5) return { type: 'up', change };
-    if (change < -5) return { type: 'down', change };
-    return { type: 'neutral', change };
-  };
-
-  const likesTrend = calculateTrend(totalLikes, previousLikes);
-  const commentsTrend = calculateTrend(totalComments, previousComments);
-  const savesTrend = calculateTrend(totalSaves, previousSaves);
-
-  const totalEngagement = totalLikes + totalComments + totalSaves;
-  const likesPercentage = totalEngagement > 0 ? (totalLikes / totalEngagement) * 100 : 33;
-  const commentsPercentage = totalEngagement > 0 ? (totalComments / totalEngagement) * 100 : 33;
-  const savesPercentage = totalEngagement > 0 ? (totalSaves / totalEngagement) * 100 : 34;
-
   const data = [
-    { name: "Curtidas", value: likesPercentage, color: "#00FF00", count: totalLikes },
-    { name: "Comentários", value: commentsPercentage, color: "#FFD700", count: totalComments },
-    { name: "Salvos", value: savesPercentage, color: "#FF6B6B", count: totalSaves },
+    { name: 'Instagram', value: 70 },
+    { name: 'Youtube', value: 30 },
   ];
 
-  const getTrendIcon = (type: string) => {
-    if (type === 'up') return <TrendingUp className="w-3 h-3" />;
-    if (type === 'down') return <TrendingDown className="w-3 h-3" />;
-    return <Minus className="w-3 h-3" />;
-  };
-
-  const getTrendColor = (type: string) => {
-    if (type === 'up') return 'text-green-500';
-    if (type === 'down') return 'text-red-500';
-    return 'text-yellow-500';
-  };
+  const COLORS = ['hsl(120, 83%, 58%)', 'hsl(0, 0%, 20%)'];
 
   return (
-    <Card className="bg-black border border-gray-800 rounded-3xl p-6 hover:border-gray-700 transition-all">
-      <div className="flex justify-between items-start mb-6">
-        <h3 className="text-white text-sm font-medium leading-tight">
-          Engajamento<br />das Redes
-        </h3>
-        <div className="flex gap-2">
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-8 w-8 p-2 border border-gray-700 rounded-full hover:bg-gray-800 transition-all"
-          >
-            <Bell className="w-4 h-4 text-white" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-8 w-8 p-2 border border-gray-700 rounded-full hover:bg-gray-800 transition-all"
-          >
-            <ArrowUpRight className="w-4 h-4 text-white" />
-          </Button>
-        </div>
+    <Card className="bg-black border-white/10 p-6 rounded-3xl hover:border-primary/30 transition-all relative overflow-hidden">
+      {/* Action Icons */}
+      <div className="absolute top-4 right-4 flex gap-2">
+        <button className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors">
+          <Bell className="w-4 h-4 text-white" />
+        </button>
+        <button className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors">
+          <TrendingUp className="w-4 h-4 text-white" />
+        </button>
       </div>
 
-      <div className="flex justify-center items-center mb-6">
-        <ResponsiveContainer width="100%" height={180}>
+      {/* Title */}
+      <h3 className="text-white text-sm font-medium mb-2">Engajamento</h3>
+      <p className="text-white/60 text-xs mb-6">das Redes</p>
+
+      {/* Donut Chart */}
+      <div className="relative h-40 mb-4">
+        <ResponsiveContainer width="100%" height="100%">
           <PieChart>
             <Pie
               data={data}
               cx="50%"
               cy="50%"
-              innerRadius={60}
-              outerRadius={80}
+              innerRadius={50}
+              outerRadius={70}
               paddingAngle={2}
               dataKey="value"
             >
               {data.map((entry, index) => (
-                <Cell key={`cell-${index}`} fill={entry.color} />
+                <Cell key={`cell-${index}`} fill={COLORS[index]} />
               ))}
-              <Label
-                value="70"
-                position="center"
-                className="text-3xl font-bold"
-                fill="white"
-              />
             </Pie>
           </PieChart>
         </ResponsiveContainer>
+        
+        {/* Center Values */}
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+          <div className="text-center">
+            <div className="text-primary text-2xl font-bold">70</div>
+            <div className="text-white/40 text-xs">30</div>
+          </div>
+        </div>
       </div>
 
-      <div className="space-y-3">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-3 h-3 rounded-full bg-[#00FF00]" />
-            <span className="text-white text-sm">Curtidas</span>
-          </div>
-          <div className={`flex items-center gap-1 ${getTrendColor(likesTrend.type)}`}>
-            {getTrendIcon(likesTrend.type)}
-            <span className="text-xs">{Math.abs(likesTrend.change).toFixed(0)}%</span>
-          </div>
+      {/* Legend */}
+      <div className="space-y-2">
+        <div className="flex items-center gap-2">
+          <div className="w-2 h-2 rounded-full bg-primary shadow-[0_0_8px_rgba(120,255,100,0.6)]"></div>
+          <span className="text-white text-xs">Instagram</span>
         </div>
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-3 h-3 rounded-full bg-[#FFD700]" />
-            <span className="text-white text-sm">Comentários</span>
-          </div>
-          <div className={`flex items-center gap-1 ${getTrendColor(commentsTrend.type)}`}>
-            {getTrendIcon(commentsTrend.type)}
-            <span className="text-xs">{Math.abs(commentsTrend.change).toFixed(0)}%</span>
-          </div>
-        </div>
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-3 h-3 rounded-full bg-[#FF6B6B]" />
-            <span className="text-white text-sm">Salvos</span>
-          </div>
-          <div className={`flex items-center gap-1 ${getTrendColor(savesTrend.type)}`}>
-            {getTrendIcon(savesTrend.type)}
-            <span className="text-xs">{Math.abs(savesTrend.change).toFixed(0)}%</span>
-          </div>
+        <div className="flex items-center gap-2">
+          <div className="w-2 h-2 rounded-full bg-muted"></div>
+          <span className="text-white text-xs">Youtube</span>
         </div>
       </div>
     </Card>

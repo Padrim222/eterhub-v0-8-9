@@ -1,144 +1,87 @@
-import { Bell, ArrowUpRight, ChevronDown, TrendingUp, TrendingDown } from "lucide-react";
-import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { LineChart, Line, XAxis, ResponsiveContainer } from "recharts";
 import { useState } from "react";
-import { useCampaignsData, PeriodFilter } from "@/hooks/useCampaignsData";
-import { Badge } from "@/components/ui/badge";
+import { Card } from "@/components/ui/card";
+import { Bell, TrendingUp, ChevronDown } from "lucide-react";
+import { AreaChart, Area, ResponsiveContainer, XAxis } from "recharts";
 
 export const LancamentosCard = () => {
-  const [periodFilter, setPeriodFilter] = useState<PeriodFilter>("month");
-  const { averageLine, isLoading } = useCampaignsData(periodFilter);
+  const [periodFilter, setPeriodFilter] = useState<"week" | "month" | "year">("month");
 
-  // Calcular média atual e anterior para comparação
-  const currentAverage = averageLine.length > 0
-    ? averageLine.reduce((sum, point) => sum + point.average, 0) / averageLine.length
-    : 0;
-
-  const halfPoint = Math.floor(averageLine.length / 2);
-  const firstHalfAverage = averageLine.length > 0
-    ? averageLine.slice(0, halfPoint).reduce((sum, point) => sum + point.average, 0) / halfPoint
-    : 0;
-  const secondHalfAverage = averageLine.length > 0
-    ? averageLine.slice(halfPoint).reduce((sum, point) => sum + point.average, 0) / (averageLine.length - halfPoint)
-    : 0;
-
-  const percentChange = firstHalfAverage > 0
-    ? ((secondHalfAverage - firstHalfAverage) / firstHalfAverage) * 100
-    : 0;
-
-  const isIncreasing = percentChange > 0;
-
-  const periods = [
-    { label: "Semana", value: "week" as PeriodFilter },
-    { label: "Mês", value: "month" as PeriodFilter },
-    { label: "Ano", value: "year" as PeriodFilter },
+  const data = [
+    { month: "Jul", value: 450 },
+    { month: "Ago", value: 520 },
+    { month: "Set", value: 640 },
+    { month: "Out", value: 580 },
+    { month: "Nov", value: 610 },
   ];
 
   return (
-    <Card className="bg-black border border-gray-800 rounded-3xl p-6 hover:border-gray-700 transition-all">
-      <div className="flex justify-between items-start mb-4">
-        <div className="flex items-center gap-2">
-          <h3 className="text-white text-sm font-medium">Média de Leads</h3>
-          <Badge variant="outline" className="text-xs">
-            DEMO
-          </Badge>
-        </div>
-        <div className="flex gap-2">
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-8 w-8 p-2 border border-gray-700 rounded-full hover:bg-gray-800 transition-all"
-          >
-            <Bell className="w-4 h-4 text-white" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-8 w-8 p-2 border border-gray-700 rounded-full hover:bg-gray-800 transition-all"
-          >
-            <ArrowUpRight className="w-4 h-4 text-white" />
-          </Button>
-        </div>
+    <Card className="bg-black border-white/10 p-6 rounded-3xl hover:border-primary/30 transition-all relative overflow-hidden">
+      {/* Action Icons */}
+      <div className="absolute top-4 right-4 flex gap-2">
+        <button className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors">
+          <Bell className="w-4 h-4 text-white" />
+        </button>
+        <button className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors">
+          <TrendingUp className="w-4 h-4 text-white" />
+        </button>
       </div>
 
-      {/* Filtros de período */}
-      <div className="flex flex-wrap gap-2 mb-4">
-        {periods.map((period) => (
-          <button
-            key={period.value}
-            onClick={() => setPeriodFilter(period.value)}
-            className={`px-3 py-1 rounded-full text-xs transition-all ${
-              period.value === periodFilter
-                ? "bg-white text-black font-bold"
-                : "bg-gray-800 text-white/60 hover:bg-gray-700"
-            }`}
-          >
-            {period.label}
-          </button>
-        ))}
-      </div>
+      {/* Title */}
+      <h3 className="text-white text-sm font-medium mb-8">Lançamentos</h3>
 
-      {/* Gráfico de linha branca */}
-      {isLoading ? (
-        <div className="h-[200px] flex items-center justify-center">
-          <p className="text-white/40">Carregando...</p>
-        </div>
-      ) : (
-        <ResponsiveContainer width="100%" height={200}>
-          <LineChart data={averageLine}>
+      {/* Area Chart */}
+      <div className="h-48 mb-4 relative">
+        <ResponsiveContainer width="100%" height="100%">
+          <AreaChart data={data}>
+            <defs>
+              <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%" stopColor="hsl(120, 83%, 58%)" stopOpacity={0.8}/>
+                <stop offset="95%" stopColor="hsl(120, 83%, 58%)" stopOpacity={0.1}/>
+              </linearGradient>
+              <filter id="glow">
+                <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
+                <feMerge>
+                  <feMergeNode in="coloredBlur"/>
+                  <feMergeNode in="SourceGraphic"/>
+                </feMerge>
+              </filter>
+            </defs>
             <XAxis 
-              dataKey="date" 
-              stroke="rgba(255,255,255,0.3)" 
-              tick={{ fill: "#666", fontSize: 12 }} 
+              dataKey="month" 
+              stroke="rgba(255,255,255,0.2)" 
+              tick={{ fill: '#666', fontSize: 11 }}
+              axisLine={false}
             />
-            <Line
-              type="monotone"
-              dataKey="average"
-              stroke="rgba(255,255,255,0.9)"
-              strokeWidth={3}
-              dot={{ fill: "rgba(255,255,255,0.9)", r: 3 }}
-              activeDot={{ r: 5 }}
+            <Area 
+              type="monotone" 
+              dataKey="value" 
+              stroke="hsl(120, 83%, 58%)" 
+              strokeWidth={2}
+              fill="url(#colorValue)" 
+              filter="url(#glow)"
             />
-          </LineChart>
+          </AreaChart>
         </ResponsiveContainer>
-      )}
 
-      {/* Indicador de valor com variação */}
-      <div className="flex items-center justify-between mt-4">
-        <div className="inline-flex items-baseline bg-black border border-gray-700 rounded-lg p-3">
-          <span className="text-white text-2xl font-bold">
-            {Math.round(currentAverage)}
-          </span>
-          <span className="text-white/70 text-sm ml-2 font-medium">Leads/média</span>
-        </div>
-
-        {/* Indicador de tendência */}
-        {percentChange !== 0 && (
-          <div className={`flex items-center gap-1 px-3 py-2 rounded-lg ${
-            isIncreasing ? "bg-green-500/10" : "bg-red-500/10"
-          }`}>
-            {isIncreasing ? (
-              <TrendingUp className={`w-4 h-4 text-green-500`} />
-            ) : (
-              <TrendingDown className={`w-4 h-4 text-red-500`} />
-            )}
-            <span className={`text-sm font-semibold ${
-              isIncreasing ? "text-green-500" : "text-red-500"
-            }`}>
-              {Math.abs(percentChange).toFixed(1)}%
-            </span>
+        {/* Highlighted Point */}
+        <div className="absolute top-8 right-16">
+          <div className="bg-primary text-black px-3 py-1 rounded-lg text-sm font-bold shadow-[0_0_20px_rgba(120,255,100,0.6)]">
+            640 <span className="text-xs font-normal">Leads</span>
           </div>
-        )}
+        </div>
       </div>
 
-      <Button
-        variant="outline"
-        className="w-full mt-4 py-3 border border-gray-700 rounded-lg text-white/60 text-sm hover:bg-gray-800 hover:text-white transition-all"
-      >
+      {/* Month Labels */}
+      <div className="flex justify-between text-white/40 text-xs mb-4 px-2">
+        <span className="bg-white/5 px-2 py-1 rounded">Setembro</span>
+        <span>06 Set</span>
+      </div>
+
+      {/* More Info Button */}
+      <button className="w-full bg-white/5 hover:bg-white/10 text-white/60 py-2 px-4 rounded-lg text-xs flex items-center justify-center gap-2 transition-colors">
         Mais Informações
-        <ChevronDown className="w-4 h-4 ml-2" />
-      </Button>
+        <ChevronDown className="w-3 h-3" />
+      </button>
     </Card>
   );
 };

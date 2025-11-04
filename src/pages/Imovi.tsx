@@ -4,11 +4,12 @@ import { supabase } from "@/integrations/supabase/client";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
 import { OnboardingModal } from "@/components/dashboard/OnboardingModal";
-import { MQLCard } from "@/components/dashboard/MQLCard";
-import { LeadsQuantityCard } from "@/components/dashboard/LeadsQuantityCard";
-import { ConversionRateCard } from "@/components/dashboard/ConversionRateCard";
-import { SalesNumberCard } from "@/components/dashboard/SalesNumberCard";
-import { QualificationRateCard } from "@/components/dashboard/QualificationRateCard";
+import { ReceitaTotalCard } from "@/components/dashboard/ReceitaTotalCard";
+import { ConversaoFunilCard } from "@/components/dashboard/ConversaoFunilCard";
+import { EngajamentoRedesCard } from "@/components/dashboard/EngajamentoRedesCard";
+import { LancamentosCard } from "@/components/dashboard/LancamentosCard";
+import { IMOVICard } from "@/components/dashboard/IMOVICard";
+import { InsightsIACard } from "@/components/dashboard/InsightsIACard";
 import { LeaderBanner } from "@/components/dashboard/LeaderBanner";
 import { useDashboardData } from "@/hooks/useDashboardData";
 import { ChannelView } from "@/components/canais/ChannelView";
@@ -124,35 +125,45 @@ const Imovi = () => {
               <ChannelView />
             ) : activeFilter === "geral" ? (
               <div className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {/* Métricas principais do Dashboard */}
-                  <MQLCard 
-                    mqlPercentage={35.5}
-                    previousPercentage={32.0}
+                {/* First Row - 3 Cards */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <ReceitaTotalCard 
+                    totalViews={data.totalReach}
+                    previousViews={data.previousPeriodData.totalReach}
                   />
-                  <LeadsQuantityCard 
-                    totalLeads={data.totalReach || 1240}
-                    previousLeads={data.previousPeriodData.totalReach || 1100}
+                  <ConversaoFunilCard 
+                    totalEngagement={data.totalEngagement}
+                    previousEngagement={data.previousPeriodData.totalEngagement}
+                    avgEngagementRate={data.avgEngagementRate}
+                    previousEngagementRate={data.previousPeriodData.avgEngagementRate}
                   />
-                  <ConversionRateCard 
-                    conversionRate={18.5}
-                    previousRate={16.2}
-                  />
-                  <SalesNumberCard 
-                    totalSales={87}
-                    previousSales={72}
-                  />
-                  <QualificationRateCard 
-                    qualificationRate={42.3}
-                    previousRate={38.7}
+                  <EngajamentoRedesCard 
+                    totalLikes={data.totalLikes}
+                    previousLikes={data.previousPeriodData.totalLikes}
+                    totalComments={data.totalComments}
+                    previousComments={data.previousPeriodData.totalComments}
+                    totalSaves={data.totalSaves}
+                    previousSaves={data.previousPeriodData.totalSaves}
                   />
                 </div>
 
-                {/* Banner Informativos ETER */}
-                <LeaderBanner 
-                  userProfile={userProfile}
-                  onEdit={loadUserProfile}
-                />
+                {/* Second Row - IMOVI and Lançamentos */}
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                  <IMOVICard 
+                    imoviHistory={data.imoviHistory} 
+                    currentImovi={data.currentImovi}
+                  />
+                  <LancamentosCard />
+                </div>
+
+                {/* Third Row - Insights IA and Leader Banner */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  <InsightsIACard />
+                  <LeaderBanner 
+                    userProfile={userProfile}
+                    onEdit={loadUserProfile}
+                  />
+                </div>
               </div>
             ) : activeFilter === "leads" ? (
               <Leads />

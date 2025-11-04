@@ -1,84 +1,59 @@
-import { Bell, ArrowUpRight, TrendingUp, TrendingDown, Minus } from "lucide-react";
 import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { Bell, TrendingUp } from "lucide-react";
+import { Progress } from "@/components/ui/progress";
 
 interface ReceitaTotalCardProps {
   totalViews: number;
-  previousViews: number;
+  previousViews?: number;
 }
 
-export const ReceitaTotalCard = ({ totalViews, previousViews }: ReceitaTotalCardProps) => {
-  const targetViews = 100000;
-  const percentage = Math.min((totalViews / targetViews) * 100, 100);
-  
-  const calculateTrend = () => {
-    if (previousViews === 0) return { type: 'neutral', change: 0 };
-    const change = ((totalViews - previousViews) / previousViews) * 100;
-    if (change > 5) return { type: 'up', change };
-    if (change < -5) return { type: 'down', change };
-    return { type: 'neutral', change };
-  };
-
-  const trend = calculateTrend();
-  
-  const getTrendIcon = () => {
-    if (trend.type === 'up') return <TrendingUp className="w-4 h-4" />;
-    if (trend.type === 'down') return <TrendingDown className="w-4 h-4" />;
-    return <Minus className="w-4 h-4" />;
-  };
-
-  const getTrendColor = () => {
-    if (trend.type === 'up') return 'text-green-500';
-    if (trend.type === 'down') return 'text-red-500';
-    return 'text-yellow-500';
-  };
+export const ReceitaTotalCard = ({ totalViews, previousViews = 0 }: ReceitaTotalCardProps) => {
+  const revenue = 320.0;
+  const goal = 500;
+  const progressPercentage = (revenue / goal) * 100;
 
   return (
-    <Card className="bg-card-dark border-border rounded-3xl p-6 hover:border-primary/30 transition-all">
-      <div className="flex justify-between items-start mb-6">
-        <h3 className="text-muted-foreground text-sm font-medium">Receita Total</h3>
-        <div className="flex gap-2">
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-8 w-8 p-2 border-border rounded-full hover:bg-accent transition-all"
-          >
-            <Bell className="w-4 h-4 text-card-dark-foreground" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-8 w-8 p-2 border-border rounded-full hover:bg-accent transition-all"
-          >
-            <ArrowUpRight className="w-4 h-4 text-card-dark-foreground" />
-          </Button>
-        </div>
+    <Card className="bg-black border-white/10 p-6 rounded-3xl hover:border-primary/30 transition-all relative overflow-hidden">
+      {/* Action Icons */}
+      <div className="absolute top-4 right-4 flex gap-2">
+        <button className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors">
+          <Bell className="w-4 h-4 text-white" />
+        </button>
+        <button className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors">
+          <TrendingUp className="w-4 h-4 text-white" />
+        </button>
       </div>
 
-      <div className="mb-3 flex items-center gap-3">
-        <div>
-          <span className="text-card-dark-foreground text-6xl font-bold">{(totalViews / 1000).toFixed(1)}K</span>
-          <span className="text-muted-foreground text-sm ml-2">visualizações</span>
-        </div>
-        <div className={`flex items-center gap-1 ${getTrendColor()}`}>
-          {getTrendIcon()}
-          <span className="text-sm font-medium">{Math.abs(trend.change).toFixed(1)}%</span>
-        </div>
+      {/* Title */}
+      <h3 className="text-white text-sm font-medium mb-8">Receita Total</h3>
+
+      {/* Value */}
+      <div className="mb-2">
+        <span className="text-white/60 text-sm font-medium">R$</span>
+        <span className="text-white text-5xl font-bold ml-1">{revenue.toFixed(1)}K</span>
       </div>
 
-      <div className="flex justify-end mb-4">
-        <span className="text-muted-foreground text-sm">Meta: {(targetViews / 1000).toFixed(0)}k</span>
-      </div>
+      {/* Goal */}
+      <p className="text-white/40 text-xs mb-6">Meta: {goal}k</p>
 
-      <div className="relative h-12 bg-muted/20 rounded-full overflow-hidden">
-        <div
-          className="absolute h-full bg-gradient-to-r from-primary to-primary/80 rounded-full transition-all duration-500"
-          style={{ width: `${percentage}%` }}
+      {/* Progress Bar - Green Neon */}
+      <div className="relative h-2 bg-white/5 rounded-full overflow-hidden">
+        <div 
+          className="absolute inset-y-0 left-0 bg-gradient-to-r from-primary to-primary rounded-full shadow-[0_0_20px_rgba(120,255,100,0.6)]"
+          style={{ width: `${progressPercentage}%` }}
         />
-        <div
-          className="absolute right-0 h-full bg-[repeating-linear-gradient(45deg,transparent,transparent_4px,rgba(255,255,255,0.05)_4px,rgba(255,255,255,0.05)_8px)]"
-          style={{ width: `${100 - percentage}%` }}
-        />
+      </div>
+
+      {/* Striped Pattern Background */}
+      <div className="absolute bottom-0 right-0 w-32 h-32 opacity-10">
+        <svg viewBox="0 0 100 100" className="w-full h-full">
+          <defs>
+            <pattern id="stripes" patternUnits="userSpaceOnUse" width="10" height="10" patternTransform="rotate(45)">
+              <line x1="0" y1="0" x2="0" y2="10" stroke="white" strokeWidth="2"/>
+            </pattern>
+          </defs>
+          <rect width="100" height="100" fill="url(#stripes)"/>
+        </svg>
       </div>
     </Card>
   );
