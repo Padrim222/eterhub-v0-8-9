@@ -24,7 +24,7 @@ const Etherflow = () => {
         .from("users")
         .select("*")
         .eq("id", session.user.id)
-        .single();
+        .maybeSingle();
 
       setUserProfile(profile);
     };

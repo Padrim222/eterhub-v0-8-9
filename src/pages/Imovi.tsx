@@ -30,7 +30,7 @@ const Imovi = () => {
         .from('users')
         .select('*')
         .eq('id', user.id)
-        .single();
+        .maybeSingle();
       setUserProfile(profile);
     }
   };
@@ -49,7 +49,7 @@ const Imovi = () => {
           .from('users')
           .select('*')
           .eq('id', user.id)
-          .single();
+          .maybeSingle();
 
         setUserProfile(profile);
 

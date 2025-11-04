@@ -49,7 +49,7 @@ const Conteudo = () => {
       .from('users')
       .select('*')
       .eq('id', session.user.id)
-      .single();
+      .maybeSingle();
 
     if (profile) {
       setUserProfile(profile);
