@@ -1,24 +1,49 @@
-import { Bell, ArrowUpRight, ChevronDown } from "lucide-react";
+import { Bell, ArrowUpRight, ChevronDown, TrendingUp, TrendingDown } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { AreaChart, Area, XAxis, ResponsiveContainer } from "recharts";
+import { LineChart, Line, XAxis, ResponsiveContainer } from "recharts";
+import { useState } from "react";
+import { useCampaignsData, PeriodFilter } from "@/hooks/useCampaignsData";
+import { Badge } from "@/components/ui/badge";
 
 export const LancamentosCard = () => {
-  const months = ["Julho", "Agosto", "Setembro", "Outubro", "Novembro"];
-  const currentMonth = "Setembro";
+  const [periodFilter, setPeriodFilter] = useState<PeriodFilter>("month");
+  const { averageLine, isLoading } = useCampaignsData(periodFilter);
 
-  const lancamentosData = [
-    { month: "Jul", leads: 200 },
-    { month: "Ago", leads: 350 },
-    { month: "Set", leads: 640 },
-    { month: "Out", leads: 500 },
-    { month: "Nov", leads: 400 },
+  // Calcular média atual e anterior para comparação
+  const currentAverage = averageLine.length > 0
+    ? averageLine.reduce((sum, point) => sum + point.average, 0) / averageLine.length
+    : 0;
+
+  const halfPoint = Math.floor(averageLine.length / 2);
+  const firstHalfAverage = averageLine.length > 0
+    ? averageLine.slice(0, halfPoint).reduce((sum, point) => sum + point.average, 0) / halfPoint
+    : 0;
+  const secondHalfAverage = averageLine.length > 0
+    ? averageLine.slice(halfPoint).reduce((sum, point) => sum + point.average, 0) / (averageLine.length - halfPoint)
+    : 0;
+
+  const percentChange = firstHalfAverage > 0
+    ? ((secondHalfAverage - firstHalfAverage) / firstHalfAverage) * 100
+    : 0;
+
+  const isIncreasing = percentChange > 0;
+
+  const periods = [
+    { label: "Semana", value: "week" as PeriodFilter },
+    { label: "Mês", value: "month" as PeriodFilter },
+    { label: "Ano", value: "year" as PeriodFilter },
   ];
 
   return (
     <Card className="bg-black border border-gray-800 rounded-3xl p-6 hover:border-gray-700 transition-all">
       <div className="flex justify-between items-start mb-4">
-        <h3 className="text-white text-sm font-medium">Lançamentos</h3>
+        <div className="flex items-center gap-2">
+          <h3 className="text-white text-sm font-medium">Média de Leads</h3>
+          <Badge variant="outline" className="text-xs">
+            DEMO
+          </Badge>
+        </div>
         <div className="flex gap-2">
           <Button
             variant="ghost"
@@ -37,46 +62,74 @@ export const LancamentosCard = () => {
         </div>
       </div>
 
-      {/* Badges de meses */}
+      {/* Filtros de período */}
       <div className="flex flex-wrap gap-2 mb-4">
-        {months.map((mes) => (
-          <span
-            key={mes}
+        {periods.map((period) => (
+          <button
+            key={period.value}
+            onClick={() => setPeriodFilter(period.value)}
             className={`px-3 py-1 rounded-full text-xs transition-all ${
-              mes === currentMonth
-                ? "bg-[#00FF00] text-black font-bold"
+              period.value === periodFilter
+                ? "bg-white text-black font-bold"
                 : "bg-gray-800 text-white/60 hover:bg-gray-700"
             }`}
           >
-            {mes}
-          </span>
+            {period.label}
+          </button>
         ))}
       </div>
 
-      {/* Gráfico de área */}
-      <ResponsiveContainer width="100%" height={200}>
-        <AreaChart data={lancamentosData}>
-          <defs>
-            <linearGradient id="colorLeads" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%" stopColor="#00FF00" stopOpacity={0.8} />
-              <stop offset="95%" stopColor="#00FF00" stopOpacity={0} />
-            </linearGradient>
-          </defs>
-          <XAxis dataKey="month" stroke="#666" tick={{ fill: "#666", fontSize: 12 }} />
-          <Area
-            type="monotone"
-            dataKey="leads"
-            stroke="#00FF00"
-            strokeWidth={3}
-            fill="url(#colorLeads)"
-          />
-        </AreaChart>
-      </ResponsiveContainer>
+      {/* Gráfico de linha branca */}
+      {isLoading ? (
+        <div className="h-[200px] flex items-center justify-center">
+          <p className="text-white/40">Carregando...</p>
+        </div>
+      ) : (
+        <ResponsiveContainer width="100%" height={200}>
+          <LineChart data={averageLine}>
+            <XAxis 
+              dataKey="date" 
+              stroke="rgba(255,255,255,0.3)" 
+              tick={{ fill: "#666", fontSize: 12 }} 
+            />
+            <Line
+              type="monotone"
+              dataKey="average"
+              stroke="rgba(255,255,255,0.9)"
+              strokeWidth={3}
+              dot={{ fill: "rgba(255,255,255,0.9)", r: 3 }}
+              activeDot={{ r: 5 }}
+            />
+          </LineChart>
+        </ResponsiveContainer>
+      )}
 
-      {/* Indicador de valor */}
-      <div className="inline-flex items-baseline bg-black border border-gray-700 rounded-lg p-3 mt-4">
-        <span className="text-white text-2xl font-bold">640</span>
-        <span className="text-[#00FF00] text-sm ml-2 font-medium">Leads</span>
+      {/* Indicador de valor com variação */}
+      <div className="flex items-center justify-between mt-4">
+        <div className="inline-flex items-baseline bg-black border border-gray-700 rounded-lg p-3">
+          <span className="text-white text-2xl font-bold">
+            {Math.round(currentAverage)}
+          </span>
+          <span className="text-white/70 text-sm ml-2 font-medium">Leads/média</span>
+        </div>
+
+        {/* Indicador de tendência */}
+        {percentChange !== 0 && (
+          <div className={`flex items-center gap-1 px-3 py-2 rounded-lg ${
+            isIncreasing ? "bg-green-500/10" : "bg-red-500/10"
+          }`}>
+            {isIncreasing ? (
+              <TrendingUp className={`w-4 h-4 text-green-500`} />
+            ) : (
+              <TrendingDown className={`w-4 h-4 text-red-500`} />
+            )}
+            <span className={`text-sm font-semibold ${
+              isIncreasing ? "text-green-500" : "text-red-500"
+            }`}>
+              {Math.abs(percentChange).toFixed(1)}%
+            </span>
+          </div>
+        )}
       </div>
 
       <Button
