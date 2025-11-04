@@ -34,31 +34,31 @@ export const ReceitaTotalCard = ({ totalViews, previousViews }: ReceitaTotalCard
   };
 
   return (
-    <Card className="bg-black border border-gray-800 rounded-3xl p-6 hover:border-gray-700 transition-all">
+    <Card className="bg-card-dark border-border rounded-3xl p-6 hover:border-primary/30 transition-all">
       <div className="flex justify-between items-start mb-6">
-        <h3 className="text-white/60 text-sm font-medium">Receita Total</h3>
+        <h3 className="text-muted-foreground text-sm font-medium">Receita Total</h3>
         <div className="flex gap-2">
           <Button
             variant="ghost"
             size="icon"
-            className="h-8 w-8 p-2 border border-gray-700 rounded-full hover:bg-gray-800 transition-all"
+            className="h-8 w-8 p-2 border-border rounded-full hover:bg-accent transition-all"
           >
-            <Bell className="w-4 h-4 text-white" />
+            <Bell className="w-4 h-4 text-card-dark-foreground" />
           </Button>
           <Button
             variant="ghost"
             size="icon"
-            className="h-8 w-8 p-2 border border-gray-700 rounded-full hover:bg-gray-800 transition-all"
+            className="h-8 w-8 p-2 border-border rounded-full hover:bg-accent transition-all"
           >
-            <ArrowUpRight className="w-4 h-4 text-white" />
+            <ArrowUpRight className="w-4 h-4 text-card-dark-foreground" />
           </Button>
         </div>
       </div>
 
       <div className="mb-3 flex items-center gap-3">
         <div>
-          <span className="text-white text-6xl font-bold">{(totalViews / 1000).toFixed(1)}K</span>
-          <span className="text-white/40 text-sm ml-2">visualizações</span>
+          <span className="text-card-dark-foreground text-6xl font-bold">{(totalViews / 1000).toFixed(1)}K</span>
+          <span className="text-muted-foreground text-sm ml-2">visualizações</span>
         </div>
         <div className={`flex items-center gap-1 ${getTrendColor()}`}>
           {getTrendIcon()}
@@ -67,16 +67,16 @@ export const ReceitaTotalCard = ({ totalViews, previousViews }: ReceitaTotalCard
       </div>
 
       <div className="flex justify-end mb-4">
-        <span className="text-white/40 text-sm">Meta: {(targetViews / 1000).toFixed(0)}k</span>
+        <span className="text-muted-foreground text-sm">Meta: {(targetViews / 1000).toFixed(0)}k</span>
       </div>
 
-      <div className="relative h-12 bg-gray-800/50 rounded-full overflow-hidden">
+      <div className="relative h-12 bg-muted/20 rounded-full overflow-hidden">
         <div
-          className="absolute h-full bg-gradient-to-r from-[#00FF00] to-[#00DD00] rounded-full transition-all duration-500"
+          className="absolute h-full bg-gradient-to-r from-primary to-primary/80 rounded-full transition-all duration-500"
           style={{ width: `${percentage}%` }}
         />
         <div
-          className="absolute right-0 h-full bg-[repeating-linear-gradient(45deg,transparent,transparent_4px,rgba(255,255,255,0.1)_4px,rgba(255,255,255,0.1)_8px)]"
+          className="absolute right-0 h-full bg-[repeating-linear-gradient(45deg,transparent,transparent_4px,rgba(255,255,255,0.05)_4px,rgba(255,255,255,0.05)_8px)]"
           style={{ width: `${100 - percentage}%` }}
         />
       </div>

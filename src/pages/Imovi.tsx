@@ -10,7 +10,7 @@ import { ReceitaTotalCard } from "@/components/dashboard/ReceitaTotalCard";
 import { ConversaoFunilCard } from "@/components/dashboard/ConversaoFunilCard";
 import { EngajamentoRedesCard } from "@/components/dashboard/EngajamentoRedesCard";
 import { LancamentosCard } from "@/components/dashboard/LancamentosCard";
-import { LeaderCard } from "@/components/dashboard/LeaderCard";
+import { LeaderBanner } from "@/components/dashboard/LeaderBanner";
 import { InstagramImportCard } from "@/components/dashboard/InstagramImportCard";
 import { useDashboardData } from "@/hooks/useDashboardData";
 import { TopPerformingPostsCard } from "@/components/redes-sociais/TopPerformingPostsCard";
@@ -322,43 +322,41 @@ const Imovi = () => {
                 </div>
               </div>
             ) : activeFilter === "geral" ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {/* Linha 1: Identidade + Performance */}
-                <LeaderCard 
-                  userProfile={userProfile} 
-                  onProfileUpdate={loadUserProfile}
-                />
-                <IMOVICard 
-                  imoviHistory={data.imoviHistory} 
-                  currentImovi={data.currentImovi}
-                />
-                <ReceitaTotalCard 
-                  totalViews={data.totalReach}
-                  previousViews={data.previousPeriodData.totalReach}
-                />
-                
-                {/* Linha 2: Financeiro + Leads */}
-                <LancamentosCard />
-                <InsightsIACard />
-                <ConversaoFunilCard 
-                  totalEngagement={data.totalEngagement}
-                  previousEngagement={data.previousPeriodData.totalEngagement}
-                  avgEngagementRate={data.avgEngagementRate}
-                  previousEngagementRate={data.previousPeriodData.avgEngagementRate}
-                />
-                
-                {/* Linha 3: Engajamento + Importação */}
-                <EngajamentoRedesCard 
-                  totalLikes={data.totalLikes}
-                  previousLikes={data.previousPeriodData.totalLikes}
-                  totalComments={data.totalComments}
-                  previousComments={data.previousPeriodData.totalComments}
-                  totalSaves={data.totalSaves}
-                  previousSaves={data.previousPeriodData.totalSaves}
-                />
-                <InstagramImportCard 
+              <div className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {/* Linha 1: Performance */}
+                  <IMOVICard 
+                    imoviHistory={data.imoviHistory} 
+                    currentImovi={data.currentImovi}
+                  />
+                  <ReceitaTotalCard 
+                    totalViews={data.totalReach}
+                    previousViews={data.previousPeriodData.totalReach}
+                  />
+                  <ConversaoFunilCard 
+                    totalEngagement={data.totalEngagement}
+                    previousEngagement={data.previousPeriodData.totalEngagement}
+                    avgEngagementRate={data.avgEngagementRate}
+                    previousEngagementRate={data.previousPeriodData.avgEngagementRate}
+                  />
+                  
+                  {/* Linha 2: Financeiro + Leads + Engajamento */}
+                  <LancamentosCard />
+                  <InsightsIACard />
+                  <EngajamentoRedesCard 
+                    totalLikes={data.totalLikes}
+                    previousLikes={data.previousPeriodData.totalLikes}
+                    totalComments={data.totalComments}
+                    previousComments={data.previousPeriodData.totalComments}
+                    totalSaves={data.totalSaves}
+                    previousSaves={data.previousPeriodData.totalSaves}
+                  />
+                </div>
+
+                {/* Banner do Líder no Rodapé */}
+                <LeaderBanner 
                   userProfile={userProfile}
-                  onProfileUpdate={loadUserProfile}
+                  onEdit={loadUserProfile}
                 />
               </div>
             ) : activeFilter === "leads" ? (
