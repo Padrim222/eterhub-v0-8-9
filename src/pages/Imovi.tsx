@@ -13,8 +13,8 @@ import { LeaderBanner } from "@/components/dashboard/LeaderBanner";
 import { useDashboardData } from "@/hooks/useDashboardData";
 import { InsightsIACard } from "@/components/dashboard/InsightsIACard";
 import { ChannelView } from "@/components/canais/ChannelView";
-import { Card } from "@/components/ui/card";
 import Leads from "./Leads";
+import Campanhas from "./Campanhas";
 
 const mockConcorrentes: never[] = [];
 
@@ -164,12 +164,7 @@ const Imovi = () => {
             ) : activeFilter === "leads" ? (
               <Leads />
             ) : activeFilter === "campanhas" ? (
-              <div className="grid grid-cols-1 gap-6">
-                <Card className="bg-black border-gray-800 rounded-3xl p-6">
-                  <h2 className="text-2xl font-bold mb-4">Campanhas</h2>
-                  <p className="text-white/60">Conteúdo em desenvolvimento...</p>
-                </Card>
-              </div>
+              <Campanhas />
             ) : null}
           </>
         )}
