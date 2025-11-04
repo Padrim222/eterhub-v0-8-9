@@ -1,4 +1,6 @@
+import { useState } from "react";
 import { PostCard } from "./PostCard";
+import { PostDetailModal } from "./PostDetailModal";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle, Instagram } from "lucide-react";
@@ -11,6 +13,7 @@ interface PostsGridProps {
 }
 
 export const PostsGrid = ({ posts, isLoading, error }: PostsGridProps) => {
+  const [selectedPost, setSelectedPost] = useState<InstagramPost | null>(null);
   if (isLoading) {
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -47,10 +50,22 @@ export const PostsGrid = ({ posts, isLoading, error }: PostsGridProps) => {
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      {posts.map((post) => (
-        <PostCard key={post.id} post={post} />
-      ))}
-    </div>
+    <>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {posts.map((post) => (
+          <PostCard 
+            key={post.id} 
+            post={post} 
+            onClick={() => setSelectedPost(post)}
+          />
+        ))}
+      </div>
+
+      <PostDetailModal
+        post={selectedPost}
+        isOpen={!!selectedPost}
+        onClose={() => setSelectedPost(null)}
+      />
+    </>
   );
 };
