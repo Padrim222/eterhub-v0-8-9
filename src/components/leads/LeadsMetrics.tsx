@@ -55,11 +55,11 @@ export const LeadsMetrics = ({ metrics, isLoading }: LeadsMetricsProps) => {
                 <div className="space-y-2">
                   <div className="flex items-center gap-2">
                     <Icon className={`w-4 h-4 ${card.color}`} />
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-sm text-white/70">
                       {card.title}
                     </p>
                   </div>
-                  <p className="text-3xl font-bold">{card.value}</p>
+                  <p className="text-3xl font-bold text-white">{card.value}</p>
                 </div>
               )}
             </CardContent>

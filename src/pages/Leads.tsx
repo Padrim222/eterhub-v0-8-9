@@ -18,7 +18,7 @@ const Leads = () => {
         <CardHeader>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <CardTitle className="text-xl font-semibold">
+              <CardTitle className="text-xl font-semibold text-white">
                 INSIGHTS - Compre 5 tokens do Eter Flow
               </CardTitle>
               <Badge variant="outline" className="text-xs">
@@ -27,7 +27,7 @@ const Leads = () => {
             </div>
             <div className="relative">
               <Button variant="ghost" size="icon" className="rounded-full">
-                <Bell className="w-5 h-5" />
+                <Bell className="w-5 h-5 text-white" />
               </Button>
               {notificationCount > 0 && (
                 <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
@@ -44,7 +44,7 @@ const Leads = () => {
 
       {/* Actions */}
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold">Ranking dos Leads</h2>
+        <h2 className="text-2xl font-bold text-white">Ranking dos Leads</h2>
         <div className="flex gap-2">
           <Button variant="outline" size="sm">
             <Upload className="w-4 h-4 mr-2" />

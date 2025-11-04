@@ -39,7 +39,7 @@ export const LeadCard = ({ lead, color }: LeadCardProps) => {
     >
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
-          <CardTitle className="text-base font-semibold">
+          <CardTitle className="text-base font-semibold text-white">
             {lead.name}
           </CardTitle>
           <div className="flex items-center gap-2">
@@ -49,9 +49,9 @@ export const LeadCard = ({ lead, color }: LeadCardProps) => {
               </Badge>
             )}
             {isExpanded ? (
-              <ChevronUp className="w-4 h-4" />
+              <ChevronUp className="w-4 h-4 text-white" />
             ) : (
-              <ChevronDown className="w-4 h-4" />
+              <ChevronDown className="w-4 h-4 text-white" />
             )}
           </div>
         </div>
@@ -62,41 +62,41 @@ export const LeadCard = ({ lead, color }: LeadCardProps) => {
           {/* Canal */}
           {lead.source_channel && (
             <div>
-              <p className="text-muted-foreground mb-1">Canal</p>
+              <p className="text-white/70 mb-1">Canal</p>
               <Badge variant="outline">{lead.source_channel}</Badge>
             </div>
           )}
 
           {/* Informações */}
           <div className="space-y-2">
-            <p className="text-muted-foreground font-medium">Informações</p>
+            <p className="text-white/70 font-medium">Informações</p>
             {lead.email && (
               <div className="flex items-center gap-2">
-                <Mail className="w-3 h-3" />
-                <span className="text-xs">{lead.email}</span>
+                <Mail className="w-3 h-3 text-white/70" />
+                <span className="text-xs text-white/90">{lead.email}</span>
               </div>
             )}
             {lead.phone && (
               <div className="flex items-center gap-2">
-                <Phone className="w-3 h-3" />
-                <span className="text-xs">{lead.phone}</span>
+                <Phone className="w-3 h-3 text-white/70" />
+                <span className="text-xs text-white/90">{lead.phone}</span>
               </div>
             )}
           </div>
 
           {/* Dados de Qualificação */}
           <div>
-            <p className="text-muted-foreground mb-2 font-medium">
+            <p className="text-white/70 mb-2 font-medium">
               Dados de Qualificação
             </p>
             {lead.income && (
-              <p className="text-xs mb-1">
+              <p className="text-xs text-white/90 mb-1">
                 Renda: R$ {lead.income.toLocaleString('pt-BR')}
               </p>
             )}
             <div className="flex items-center gap-2">
-              <Target className="w-3 h-3" />
-              <span className="text-xs">
+              <Target className="w-3 h-3 text-white/70" />
+              <span className="text-xs text-white/90">
                 Qualificação: {lead.qualification_score.toFixed(1)}%
               </span>
             </div>
@@ -105,7 +105,7 @@ export const LeadCard = ({ lead, color }: LeadCardProps) => {
           {/* Engajamento */}
           <div className="flex items-center gap-2">
             <TrendingUp className="w-3 h-3 text-blue-500" />
-            <span className="text-xs">
+            <span className="text-xs text-white/90">
               Engajamento: {lead.engagement_score.toFixed(1)}
             </span>
           </div>
@@ -115,9 +115,9 @@ export const LeadCard = ({ lead, color }: LeadCardProps) => {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Award className="w-4 h-4 text-primary" />
-                <span className="font-semibold">Lead Score</span>
+                <span className="font-semibold text-white">Lead Score</span>
               </div>
-              <span className="text-xl font-bold text-primary">
+              <span className="text-xl font-bold text-white">
                 {lead.lead_score.toFixed(1)}
               </span>
             </div>

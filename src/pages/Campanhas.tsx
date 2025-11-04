@@ -69,7 +69,7 @@ const Campanhas = () => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <h1 className="text-3xl font-bold">Campanhas</h1>
+          <h1 className="text-3xl font-bold text-white">Campanhas</h1>
           <Badge variant="outline" className="bg-red-500/10 text-red-500 border-red-500/20">
             DEMO
           </Badge>
@@ -140,9 +140,9 @@ const Campanhas = () => {
       {/* Chart Card */}
       <Card className="bg-black border-gray-800 rounded-3xl p-6">
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-semibold">Leads por Período</h2>
+          <h2 className="text-xl font-semibold text-white">Leads por Período</h2>
           <div className="flex items-center gap-4">
-            <div className="text-sm text-white/60">
+            <div className="text-sm text-white/80">
               {periodFilter === "week" && "Última Semana"}
               {periodFilter === "month" && "Último Mês"}
               {periodFilter === "year" && "Último Ano"}
@@ -209,8 +209,8 @@ const Campanhas = () => {
                   style={{ backgroundColor: campaign.color }}
                 />
                 <div>
-                  <div className="text-sm text-white/60">{campaign.name}</div>
-                  <div className="text-xl font-bold">{totalLeads} leads</div>
+                  <div className="text-sm text-white/70">{campaign.name}</div>
+                  <div className="text-xl font-bold text-white">{totalLeads} leads</div>
                 </div>
               </div>
             );

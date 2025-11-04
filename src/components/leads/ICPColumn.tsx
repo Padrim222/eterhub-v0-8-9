@@ -31,15 +31,15 @@ export const ICPColumn = ({ icp, leads }: ICPColumnProps) => {
     <Card className="bg-gray-900/30 border-gray-800">
       <CardHeader>
         <div className="flex items-center justify-between">
-          <CardTitle className="text-lg">{icp.name}</CardTitle>
-          <Badge variant="outline" className="text-xs">
+          <CardTitle className="text-lg text-white">{icp.name}</CardTitle>
+          <Badge variant="outline" className="text-xs text-white/90">
             {leads.length} leads
           </Badge>
         </div>
       </CardHeader>
       <CardContent className="space-y-3">
         {leads.length === 0 ? (
-          <p className="text-sm text-muted-foreground text-center py-8">
+          <p className="text-sm text-white/60 text-center py-8">
             Nenhum lead neste ICP
           </p>
         ) : (
