@@ -323,6 +323,7 @@ const Imovi = () => {
               </div>
             ) : activeFilter === "geral" ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {/* Linha 1: Identidade + Performance */}
                 <LeaderCard 
                   userProfile={userProfile} 
                   onProfileUpdate={loadUserProfile}
@@ -335,8 +336,26 @@ const Imovi = () => {
                   totalViews={data.totalReach}
                   previousViews={data.previousPeriodData.totalReach}
                 />
+                
+                {/* Linha 2: Financeiro + Leads */}
                 <LancamentosCard />
                 <InsightsIACard />
+                <ConversaoFunilCard 
+                  totalEngagement={data.totalEngagement}
+                  previousEngagement={data.previousPeriodData.totalEngagement}
+                  avgEngagementRate={data.avgEngagementRate}
+                  previousEngagementRate={data.previousPeriodData.avgEngagementRate}
+                />
+                
+                {/* Linha 3: Engajamento + Importação */}
+                <EngajamentoRedesCard 
+                  totalLikes={data.totalLikes}
+                  previousLikes={data.previousPeriodData.totalLikes}
+                  totalComments={data.totalComments}
+                  previousComments={data.previousPeriodData.totalComments}
+                  totalSaves={data.totalSaves}
+                  previousSaves={data.previousPeriodData.totalSaves}
+                />
                 <InstagramImportCard 
                   userProfile={userProfile}
                   onProfileUpdate={loadUserProfile}
