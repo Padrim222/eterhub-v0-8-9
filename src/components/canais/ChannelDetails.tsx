@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { ArrowLeft, Eye, Heart, MessageCircle, Bookmark, TrendingUp, Users, BarChart3 } from "lucide-react";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ArrowLeft, Eye, Heart, MessageCircle, Bookmark, Play, Image as ImageIcon, Layers } from "lucide-react";
 import { PostsGrid } from "@/components/conteudo/PostsGrid";
+import { ContentFormatAnalysis } from "@/components/conteudo/ContentFormatAnalysis";
 import { useInstagramPosts } from "@/hooks/useInstagramPosts";
 import { PerformanceOverviewCard } from "@/components/redes-sociais/PerformanceOverviewCard";
 import { EngagementTrendsCard } from "@/components/redes-sociais/EngagementTrendsCard";
@@ -31,11 +31,19 @@ export const ChannelDetails = ({ channel, onBack }: ChannelDetailsProps) => {
 
   const filteredPosts = posts.filter(post => {
     if (contentTab === "all") return true;
-    if (contentTab === "reels") return post.post_type === "VIDEO" || post.post_type === "CAROUSEL_ALBUM";
+    if (contentTab === "reels") return post.post_type === "VIDEO";
+    if (contentTab === "carrossel") return post.post_type === "CAROUSEL_ALBUM";
     if (contentTab === "posts") return post.post_type === "IMAGE";
-    if (contentTab === "stories") return post.post_type === "STORY";
     return true;
   });
+
+  const getPostTypeCount = (type: string) => {
+    if (type === "all") return posts.length;
+    if (type === "reels") return posts.filter(p => p.post_type === "VIDEO").length;
+    if (type === "carrossel") return posts.filter(p => p.post_type === "CAROUSEL_ALBUM").length;
+    if (type === "posts") return posts.filter(p => p.post_type === "IMAGE").length;
+    return 0;
+  };
 
   const formatNumber = (num: number) => {
     if (num >= 1000000) return `${(num / 1000000).toFixed(1)}M`;
@@ -109,6 +117,8 @@ export const ChannelDetails = ({ channel, onBack }: ChannelDetailsProps) => {
       </div>
 
       {/* Analytics Cards */}
+      <ContentFormatAnalysis posts={posts} />
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <EngagementTrendsCard />
         <ContentTypeAnalysisCard />
@@ -116,7 +126,7 @@ export const ChannelDetails = ({ channel, onBack }: ChannelDetailsProps) => {
 
       {/* Posts do Canal */}
       <div className="space-y-6">
-        <h2 className="text-2xl font-bold">Conteúdo</h2>
+        <h2 className="text-2xl font-bold">Conteúdo por Formato</h2>
         
         <Tabs value={contentTab} onValueChange={setContentTab}>
           <TabsList className="bg-transparent border-b border-border rounded-none h-auto p-0 w-full justify-start">
@@ -124,31 +134,54 @@ export const ChannelDetails = ({ channel, onBack }: ChannelDetailsProps) => {
               value="all" 
               className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-6 py-3"
             >
-              Todos
+              <div className="flex items-center gap-2">
+                <span>Todos</span>
+                <span className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full">
+                  {getPostTypeCount("all")}
+                </span>
+              </div>
             </TabsTrigger>
             <TabsTrigger 
               value="reels" 
               className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-6 py-3"
             >
-              Reels
+              <div className="flex items-center gap-2">
+                <Play className="w-4 h-4" />
+                <span>Reels</span>
+                <span className="text-xs bg-purple-500/10 text-purple-500 px-2 py-0.5 rounded-full">
+                  {getPostTypeCount("reels")}
+                </span>
+              </div>
+            </TabsTrigger>
+            <TabsTrigger 
+              value="carrossel" 
+              className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-6 py-3"
+            >
+              <div className="flex items-center gap-2">
+                <Layers className="w-4 h-4" />
+                <span>Carrossel</span>
+                <span className="text-xs bg-blue-500/10 text-blue-500 px-2 py-0.5 rounded-full">
+                  {getPostTypeCount("carrossel")}
+                </span>
+              </div>
             </TabsTrigger>
             <TabsTrigger 
               value="posts" 
               className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-6 py-3"
             >
-              Posts
-            </TabsTrigger>
-            <TabsTrigger 
-              value="stories" 
-              className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-6 py-3"
-            >
-              Stories
+              <div className="flex items-center gap-2">
+                <ImageIcon className="w-4 h-4" />
+                <span>Posts</span>
+                <span className="text-xs bg-green-500/10 text-green-500 px-2 py-0.5 rounded-full">
+                  {getPostTypeCount("posts")}
+                </span>
+              </div>
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value={contentTab} className="mt-6">
+          <div className="mt-6">
             <PostsGrid posts={filteredPosts} isLoading={isLoading} error={error} />
-          </TabsContent>
+          </div>
         </Tabs>
       </div>
     </div>

@@ -44,15 +44,6 @@ export const PostCard = ({ post, onClick }: PostCardProps) => {
   // Tentar extrair thumbnail da URL do Instagram
   const getThumbnailUrl = () => {
     if (post.thumbnail_url) return post.thumbnail_url;
-    if (!post.post_url) return null;
-    
-    // URLs do Instagram seguem padrão: instagram.com/p/{shortcode} ou /reel/{shortcode}
-    const match = post.post_url.match(/instagram\.com\/(p|reel|reels)\/([^/?]+)/);
-    if (match) {
-      const shortcode = match[2];
-      // Usar o Instagram oEmbed para pegar thumbnail
-      return `https://www.instagram.com/p/${shortcode}/media/?size=l`;
-    }
     return null;
   };
 
@@ -60,40 +51,55 @@ export const PostCard = ({ post, onClick }: PostCardProps) => {
 
   return (
     <Card 
-      className="bg-background border-border rounded-2xl overflow-hidden hover:shadow-lg transition-all hover:scale-[1.02] cursor-pointer"
+      className="bg-background border-border rounded-2xl overflow-hidden hover:shadow-lg transition-all hover:scale-[1.02] cursor-pointer group"
       onClick={onClick}
     >
       <div className="space-y-0">
         {/* Thumbnail com tipo de post */}
         <div className="relative aspect-square bg-muted overflow-hidden">
           {thumbnailUrl ? (
-            <img
-              src={thumbnailUrl}
-              alt={postTypeInfo.label}
-              className="w-full h-full object-cover"
-              onError={(e) => {
-                // Fallback se imagem não carregar
-                e.currentTarget.style.display = 'none';
-              }}
-            />
-          ) : null}
-          {/* Overlay icon quando não há thumbnail */}
-          {!thumbnailUrl && (
+            <>
+              <img
+                src={thumbnailUrl}
+                alt={postTypeInfo.label}
+                className="w-full h-full object-cover transition-transform group-hover:scale-105"
+                onError={(e) => {
+                  e.currentTarget.style.display = 'none';
+                  const fallback = e.currentTarget.nextElementSibling as HTMLElement;
+                  if (fallback) fallback.style.display = 'flex';
+                }}
+              />
+              {/* Fallback icon (hidden by default) */}
+              <div className="hidden absolute inset-0 items-center justify-center bg-muted">
+                <div className={`p-6 rounded-full ${postTypeInfo.color}`}>
+                  <PostTypeIcon className="w-12 h-12" />
+                </div>
+              </div>
+            </>
+          ) : (
             <div className="absolute inset-0 flex items-center justify-center">
               <div className={`p-6 rounded-full ${postTypeInfo.color}`}>
                 <PostTypeIcon className="w-12 h-12" />
               </div>
             </div>
           )}
+          {/* Overlay para videos/reels */}
+          {(post.post_type === "VIDEO" || post.post_type === "CAROUSEL_ALBUM") && (
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+              <div className="p-4 bg-black/50 rounded-full backdrop-blur-sm">
+                <PostTypeIcon className="w-8 h-8 text-white" />
+              </div>
+            </div>
+          )}
           {/* Badge de tipo de post */}
-          <div className="absolute top-4 left-4">
-            <Badge variant="secondary" className="bg-background/80 backdrop-blur-sm">
+          <div className="absolute top-3 left-3">
+            <Badge variant="secondary" className="bg-background/90 backdrop-blur-sm font-semibold">
               {postTypeInfo.label}
             </Badge>
           </div>
           {/* Badge de engajamento */}
-          <div className="absolute top-4 right-4">
-            <Badge variant="outline" className="bg-background/80 backdrop-blur-sm border-primary/20">
+          <div className="absolute top-3 right-3">
+            <Badge variant="outline" className="bg-background/90 backdrop-blur-sm border-primary/30 font-semibold">
               {post.engagement_rate?.toFixed(1) || "0.0"}%
             </Badge>
           </div>
