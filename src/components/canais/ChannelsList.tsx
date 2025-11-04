@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -8,6 +8,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
+import { useInstagramPosts } from "@/hooks/useInstagramPosts";
+import { supabase } from "@/integrations/supabase/client";
 
 interface Channel {
   id: string;
@@ -26,17 +28,9 @@ interface ChannelsListProps {
 
 export const ChannelsList = ({ onChannelSelect, selectedChannelId }: ChannelsListProps) => {
   const { toast } = useToast();
-  const [channels, setChannels] = useState<Channel[]>([
-    {
-      id: "1",
-      name: "Davi Ribas",
-      username: "@daviribas",
-      platform: "instagram",
-      followers: 45200,
-      totalPosts: 342,
-      avgEngagement: 4.2
-    }
-  ]);
+  const { posts } = useInstagramPosts();
+  const [channels, setChannels] = useState<Channel[]>([]);
+  const [userProfile, setUserProfile] = useState<any>(null);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [newChannel, setNewChannel] = useState<{
     name: string;
@@ -47,6 +41,42 @@ export const ChannelsList = ({ onChannelSelect, selectedChannelId }: ChannelsLis
     username: "",
     platform: "instagram"
   });
+
+  // Buscar dados reais do perfil
+  useEffect(() => {
+    const loadUserProfile = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data: profile } = await supabase
+          .from('users')
+          .select('*')
+          .eq('id', user.id)
+          .maybeSingle();
+        
+        setUserProfile(profile);
+
+        if (profile?.instagram_username) {
+          // Calcular métricas reais dos posts
+          const totalPosts = posts.length;
+          const avgEngagement = totalPosts > 0
+            ? posts.reduce((sum, p) => sum + (p.engagement_rate || 0), 0) / totalPosts
+            : 0;
+
+          setChannels([{
+            id: user.id,
+            name: profile.nome || "Instagram",
+            username: profile.instagram_username,
+            platform: "instagram",
+            followers: (profile as any).instagram_followers || 0,
+            totalPosts,
+            avgEngagement: Number(avgEngagement.toFixed(1))
+          }]);
+        }
+      }
+    };
+
+    loadUserProfile();
+  }, [posts]);
 
   const getPlatformIcon = (platform: string) => {
     switch (platform) {

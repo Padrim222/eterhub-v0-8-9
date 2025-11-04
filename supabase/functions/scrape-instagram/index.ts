@@ -352,7 +352,10 @@ serve(async (req) => {
       const { error: updateError } = await supabase
         .from('users')
         .update({
-          // Removendo campos que não existem na tabela
+          instagram_followers: profile_data.followersCount || 0,
+          instagram_following: profile_data.followsCount || 0,
+          instagram_posts_count: profile_data.postsCount || postsToInsert.length,
+          last_sync_at: new Date().toISOString()
         })
         .eq('id', user.id);
 
