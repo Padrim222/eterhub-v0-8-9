@@ -158,9 +158,13 @@ const Imovi = () => {
                   />
                 </div>
 
-                {/* Third Row - Insights IA and Leader Banner */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
+                {/* Third Row - Insights IA */}
+                <div className="grid grid-cols-1">
                   <InsightsIACard />
+                </div>
+
+                {/* Fourth Row - Informativos ETER */}
+                <div className="grid grid-cols-1">
                   <LeaderBanner 
                     userProfile={userProfile}
                     onEdit={loadUserProfile}
