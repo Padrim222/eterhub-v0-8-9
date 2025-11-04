@@ -51,7 +51,7 @@ const Imovi = () => {
   const navigate = useNavigate();
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [userProfile, setUserProfile] = useState<any>(null);
-  const [activeFilter, setActiveFilter] = useState("todos");
+  const [activeFilter, setActiveFilter] = useState("geral");
   const [viewMode, setViewMode] = useState<"grid" | "list">("list");
   const [contentTab, setContentTab] = useState("all");
   const { posts, isLoading: postsLoading } = useInstagramPosts();
@@ -125,22 +125,28 @@ const Imovi = () => {
         <Tabs value={activeFilter} onValueChange={setActiveFilter} className="mb-8">
           <TabsList className="bg-transparent border-b border-gray-800 rounded-none h-auto p-0 w-full justify-start">
             <TabsTrigger 
-              value="todos" 
+              value="geral" 
               className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary px-6 py-3"
             >
-              Todos
+              Geral
             </TabsTrigger>
             <TabsTrigger 
-              value="redes-sociais" 
+              value="canais" 
               className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary px-6 py-3"
             >
-              Redes Sociais
+              Canais
             </TabsTrigger>
             <TabsTrigger 
-              value="comunicacao" 
+              value="leads" 
               className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary px-6 py-3"
             >
-              Comunicação
+              Leads
+            </TabsTrigger>
+            <TabsTrigger 
+              value="campanhas" 
+              className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary px-6 py-3"
+            >
+              Campanhas
             </TabsTrigger>
           </TabsList>
         </Tabs>
@@ -157,7 +163,7 @@ const Imovi = () => {
           </div>
         ) : (
           <>
-            {activeFilter === "redes-sociais" || activeFilter === "comunicacao" ? (
+            {activeFilter === "canais" ? (
               <div className="space-y-8">
                 {/* Performance Overview */}
                 <PerformanceOverviewCard />
@@ -315,7 +321,7 @@ const Imovi = () => {
                   </div>
                 </div>
               </div>
-            ) : activeFilter === "todos" ? (
+            ) : activeFilter === "geral" ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 <LeaderCard 
                   userProfile={userProfile} 
@@ -335,6 +341,20 @@ const Imovi = () => {
                   userProfile={userProfile}
                   onProfileUpdate={loadUserProfile}
                 />
+              </div>
+            ) : activeFilter === "leads" ? (
+              <div className="grid grid-cols-1 gap-6">
+                <Card className="bg-black border-gray-800 rounded-3xl p-6">
+                  <h2 className="text-2xl font-bold mb-4">Leads</h2>
+                  <p className="text-white/60">Conteúdo em desenvolvimento...</p>
+                </Card>
+              </div>
+            ) : activeFilter === "campanhas" ? (
+              <div className="grid grid-cols-1 gap-6">
+                <Card className="bg-black border-gray-800 rounded-3xl p-6">
+                  <h2 className="text-2xl font-bold mb-4">Campanhas</h2>
+                  <p className="text-white/60">Conteúdo em desenvolvimento...</p>
+                </Card>
               </div>
             ) : null}
           </>
