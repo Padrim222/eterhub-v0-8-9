@@ -41,13 +41,19 @@ export const PostCard = ({ post, onClick }: PostCardProps) => {
   const postTypeInfo = getPostTypeInfo(post.post_type);
   const PostTypeIcon = postTypeInfo.icon;
 
-  // Tentar extrair thumbnail da URL do Instagram
-  const getThumbnailUrl = () => {
-    if (post.thumbnail_url) return post.thumbnail_url;
+  // Extrair o shortcode da URL do Instagram para fazer o embed
+  const getInstagramEmbedUrl = (url: string | null) => {
+    if (!url) return null;
+    const match = url.match(/instagram\.com\/(p|reel|reels)\/([^/?]+)/);
+    if (match) {
+      const shortcode = match[2];
+      return `https://www.instagram.com/p/${shortcode}/embed/captioned`;
+    }
     return null;
   };
 
-  const thumbnailUrl = getThumbnailUrl();
+  const thumbnailUrl = post.thumbnail_url;
+  const embedUrl = getInstagramEmbedUrl(post.post_url);
 
   return (
     <Card 
@@ -58,24 +64,32 @@ export const PostCard = ({ post, onClick }: PostCardProps) => {
         {/* Thumbnail com tipo de post */}
         <div className="relative aspect-square bg-muted overflow-hidden">
           {thumbnailUrl ? (
-            <>
-              <img
-                src={thumbnailUrl}
-                alt={postTypeInfo.label}
-                className="w-full h-full object-cover transition-transform group-hover:scale-105"
-                onError={(e) => {
+            <img
+              src={thumbnailUrl}
+              alt={postTypeInfo.label}
+              className="w-full h-full object-cover transition-transform group-hover:scale-105"
+              onError={(e) => {
+                // Se a thumbnail falhar, tenta carregar o embed
+                const container = e.currentTarget.parentElement;
+                if (container && embedUrl) {
                   e.currentTarget.style.display = 'none';
-                  const fallback = e.currentTarget.nextElementSibling as HTMLElement;
-                  if (fallback) fallback.style.display = 'flex';
-                }}
-              />
-              {/* Fallback icon (hidden by default) */}
-              <div className="hidden absolute inset-0 items-center justify-center bg-muted">
-                <div className={`p-6 rounded-full ${postTypeInfo.color}`}>
-                  <PostTypeIcon className="w-12 h-12" />
-                </div>
-              </div>
-            </>
+                  const iframe = document.createElement('iframe');
+                  iframe.src = embedUrl;
+                  iframe.className = 'w-full h-full pointer-events-none';
+                  iframe.frameBorder = '0';
+                  iframe.scrolling = 'no';
+                  container.appendChild(iframe);
+                }
+              }}
+            />
+          ) : embedUrl ? (
+            <iframe
+              src={embedUrl}
+              className="w-full h-full pointer-events-none"
+              frameBorder="0"
+              scrolling="no"
+              allowTransparency
+            />
           ) : (
             <div className="absolute inset-0 flex items-center justify-center">
               <div className={`p-6 rounded-full ${postTypeInfo.color}`}>
