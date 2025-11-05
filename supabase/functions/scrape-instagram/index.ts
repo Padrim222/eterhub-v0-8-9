@@ -10,6 +10,9 @@ const corsHeaders = {
 interface ApifyPost {
   url?: string;
   displayUrl?: string;
+  thumbnailUrl?: string;
+  imageUrl?: string;
+  videoUrl?: string;
   type?: string;
   caption?: string;
   likesCount?: number;
@@ -213,7 +216,11 @@ async function scrapeReels(username: string, apiKey: string): Promise<ApifyPost[
 
 function normalizePost(post: ApifyPost, userId: string) {
   const url = post.url || '';
-  const thumbnailUrl = post.displayUrl || '';
+  // Tentar múltiplas fontes de thumbnail
+  const thumbnailUrl = post.displayUrl || post.thumbnailUrl || post.imageUrl || post.videoUrl || '';
+  
+  console.log('🖼️ Thumbnail capturada:', thumbnailUrl ? '✅' : '❌', url);
+  
   const likes = post.likesCount || 0;
   const comments = post.commentsCount || 0;
   
