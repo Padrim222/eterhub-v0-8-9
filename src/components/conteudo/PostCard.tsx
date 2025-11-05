@@ -130,19 +130,19 @@ export const PostCard = ({ post, onClick }: PostCardProps) => {
           <div className="grid grid-cols-4 gap-2">
             <div className="text-center">
               <Eye className="w-4 h-4 mx-auto mb-1 text-blue-500" />
-              <p className="text-xs font-semibold">{formatNumber(post.views)}</p>
+              <p className="text-xs font-semibold text-white">{formatNumber(post.views)}</p>
             </div>
             <div className="text-center">
               <Heart className="w-4 h-4 mx-auto mb-1 text-red-500" />
-              <p className="text-xs font-semibold">{formatNumber(post.likes)}</p>
+              <p className="text-xs font-semibold text-white">{formatNumber(post.likes)}</p>
             </div>
             <div className="text-center">
               <MessageCircle className="w-4 h-4 mx-auto mb-1 text-green-500" />
-              <p className="text-xs font-semibold">{formatNumber(post.comments)}</p>
+              <p className="text-xs font-semibold text-white">{formatNumber(post.comments)}</p>
             </div>
             <div className="text-center">
               <Bookmark className="w-4 h-4 mx-auto mb-1 text-yellow-500" />
-              <p className="text-xs font-semibold">{formatNumber(post.saves)}</p>
+              <p className="text-xs font-semibold text-white">{formatNumber(post.saves)}</p>
             </div>
           </div>
         </div>
