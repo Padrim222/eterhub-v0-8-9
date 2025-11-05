@@ -59,7 +59,7 @@ export const PostDetailModal = ({ post, isOpen, onClose }: PostDetailModalProps)
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-background border-border">
+      <DialogContent className="max-w-6xl w-[95vw] max-h-[95vh] overflow-y-auto bg-background border-border">
         <DialogHeader>
           <div className="flex items-center gap-3">
             <div className={`p-2 bg-muted rounded-lg ${postTypeInfo.color}`}>
@@ -75,7 +75,7 @@ export const PostDetailModal = ({ post, isOpen, onClose }: PostDetailModalProps)
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 pt-4">
           {/* Preview do Post */}
           <div className="space-y-4">
-            <div className="aspect-square bg-muted rounded-2xl overflow-hidden">
+            <div className="aspect-[9/16] lg:aspect-square bg-muted rounded-2xl overflow-hidden">
               {embedUrl ? (
                 <iframe
                   src={embedUrl}
