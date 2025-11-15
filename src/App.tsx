@@ -56,11 +56,8 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/auth" element={<Auth />} />
             
-            {/* Home - Dashboard único */}
-            <Route path="/home" element={<Home />}>
-              <Route index element={<Imovi />} />
-              <Route path="imov" element={<Imovi />} />
-            </Route>
+            {/* Home */}
+            <Route path="/home" element={<Home />} />
             
             {/* Central do Cliente */}
             <Route path="/central-cliente" element={<CentralCliente />} />
