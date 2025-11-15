@@ -13,6 +13,7 @@ import Educacao from "./pages/Educacao";
 import Etherflow from "./pages/Etherflow";
 import Tribes from "./pages/Tribes";
 import Imovi from "./pages/Imovi";
+import Conteudo from "./pages/Conteudo";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
 
@@ -72,6 +73,9 @@ const App = () => (
             
             {/* Tribes */}
             <Route path="/tribes" element={<Tribes />} />
+            
+            {/* Conteúdo */}
+            <Route path="/conteudo" element={<Conteudo />} />
             
             {/* Legacy redirects */}
             <Route path="/dashboard" element={<Navigate to="/home" replace />} />
