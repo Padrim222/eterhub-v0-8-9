@@ -1,12 +1,9 @@
-import { useState, useEffect, useMemo } from "react";
-import { Bell, Search, Plus, Filter, Grid3x3, List } from "lucide-react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useState, useMemo } from "react";
+import { Plus, Filter, Grid3x3, List, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { AppNavigation } from "@/components/layout/AppNavigation";
-import eterLogo from "@/assets/eter-logo.png";
-import { supabase } from "@/integrations/supabase/client";
+import { PageLayout } from "@/components/layout/PageLayout";
 import { useInstagramPosts } from "@/hooks/useInstagramPosts";
 import { PostsGrid } from "@/components/conteudo/PostsGrid";
 import { PostsTable } from "@/components/conteudo/PostsTable";
@@ -15,7 +12,6 @@ import { N8nWebhookCard } from "@/components/dashboard/N8nWebhookCard";
 
 const Conteudo = () => {
   const [viewMode, setViewMode] = useState<"grid" | "list">("list");
-  const [userProfile, setUserProfile] = useState<any>(null);
   const [activeTab, setActiveTab] = useState("todos");
   const { posts, isLoading, error } = useInstagramPosts();
 
@@ -38,68 +34,19 @@ const Conteudo = () => {
     });
   }, [posts, activeTab]);
 
-  useEffect(() => {
-    loadUserProfile();
-  }, []);
-
-  const loadUserProfile = async () => {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) return;
-
-    const { data: profile } = await supabase
-      .from('users')
-      .select('*')
-      .eq('id', session.user.id)
-      .maybeSingle();
-
-    if (profile) {
-      setUserProfile(profile);
-    }
-  };
-
   return (
-    <div className="min-h-screen bg-black text-white">
-      {/* Header */}
-      <header className="border-b border-gray-800 px-8 py-4">
-        <div className="flex items-center justify-between max-w-[1600px] mx-auto">
-          <div className="flex items-center gap-8">
-            <img src={eterLogo} alt="ETER" className="h-10 w-auto" />
-            <AppNavigation />
-          </div>
-
-          <div className="flex items-center gap-3">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="rounded-full border border-gray-700 hover:bg-gray-800"
-            >
-              <Search className="w-5 h-5" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="rounded-full border border-gray-700 hover:bg-gray-800"
-            >
-              <Bell className="w-5 h-5" />
-            </Button>
-            <Avatar className="border-2 border-gray-700 h-10 w-10">
-              <AvatarImage src={userProfile?.avatar_url || "/leader-default.png"} />
-              <AvatarFallback>{userProfile?.nome?.charAt(0) || 'U'}</AvatarFallback>
-            </Avatar>
-          </div>
-        </div>
-      </header>
-
-      {/* Main Content */}
-      <main className="px-8 py-8 max-w-[1600px] mx-auto">
+    <PageLayout 
+      showTitle={false}
+      headerActions={
+        <Button className="bg-primary hover:bg-primary/90 text-black font-medium rounded-full px-6">
+          <Plus className="w-4 h-4 mr-2" />
+          Novo Conteúdo
+        </Button>
+      }
+    >
+      <div className="max-w-[1600px] mx-auto">
         <div className="mb-8">
-          <div className="flex items-center justify-between mb-8">
-            <h1 className="text-5xl font-bold tracking-tight">Conteúdo</h1>
-            <Button className="bg-primary hover:bg-primary/90 text-black font-medium rounded-full px-6">
-              <Plus className="w-4 h-4 mr-2" />
-              Novo Conteúdo
-            </Button>
-          </div>
+          <h1 className="text-5xl font-bold tracking-tight mb-8">Conteúdo</h1>
           
           {/* N8n Webhook Integration */}
           <div className="mb-8">
@@ -155,7 +102,7 @@ const Conteudo = () => {
 
         {/* Tabs and Content */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-8">
-          <TabsList className="mb-6 bg-black border-b border-gray-800 rounded-none h-auto p-0 gap-8">
+          <TabsList className="bg-transparent border-b border-gray-800 w-full justify-start h-auto rounded-none p-0 gap-8">
             <TabsTrigger 
               value="todos" 
               className="data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none pb-4 px-0 text-white/60 hover:text-white"
@@ -190,8 +137,8 @@ const Conteudo = () => {
             )}
           </TabsContent>
         </Tabs>
-      </main>
-    </div>
+      </div>
+    </PageLayout>
   );
 };
 

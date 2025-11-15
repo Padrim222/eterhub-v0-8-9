@@ -17,8 +17,6 @@ import { ChannelView } from "@/components/canais/ChannelView";
 import Leads from "./Leads";
 import Campanhas from "./Campanhas";
 
-const mockConcorrentes: never[] = [];
-
 const Imovi = () => {
   const navigate = useNavigate();
   const [showOnboarding, setShowOnboarding] = useState(false);
