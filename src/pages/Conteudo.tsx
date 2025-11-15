@@ -11,6 +11,7 @@ import { useInstagramPosts } from "@/hooks/useInstagramPosts";
 import { PostsGrid } from "@/components/conteudo/PostsGrid";
 import { PostsTable } from "@/components/conteudo/PostsTable";
 import { InstagramMetrics } from "@/components/conteudo/InstagramMetrics";
+import { N8nWebhookCard } from "@/components/dashboard/N8nWebhookCard";
 
 const Conteudo = () => {
   const [viewMode, setViewMode] = useState<"grid" | "list">("list");
@@ -98,6 +99,11 @@ const Conteudo = () => {
               <Plus className="w-4 h-4 mr-2" />
               Novo Conteúdo
             </Button>
+          </div>
+          
+          {/* N8n Webhook Integration */}
+          <div className="mb-8">
+            <N8nWebhookCard />
           </div>
           
           {/* Search and Filters */}
