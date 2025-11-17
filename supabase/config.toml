@@ -5,3 +5,9 @@ verify_jwt = true
 
 [functions.generate-insights]
 verify_jwt = true
+
+[functions.receive-instagram-metrics]
+verify_jwt = false
+
+[functions.receive-pipedrive-leads]
+verify_jwt = false

@@ -18,24 +18,91 @@ serve(async (req) => {
     );
 
     const payload = await req.json();
-    console.log('Received webhook payload:', JSON.stringify(payload, null, 2));
+    console.log('Received Instagram metrics payload:', JSON.stringify(payload, null, 2));
 
-    // Extract user_id from the request or use a default mapping
-    // You can pass user_id in the webhook payload or map by email/username
-    const userId = payload.user_id || payload.userId;
-    
-    if (!userId) {
-      throw new Error('user_id is required in the payload');
+    const { userId, user_id, profile, account_metrics, posts, stories, instagram_stats, general_metrics } = payload;
+    const finalUserId = userId || user_id;
+
+    if (!finalUserId) {
+      throw new Error('user_id é obrigatório');
     }
 
-    // Process Instagram posts metrics
-    if (payload.posts && Array.isArray(payload.posts)) {
-      for (const post of payload.posts) {
+    const today = new Date().toISOString().split('T')[0];
+
+    // 1. Atualizar perfil do usuário
+    if (profile || instagram_stats) {
+      const updateData: any = {};
+      
+      if (profile?.followers) {
+        updateData.instagram_followers = profile.followers;
+      }
+      if (instagram_stats?.followers) {
+        updateData.instagram_followers = instagram_stats.followers;
+      }
+      if (profile?.profile_fullname) {
+        updateData.nome = profile.profile_fullname;
+      }
+      if (profile?.profile_photo_url) {
+        updateData.avatar_url = profile.profile_photo_url;
+      }
+
+      if (Object.keys(updateData).length > 0) {
+        const { error: userError } = await supabaseClient
+          .from('users')
+          .update(updateData)
+          .eq('id', finalUserId);
+
+        if (userError) {
+          console.error('Erro ao atualizar usuário:', userError);
+        } else {
+          console.log('Perfil atualizado com sucesso');
+        }
+      }
+    }
+
+    // 2. Salvar métricas diárias (upsert)
+    if (account_metrics || general_metrics) {
+      const metrics = account_metrics || general_metrics;
+      const metricsData = {
+        user_id: finalUserId,
+        date: today,
+        reach_total: metrics.reach_total || 0,
+        reach_paid: metrics.reach_paid || 0,
+        reach_organic: metrics.reach_organic || 0,
+        impressions: metrics.impressions || 0,
+        profile_views: metrics.profile_views || 0,
+        website_clicks: metrics.website_clicks || 0,
+        email_clicks: metrics.email_clicks || 0,
+        call_clicks: metrics.call_clicks || 0,
+        text_clicks: metrics.text_clicks || 0,
+        followers_reached: metrics.followers_reached || 0,
+        non_followers: metrics.non_followers || 0,
+        stories_reach: metrics.stories_reach_last_30_days || metrics.stories_reach || 0,
+        stories_impressions: metrics.stories_impressions_last_30_days || metrics.stories_impressions || 0,
+        stories_exits: metrics.stories_exits || 0,
+      };
+
+      const { error: metricsError } = await supabaseClient
+        .from('instagram_metrics')
+        .upsert(metricsData, { onConflict: 'user_id,date' });
+
+      if (metricsError) {
+        console.error('Erro ao salvar métricas diárias:', metricsError);
+      } else {
+        console.log('Métricas diárias salvas com sucesso');
+      }
+    }
+
+    // 3. Salvar posts individuais
+    if (posts && Array.isArray(posts) && posts.length > 0) {
+      for (const post of posts) {
+        if (!post.post_url && !post.url) continue;
+
         const postData = {
-          user_id: userId,
-          post_url: post.url || post.post_url,
-          thumbnail_url: post.thumbnail_url || post.thumbnail,
-          post_type: post.type || post.post_type || 'post',
+          user_id: finalUserId,
+          post_url: post.post_url || post.url,
+          thumbnail_url: post.thumbnail_url || post.thumbnail || null,
+          post_type: post.post_type || post.type || 'post',
           views: post.views || post.impressions || 0,
           likes: post.likes || post.like_count || 0,
           comments: post.comments || post.comment_count || 0,
@@ -46,65 +113,32 @@ serve(async (req) => {
           scraped_at: new Date().toISOString(),
         };
 
-        // Upsert post (insert or update if exists)
         const { error: postError } = await supabaseClient
           .from('ig_posts')
-          .upsert(postData, { 
-            onConflict: 'post_url',
-            ignoreDuplicates: false 
-          });
+          .upsert(postData, { onConflict: 'post_url' });
 
         if (postError) {
-          console.error('Error inserting post:', postError);
-        } else {
-          console.log('Post saved successfully:', postData.post_url);
+          console.error('Erro ao salvar post:', postError);
         }
       }
-    }
-
-    // Update user Instagram stats if provided
-    if (payload.instagram_stats) {
-      const stats = payload.instagram_stats;
-      const { error: statsError } = await supabaseClient
-        .from('users')
-        .update({
-          instagram_followers: stats.followers || stats.follower_count,
-          instagram_following: stats.following || stats.following_count,
-          instagram_posts_count: stats.posts_count || stats.media_count,
-          last_sync_at: new Date().toISOString(),
-        })
-        .eq('id', userId);
-
-      if (statsError) {
-        console.error('Error updating user stats:', statsError);
-      } else {
-        console.log('User stats updated successfully');
-      }
+      console.log(`${posts.length} posts processados`);
     }
 
     return new Response(
       JSON.stringify({ 
         success: true, 
-        message: 'Instagram metrics processed successfully',
-        processed_posts: payload.posts?.length || 0
+        message: 'Métricas do Instagram recebidas e processadas com sucesso' 
       }),
-      { 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: 200 
-      }
+      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
 
-  } catch (error) {
-    console.error('Error processing webhook:', error);
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+  } catch (error: any) {
+    console.error('Erro na function:', error);
     return new Response(
-      JSON.stringify({ 
-        success: false, 
-        error: errorMessage 
-      }),
+      JSON.stringify({ error: error.message }),
       { 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: 400 
+        status: 500,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       }
     );
   }
