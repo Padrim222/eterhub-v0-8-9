@@ -15,7 +15,9 @@ import Tribes from "./pages/Tribes";
 import Imovi from "./pages/Imovi";
 import Conteudo from "./pages/Conteudo";
 import Auth from "./pages/Auth";
+import Leads from "./pages/Leads";
 import NotFound from "./pages/NotFound";
+import Configuracoes from "./pages/Configuracoes";
 
 const queryClient = new QueryClient();
 
@@ -73,6 +75,9 @@ const App = () => (
             
             {/* Conteúdo */}
             <Route path="/conteudo" element={<Conteudo />} />
+            
+            {/* Configurações */}
+            <Route path="/configuracoes" element={<Configuracoes />} />
             
             {/* Legacy redirects */}
             <Route path="/dashboard" element={<Navigate to="/home" replace />} />
