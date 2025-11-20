@@ -8,6 +8,7 @@ const navigationItems = [
   { name: "Eterflow", path: "/etherflow", enabled: true },
   { name: "Tribes", path: "/tribes", enabled: true },
   { name: "Conteúdo", path: "/conteudo", enabled: true },
+  { name: "Configurações", path: "/configuracoes", enabled: true },
 ];
 
 export const AppNavigation = () => {
