@@ -22,7 +22,7 @@ export type Database = {
           engagement_score: number | null
           id: string
           imov_score: number | null
-          post_id: string
+          post_id: string | null
           recommendations: Json | null
           retention_score: number | null
           user_id: string
@@ -34,7 +34,7 @@ export type Database = {
           engagement_score?: number | null
           id?: string
           imov_score?: number | null
-          post_id: string
+          post_id?: string | null
           recommendations?: Json | null
           retention_score?: number | null
           user_id: string
@@ -46,7 +46,7 @@ export type Database = {
           engagement_score?: number | null
           id?: string
           imov_score?: number | null
-          post_id?: string
+          post_id?: string | null
           recommendations?: Json | null
           retention_score?: number | null
           user_id?: string
@@ -81,6 +81,7 @@ export type Database = {
           saves: number | null
           scraped_at: string | null
           shares: number | null
+          thumbnail_url: string | null
           user_id: string
           views: number | null
         }
@@ -96,6 +97,7 @@ export type Database = {
           saves?: number | null
           scraped_at?: string | null
           shares?: number | null
+          thumbnail_url?: string | null
           user_id: string
           views?: number | null
         }
@@ -111,6 +113,7 @@ export type Database = {
           saves?: number | null
           scraped_at?: string | null
           shares?: number | null
+          thumbnail_url?: string | null
           user_id?: string
           views?: number | null
         }
@@ -123,33 +126,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
-      }
-      profiles_backup: {
-        Row: {
-          avatar_url: string | null
-          created_at: string | null
-          email: string | null
-          full_name: string | null
-          id: string | null
-          updated_at: string | null
-        }
-        Insert: {
-          avatar_url?: string | null
-          created_at?: string | null
-          email?: string | null
-          full_name?: string | null
-          id?: string | null
-          updated_at?: string | null
-        }
-        Update: {
-          avatar_url?: string | null
-          created_at?: string | null
-          email?: string | null
-          full_name?: string | null
-          id?: string | null
-          updated_at?: string | null
-        }
-        Relationships: []
       }
       transcripts: {
         Row: {
@@ -197,17 +173,19 @@ export type Database = {
           leader_title: string | null
           nome: string | null
           onboarding_completed: boolean | null
+          updated_at: string | null
         }
         Insert: {
           avatar_url?: string | null
           created_at?: string | null
           email?: string | null
-          id?: string
+          id: string
           instagram_username?: string | null
           is_active?: boolean | null
           leader_title?: string | null
           nome?: string | null
           onboarding_completed?: boolean | null
+          updated_at?: string | null
         }
         Update: {
           avatar_url?: string | null
@@ -219,6 +197,7 @@ export type Database = {
           leader_title?: string | null
           nome?: string | null
           onboarding_completed?: boolean | null
+          updated_at?: string | null
         }
         Relationships: []
       }
