@@ -106,6 +106,27 @@ const Auth = () => {
       });
     }
   };
+
+  const handleFacebookSignIn = async () => {
+    try {
+      const {
+        error
+      } = await supabase.auth.signInWithOAuth({
+        provider: "facebook",
+        options: {
+          redirectTo: `${window.location.origin}/home/imov`,
+          scopes: 'email,public_profile'
+        }
+      });
+      if (error) throw error;
+    } catch (error: any) {
+      toast({
+        title: "Erro ao entrar com Facebook",
+        description: error.message || "Falha ao fazer login com Facebook.",
+        variant: "destructive"
+      });
+    }
+  };
   const handleResetPassword = () => {
     toast({
       title: "Redefinir Senha",
@@ -167,7 +188,7 @@ const Auth = () => {
   return <div className="bg-background text-foreground">
       <SignInPage logoSrc={eterLogo} title={<span className="font-semibold text-foreground tracking-tight">
           {isSignUp ? "Criar Conta no" : "Bem-vindo ao"} <span className="text-primary">Seu Movimento.</span>
-        </span>} description={isSignUp ? "Crie sua conta e comece a ter insights poderosos do seu Instagram" : "Acesse sua conta e tenha insights poderosos do seu Instagram"} heroImageSrc="https://www.instagram.com/p/DOUffdoEfYF/embed" onSignIn={isSignUp ? handleSignUp : handleSignIn} onGoogleSignIn={handleGoogleSignIn} onResetPassword={handleResetPassword} onCreateAccount={handleCreateAccount} isSignUp={isSignUp} onSwitchToSignIn={() => setIsSignUp(false)} />
+        </span>} description={isSignUp ? "Crie sua conta e comece a ter insights poderosos do seu Instagram" : "Acesse sua conta e tenha insights poderosos do seu Instagram"} heroImageSrc="https://www.instagram.com/p/DOUffdoEfYF/embed" onSignIn={isSignUp ? handleSignUp : handleSignIn} onGoogleSignIn={handleGoogleSignIn} onFacebookSignIn={handleFacebookSignIn} onResetPassword={handleResetPassword} onCreateAccount={handleCreateAccount} isSignUp={isSignUp} onSwitchToSignIn={() => setIsSignUp(false)} />
     </div>;
 };
 export default Auth;
