@@ -20,7 +20,7 @@ const Auth = () => {
         }
       } = await supabase.auth.getSession();
       if (session) {
-        navigate("/home/imov");
+        navigate("/home");
       }
     };
     checkUser();
@@ -37,7 +37,7 @@ const Auth = () => {
           title: "Login realizado!",
           description: "Redirecionando..."
         });
-        navigate("/home/imov");
+        navigate("/home");
       }
       if (event === 'USER_UPDATED') {
         toast({
@@ -66,7 +66,7 @@ const Auth = () => {
         title: "Success!",
         description: "You've been signed in successfully."
       });
-      navigate("/home/imov");
+      navigate("/home");
     } catch (error: any) {
       let errorMessage = "Falha ao fazer login. Tente novamente.";
       
@@ -94,7 +94,7 @@ const Auth = () => {
       } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: `${window.location.origin}/home/imov`
+          redirectTo: `${window.location.origin}/home`
         }
       });
       if (error) throw error;
@@ -114,7 +114,7 @@ const Auth = () => {
       } = await supabase.auth.signInWithOAuth({
         provider: "facebook",
         options: {
-          redirectTo: `${window.location.origin}/home/imov`,
+          redirectTo: `${window.location.origin}/home`,
           scopes: 'email,public_profile'
         }
       });
@@ -163,7 +163,7 @@ const Auth = () => {
           title: "Conta criada!",
           description: "Login realizado com sucesso."
         });
-        navigate("/home/imov");
+        navigate("/home");
       } else {
         toast({
           title: "Verifique seu email",
