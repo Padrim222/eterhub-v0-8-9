@@ -58,12 +58,39 @@ export interface RetrospectiveData {
   startDoing: string[];
 }
 
+// Novas interfaces para Projetos e Entregas
+export interface Projeto {
+  id: string;
+  nome: string;
+  descricao: string;
+  status: "planejado" | "em_andamento" | "pausado" | "concluido" | "cancelado";
+  prioridade: "baixa" | "media" | "alta" | "urgente";
+  progresso: number;
+  dataInicio: string;
+  dataFim: string;
+  responsavel: string;
+  tags: string[];
+}
+
+export interface Entrega {
+  id: string;
+  projetoId: string;
+  nome: string;
+  descricao: string;
+  status: "pendente" | "em_revisao" | "aprovado" | "rejeitado";
+  dataPrevista: string;
+  dataEntrega: string | null;
+  feedback: string;
+}
+
 export interface ClientProjectData {
   alinhamento: AlinhamentoData;
   expectativas: Expectativa[];
   links: LinkItem[];
   planejamento: PlanejamentoData;
   retrospectiva: RetrospectiveData;
+  projetos: Projeto[];
+  entregas: Entrega[];
 }
 
 // Valores padrão
@@ -100,6 +127,8 @@ const defaultData: ClientProjectData = {
     ],
   },
   retrospectiva: { keepDoing: [""], stopDoing: [""], startDoing: [""] },
+  projetos: [],
+  entregas: [],
 };
 
 export const useClientProjectData = () => {
@@ -133,6 +162,8 @@ export const useClientProjectData = () => {
           links: (projectData.links as unknown as LinkItem[]) || defaultData.links,
           planejamento: (projectData.planejamento as unknown as PlanejamentoData) || defaultData.planejamento,
           retrospectiva: (projectData.retrospectiva as unknown as RetrospectiveData) || defaultData.retrospectiva,
+          projetos: (projectData.projetos as unknown as Projeto[]) || defaultData.projetos,
+          entregas: (projectData.entregas as unknown as Entrega[]) || defaultData.entregas,
         });
       }
     } catch (error) {
@@ -163,6 +194,8 @@ export const useClientProjectData = () => {
           links: newData.links as unknown as Json,
           planejamento: newData.planejamento as unknown as Json,
           retrospectiva: newData.retrospectiva as unknown as Json,
+          projetos: newData.projetos as unknown as Json,
+          entregas: newData.entregas as unknown as Json,
           updated_at: new Date().toISOString(),
         }, {
           onConflict: 'user_id'

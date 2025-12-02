@@ -2,11 +2,29 @@ import { useState } from "react";
 import { PageLayout } from "@/components/layout/PageLayout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ProjectOverview } from "@/components/consultoria/ProjectOverview";
-import { Card } from "@/components/ui/card";
-import { Eye, FolderKanban, Package, History } from "lucide-react";
+import { ProjetosTab } from "@/components/consultoria/ProjetosTab";
+import { EntregasTab } from "@/components/consultoria/EntregasTab";
+import { HistoricoTab } from "@/components/consultoria/HistoricoTab";
+import { Eye, FolderKanban, Package, History, Loader2 } from "lucide-react";
+import { useClientProjectData } from "@/hooks/useClientProjectData";
 
 const CentralCliente = () => {
   const [activeTab, setActiveTab] = useState("visao-geral");
+  const { data, setData, isLoading, isSaving, saveData } = useClientProjectData();
+
+  const handleSave = async () => {
+    await saveData(data);
+  };
+
+  if (isLoading) {
+    return (
+      <PageLayout showTitle={false}>
+        <div className="flex items-center justify-center h-[60vh]">
+          <Loader2 className="w-8 h-8 animate-spin text-primary" />
+        </div>
+      </PageLayout>
+    );
+  }
 
   return (
     <PageLayout showTitle={false}>
@@ -18,7 +36,7 @@ const CentralCliente = () => {
 
         {/* Tabs com Underline - Padrão da Plataforma */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="bg-transparent border-b border-gray-800 rounded-none h-auto p-0 w-full justify-start">
+          <TabsList className="bg-transparent border-b border-border rounded-none h-auto p-0 w-full justify-start">
             <TabsTrigger 
               value="visao-geral"
               className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary px-6 py-3 flex items-center gap-2"
@@ -54,21 +72,25 @@ const CentralCliente = () => {
           </TabsContent>
 
           <TabsContent value="projetos" className="mt-6">
-            <Card className="bg-gray-900 border-gray-800 p-8">
-              <p className="text-white/60">Gerenciamento de projetos em desenvolvimento...</p>
-            </Card>
+            <ProjetosTab 
+              data={data} 
+              setData={setData} 
+              onSave={handleSave} 
+              isSaving={isSaving} 
+            />
           </TabsContent>
 
           <TabsContent value="entregas" className="mt-6">
-            <Card className="bg-gray-900 border-gray-800 p-8">
-              <p className="text-white/60">Controle de entregas em desenvolvimento...</p>
-            </Card>
+            <EntregasTab 
+              data={data} 
+              setData={setData} 
+              onSave={handleSave} 
+              isSaving={isSaving} 
+            />
           </TabsContent>
 
           <TabsContent value="historico" className="mt-6">
-            <Card className="bg-gray-900 border-gray-800 p-8">
-              <p className="text-white/60">Histórico de atividades em desenvolvimento...</p>
-            </Card>
+            <HistoricoTab />
           </TabsContent>
         </Tabs>
       </div>
