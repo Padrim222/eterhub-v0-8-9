@@ -38,15 +38,15 @@ export const RetrospectivaTrimestralCard = ({ data, onChange }: RetrospectivaTri
   };
 
   return (
-    <div className="bg-card border border-primary/20 rounded-2xl overflow-hidden shadow-[0_0_20px_rgba(120,255,100,0.08)]">
+    <div className="bg-gray-900 border border-gray-800 rounded-2xl overflow-hidden">
       <Accordion type="single" collapsible defaultValue="retrospectiva">
         <AccordionItem value="retrospectiva" className="border-none">
-          <AccordionTrigger className="px-6 py-4 hover:no-underline hover:bg-primary/5">
+          <AccordionTrigger className="px-6 py-4 hover:no-underline hover:bg-white/5">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-primary/10 rounded-lg">
                 <RefreshCw className="w-5 h-5 text-primary" />
               </div>
-              <span className="text-lg font-semibold text-foreground">
+              <span className="text-lg font-semibold text-white">
                 Retrospectiva Trimestral
               </span>
             </div>

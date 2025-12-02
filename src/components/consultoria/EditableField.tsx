@@ -52,7 +52,7 @@ export const EditableField = ({
             onBlur={handleBlur}
             onKeyDown={handleKeyDown}
             autoFocus
-            className="bg-background/50 border-primary/30 focus:border-primary min-h-[80px]"
+            className="bg-gray-800 border-gray-700 focus:border-primary min-h-[80px] text-white"
           />
         ) : (
           <Input 
@@ -61,18 +61,18 @@ export const EditableField = ({
             onBlur={handleBlur}
             onKeyDown={handleKeyDown}
             autoFocus
-            className="bg-background/50 border-primary/30 focus:border-primary"
+            className="bg-gray-800 border-gray-700 focus:border-primary text-white"
           />
         )
       ) : (
         <div 
           onClick={() => { setTempValue(value); setIsEditing(true); }}
-          className="cursor-pointer group flex items-center gap-2 hover:bg-primary/10 px-3 py-2 rounded-lg transition-colors border border-transparent hover:border-primary/20"
+          className="cursor-pointer group flex items-center gap-2 hover:bg-white/10 px-3 py-2 rounded-lg transition-colors border border-transparent hover:border-gray-700"
         >
-          <p className="text-foreground flex-1">
-            {value || <span className="text-muted-foreground italic">{placeholder}</span>}
+          <p className="text-white flex-1">
+            {value || <span className="text-white/50 italic">{placeholder}</span>}
           </p>
-          <Pencil className="w-3 h-3 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+          <Pencil className="w-3 h-3 text-white/50 opacity-0 group-hover:opacity-100 transition-opacity" />
         </div>
       )}
     </div>

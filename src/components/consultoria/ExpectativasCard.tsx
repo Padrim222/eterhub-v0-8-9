@@ -51,24 +51,24 @@ export const ExpectativasCard = ({ data, onChange }: ExpectativasCardProps) => {
   };
 
   return (
-    <div className="bg-card border border-primary/20 rounded-2xl overflow-hidden shadow-[0_0_20px_rgba(120,255,100,0.08)]">
+    <div className="bg-gray-900 border border-gray-800 rounded-2xl overflow-hidden">
       <Accordion type="single" collapsible defaultValue="expectativas">
         <AccordionItem value="expectativas" className="border-none">
-          <AccordionTrigger className="px-6 py-4 hover:no-underline hover:bg-primary/5">
+          <AccordionTrigger className="px-6 py-4 hover:no-underline hover:bg-white/5">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-primary/10 rounded-lg">
                 <TrendingUp className="w-5 h-5 text-primary" />
               </div>
-              <span className="text-lg font-semibold text-foreground">
+              <span className="text-lg font-semibold text-white">
                 Expectativas
               </span>
             </div>
           </AccordionTrigger>
           <AccordionContent className="px-6 pb-6">
-            <div className="border border-primary/20 rounded-xl overflow-hidden">
+            <div className="border border-gray-700 rounded-xl overflow-hidden">
               <Table>
                 <TableHeader>
-                  <TableRow className="bg-primary/10 hover:bg-primary/10">
+                  <TableRow className="bg-gray-800 hover:bg-gray-800">
                     <TableHead className="text-primary font-semibold">Métrica</TableHead>
                     <TableHead className="text-primary font-semibold">Valor</TableHead>
                     <TableHead className="text-primary font-semibold">Status</TableHead>
@@ -76,8 +76,8 @@ export const ExpectativasCard = ({ data, onChange }: ExpectativasCardProps) => {
                 </TableHeader>
                 <TableBody>
                   {data.map((exp) => (
-                    <TableRow key={exp.id} className="border-t border-primary/10 hover:bg-primary/5">
-                      <TableCell className="font-medium text-foreground">
+                    <TableRow key={exp.id} className="border-t border-gray-700 hover:bg-white/5">
+                      <TableCell className="font-medium text-white">
                         {exp.name}
                       </TableCell>
                       <TableCell>

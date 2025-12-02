@@ -101,15 +101,15 @@ export const PlanejamentoTrimestralCard = ({ data, onChange }: PlanejamentoTrime
   };
 
   return (
-    <div className="bg-card border border-primary/20 rounded-2xl overflow-hidden shadow-[0_0_20px_rgba(120,255,100,0.08)]">
+    <div className="bg-gray-900 border border-gray-800 rounded-2xl overflow-hidden">
       <Accordion type="single" collapsible defaultValue="planejamento">
         <AccordionItem value="planejamento" className="border-none">
-          <AccordionTrigger className="px-6 py-4 hover:no-underline hover:bg-primary/5">
+          <AccordionTrigger className="px-6 py-4 hover:no-underline hover:bg-white/5">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-primary/10 rounded-lg">
                 <Calendar className="w-5 h-5 text-primary" />
               </div>
-              <span className="text-lg font-semibold text-foreground">
+              <span className="text-lg font-semibold text-white">
                 Planejamento Trimestral
               </span>
             </div>
@@ -117,8 +117,8 @@ export const PlanejamentoTrimestralCard = ({ data, onChange }: PlanejamentoTrime
           <AccordionContent className="px-6 pb-6">
             <Accordion type="multiple" defaultValue={["meta", "indicadores", "iniciativas", "proximos", "sprints"]} className="space-y-4">
               {/* Meta Trimestral */}
-              <AccordionItem value="meta" className="border border-primary/10 rounded-xl overflow-hidden">
-                <AccordionTrigger className="px-4 py-3 hover:no-underline hover:bg-primary/5 text-sm">
+              <AccordionItem value="meta" className="border border-gray-700 rounded-xl overflow-hidden">
+                <AccordionTrigger className="px-4 py-3 hover:no-underline hover:bg-white/5 text-sm text-white">
                   <div className="flex items-center gap-2">
                     <Target className="w-4 h-4 text-primary" />
                     Meta Trimestral
@@ -135,8 +135,8 @@ export const PlanejamentoTrimestralCard = ({ data, onChange }: PlanejamentoTrime
               </AccordionItem>
 
               {/* Indicadores */}
-              <AccordionItem value="indicadores" className="border border-primary/10 rounded-xl overflow-hidden">
-                <AccordionTrigger className="px-4 py-3 hover:no-underline hover:bg-primary/5 text-sm">
+              <AccordionItem value="indicadores" className="border border-gray-700 rounded-xl overflow-hidden">
+                <AccordionTrigger className="px-4 py-3 hover:no-underline hover:bg-white/5 text-sm text-white">
                   <div className="flex items-center gap-2">
                     <BarChart3 className="w-4 h-4 text-primary" />
                     Indicadores do Trimestre
@@ -145,11 +145,11 @@ export const PlanejamentoTrimestralCard = ({ data, onChange }: PlanejamentoTrime
                 <AccordionContent className="px-4 pb-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {data.indicadores.map((ind) => (
-                      <Card key={ind.id} className="bg-background/50 border-primary/20 p-4">
-                        <p className="text-xs text-muted-foreground mb-2">{ind.name}</p>
+                      <Card key={ind.id} className="bg-gray-800 border-gray-700 p-4">
+                        <p className="text-xs text-white/60 mb-2">{ind.name}</p>
                         <div className="flex items-end justify-between gap-4">
                           <div className="flex-1">
-                            <span className="text-xs text-muted-foreground">Atual</span>
+                            <span className="text-xs text-white/60">Atual</span>
                             <EditableField
                               value={ind.atual}
                               onChange={(value) => updateIndicador(ind.id, "atual", value)}
@@ -157,7 +157,7 @@ export const PlanejamentoTrimestralCard = ({ data, onChange }: PlanejamentoTrime
                             />
                           </div>
                           <div className="flex-1">
-                            <span className="text-xs text-muted-foreground">Meta</span>
+                            <span className="text-xs text-white/60">Meta</span>
                             <EditableField
                               value={ind.meta}
                               onChange={(value) => updateIndicador(ind.id, "meta", value)}
@@ -172,8 +172,8 @@ export const PlanejamentoTrimestralCard = ({ data, onChange }: PlanejamentoTrime
               </AccordionItem>
 
               {/* Iniciativas */}
-              <AccordionItem value="iniciativas" className="border border-primary/10 rounded-xl overflow-hidden">
-                <AccordionTrigger className="px-4 py-3 hover:no-underline hover:bg-primary/5 text-sm">
+              <AccordionItem value="iniciativas" className="border border-gray-700 rounded-xl overflow-hidden">
+                <AccordionTrigger className="px-4 py-3 hover:no-underline hover:bg-white/5 text-sm text-white">
                   <div className="flex items-center gap-2">
                     <Zap className="w-4 h-4 text-primary" />
                     Iniciativas e Status
@@ -182,7 +182,7 @@ export const PlanejamentoTrimestralCard = ({ data, onChange }: PlanejamentoTrime
                 <AccordionContent className="px-4 pb-4">
                   <div className="space-y-3">
                     {data.iniciativas.map((ini) => (
-                      <div key={ini.id} className="flex items-center gap-3 p-3 rounded-lg hover:bg-primary/5 transition-colors">
+                      <div key={ini.id} className="flex items-center gap-3 p-3 rounded-lg hover:bg-white/5 transition-colors">
                         <Checkbox
                           checked={ini.completed}
                           onCheckedChange={() => toggleIniciativa(ini.id)}
@@ -204,8 +204,8 @@ export const PlanejamentoTrimestralCard = ({ data, onChange }: PlanejamentoTrime
               </AccordionItem>
 
               {/* Próximos Passos */}
-              <AccordionItem value="proximos" className="border border-primary/10 rounded-xl overflow-hidden">
-                <AccordionTrigger className="px-4 py-3 hover:no-underline hover:bg-primary/5 text-sm">
+              <AccordionItem value="proximos" className="border border-gray-700 rounded-xl overflow-hidden">
+                <AccordionTrigger className="px-4 py-3 hover:no-underline hover:bg-white/5 text-sm text-white">
                   <div className="flex items-center gap-2">
                     <ArrowRight className="w-4 h-4 text-primary" />
                     Próximos Passos
@@ -246,18 +246,18 @@ export const PlanejamentoTrimestralCard = ({ data, onChange }: PlanejamentoTrime
               </AccordionItem>
 
               {/* Datas dos Sprints */}
-              <AccordionItem value="sprints" className="border border-primary/10 rounded-xl overflow-hidden">
-                <AccordionTrigger className="px-4 py-3 hover:no-underline hover:bg-primary/5 text-sm">
+              <AccordionItem value="sprints" className="border border-gray-700 rounded-xl overflow-hidden">
+                <AccordionTrigger className="px-4 py-3 hover:no-underline hover:bg-white/5 text-sm text-white">
                   <div className="flex items-center gap-2">
                     <Clock className="w-4 h-4 text-primary" />
                     Datas dos Sprints
                   </div>
                 </AccordionTrigger>
                 <AccordionContent className="px-4 pb-4">
-                  <div className="border border-primary/20 rounded-xl overflow-hidden">
+                  <div className="border border-gray-700 rounded-xl overflow-hidden">
                     <Table>
                       <TableHeader>
-                        <TableRow className="bg-primary/10 hover:bg-primary/10">
+                        <TableRow className="bg-gray-800 hover:bg-gray-800">
                           <TableHead className="text-primary font-semibold">Sprint</TableHead>
                           <TableHead className="text-primary font-semibold">Início</TableHead>
                           <TableHead className="text-primary font-semibold">Fim</TableHead>
@@ -266,10 +266,10 @@ export const PlanejamentoTrimestralCard = ({ data, onChange }: PlanejamentoTrime
                       </TableHeader>
                       <TableBody>
                         {data.sprints.map((sprint) => (
-                          <TableRow key={sprint.id} className="border-t border-primary/10 hover:bg-primary/5">
-                            <TableCell className="font-medium">{sprint.name}</TableCell>
-                            <TableCell className="text-muted-foreground">{sprint.start}</TableCell>
-                            <TableCell className="text-muted-foreground">{sprint.end}</TableCell>
+                          <TableRow key={sprint.id} className="border-t border-gray-700 hover:bg-white/5">
+                            <TableCell className="font-medium text-white">{sprint.name}</TableCell>
+                            <TableCell className="text-white/60">{sprint.start}</TableCell>
+                            <TableCell className="text-white/60">{sprint.end}</TableCell>
                             <TableCell>
                               <Badge variant={statusBadgeConfig[sprint.status].variant} className="text-xs">
                                 {statusBadgeConfig[sprint.status].label}

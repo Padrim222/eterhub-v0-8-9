@@ -50,25 +50,25 @@ export const AcessoRapidoCard = ({ data, onChange }: AcessoRapidoCardProps) => {
   };
 
   return (
-    <div className="bg-card border border-primary/20 rounded-2xl overflow-hidden shadow-[0_0_20px_rgba(120,255,100,0.08)]">
+    <div className="bg-gray-900 border border-gray-800 rounded-2xl overflow-hidden">
       <Accordion type="single" collapsible defaultValue="acesso">
         <AccordionItem value="acesso" className="border-none">
-          <AccordionTrigger className="px-6 py-4 hover:no-underline hover:bg-primary/5">
+          <AccordionTrigger className="px-6 py-4 hover:no-underline hover:bg-white/5">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-primary/10 rounded-lg">
                 <Link2 className="w-5 h-5 text-primary" />
               </div>
-              <span className="text-lg font-semibold text-foreground">
+              <span className="text-lg font-semibold text-white">
                 Acesso Rápido
               </span>
             </div>
           </AccordionTrigger>
           <AccordionContent className="px-6 pb-6">
             <div className="space-y-4">
-              <div className="border border-primary/20 rounded-xl overflow-hidden">
+              <div className="border border-gray-700 rounded-xl overflow-hidden">
                 <Table>
                   <TableHeader>
-                    <TableRow className="bg-primary/10 hover:bg-primary/10">
+                    <TableRow className="bg-gray-800 hover:bg-gray-800">
                       <TableHead className="text-primary font-semibold">Nome</TableHead>
                       <TableHead className="text-primary font-semibold">Link</TableHead>
                       <TableHead className="text-primary font-semibold w-[100px]">Ações</TableHead>
@@ -77,13 +77,13 @@ export const AcessoRapidoCard = ({ data, onChange }: AcessoRapidoCardProps) => {
                   <TableBody>
                     {data.length === 0 ? (
                       <TableRow>
-                        <TableCell colSpan={3} className="text-center text-muted-foreground py-8">
+                        <TableCell colSpan={3} className="text-center text-white/50 py-8">
                           Nenhum link adicionado. Clique no botão abaixo para adicionar.
                         </TableCell>
                       </TableRow>
                     ) : (
                       data.map((link) => (
-                        <TableRow key={link.id} className="border-t border-primary/10 hover:bg-primary/5">
+                        <TableRow key={link.id} className="border-t border-gray-700 hover:bg-white/5">
                           <TableCell>
                             <EditableField
                               value={link.name}
@@ -131,7 +131,7 @@ export const AcessoRapidoCard = ({ data, onChange }: AcessoRapidoCardProps) => {
               <Button
                 variant="outline"
                 onClick={addLink}
-                className="border-primary/30 text-primary hover:bg-primary/10 hover:border-primary"
+                className="border-gray-700 text-primary hover:bg-primary/10 hover:border-primary"
               >
                 <Plus className="w-4 h-4 mr-2" />
                 Adicionar Link
