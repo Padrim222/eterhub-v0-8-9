@@ -68,14 +68,49 @@ export type Database = {
           },
         ]
       }
+      client_activities: {
+        Row: {
+          created_at: string | null
+          data: string | null
+          descricao: string | null
+          id: string
+          metadata: Json | null
+          tipo: string
+          titulo: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          data?: string | null
+          descricao?: string | null
+          id?: string
+          metadata?: Json | null
+          tipo: string
+          titulo: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          data?: string | null
+          descricao?: string | null
+          id?: string
+          metadata?: Json | null
+          tipo?: string
+          titulo?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       client_project_data: {
         Row: {
           alinhamento: Json | null
           created_at: string | null
+          entregas: Json | null
           expectativas: Json | null
           id: string
           links: Json | null
           planejamento: Json | null
+          projetos: Json | null
           retrospectiva: Json | null
           updated_at: string | null
           user_id: string
@@ -83,10 +118,12 @@ export type Database = {
         Insert: {
           alinhamento?: Json | null
           created_at?: string | null
+          entregas?: Json | null
           expectativas?: Json | null
           id?: string
           links?: Json | null
           planejamento?: Json | null
+          projetos?: Json | null
           retrospectiva?: Json | null
           updated_at?: string | null
           user_id: string
@@ -94,10 +131,12 @@ export type Database = {
         Update: {
           alinhamento?: Json | null
           created_at?: string | null
+          entregas?: Json | null
           expectativas?: Json | null
           id?: string
           links?: Json | null
           planejamento?: Json | null
+          projetos?: Json | null
           retrospectiva?: Json | null
           updated_at?: string | null
           user_id?: string
