@@ -9,34 +9,40 @@ const CentralCliente = () => {
   const [activeTab, setActiveTab] = useState("visao-geral");
 
   return (
-    <PageLayout title="Central do Cliente">
+    <PageLayout showTitle={false}>
       <div className="space-y-6">
+        {/* Título Grande - Padrão da Plataforma */}
+        <div className="mb-8">
+          <h1 className="text-4xl font-bold tracking-tight">Central do Cliente</h1>
+        </div>
+
+        {/* Tabs com Underline - Padrão da Plataforma */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="bg-card border border-border/50 p-1 h-auto flex-wrap">
+          <TabsList className="bg-transparent border-b border-gray-800 rounded-none h-auto p-0 w-full justify-start">
             <TabsTrigger 
               value="visao-geral"
-              className="data-[state=active]:bg-primary/20 data-[state=active]:text-primary flex items-center gap-2"
+              className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary px-6 py-3 flex items-center gap-2"
             >
               <Eye className="w-4 h-4" />
               Visão Geral
             </TabsTrigger>
             <TabsTrigger 
               value="projetos"
-              className="data-[state=active]:bg-primary/20 data-[state=active]:text-primary flex items-center gap-2"
+              className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary px-6 py-3 flex items-center gap-2"
             >
               <FolderKanban className="w-4 h-4" />
               Projetos
             </TabsTrigger>
             <TabsTrigger 
               value="entregas"
-              className="data-[state=active]:bg-primary/20 data-[state=active]:text-primary flex items-center gap-2"
+              className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary px-6 py-3 flex items-center gap-2"
             >
               <Package className="w-4 h-4" />
               Entregas
             </TabsTrigger>
             <TabsTrigger 
               value="historico"
-              className="data-[state=active]:bg-primary/20 data-[state=active]:text-primary flex items-center gap-2"
+              className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary px-6 py-3 flex items-center gap-2"
             >
               <History className="w-4 h-4" />
               Histórico
@@ -48,20 +54,20 @@ const CentralCliente = () => {
           </TabsContent>
 
           <TabsContent value="projetos" className="mt-6">
-            <Card className="bg-card border-border/50 p-8">
-              <p className="text-muted-foreground">Gerenciamento de projetos em desenvolvimento...</p>
+            <Card className="bg-gray-900 border-gray-800 p-8">
+              <p className="text-white/60">Gerenciamento de projetos em desenvolvimento...</p>
             </Card>
           </TabsContent>
 
           <TabsContent value="entregas" className="mt-6">
-            <Card className="bg-card border-border/50 p-8">
-              <p className="text-muted-foreground">Controle de entregas em desenvolvimento...</p>
+            <Card className="bg-gray-900 border-gray-800 p-8">
+              <p className="text-white/60">Controle de entregas em desenvolvimento...</p>
             </Card>
           </TabsContent>
 
           <TabsContent value="historico" className="mt-6">
-            <Card className="bg-card border-border/50 p-8">
-              <p className="text-muted-foreground">Histórico de atividades em desenvolvimento...</p>
+            <Card className="bg-gray-900 border-gray-800 p-8">
+              <p className="text-white/60">Histórico de atividades em desenvolvimento...</p>
             </Card>
           </TabsContent>
         </Tabs>
