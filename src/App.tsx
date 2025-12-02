@@ -61,6 +61,9 @@ const App = () => (
             {/* Home */}
             <Route path="/home" element={<Home />} />
             
+            {/* IMOV - Métricas específicas do usuário */}
+            <Route path="/imov" element={<Imovi />} />
+            
             {/* Central do Cliente */}
             <Route path="/central-cliente" element={<CentralCliente />} />
             
@@ -81,7 +84,6 @@ const App = () => (
             
             {/* Legacy redirects */}
             <Route path="/dashboard" element={<Navigate to="/home" replace />} />
-            <Route path="/imov" element={<Navigate to="/home" replace />} />
             
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
