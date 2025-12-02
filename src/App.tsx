@@ -58,11 +58,11 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/auth" element={<Auth />} />
             
-            {/* Home */}
+            {/* Home - mostra IMOV diretamente */}
             <Route path="/home" element={<Home />} />
             
-            {/* IMOV - Métricas específicas do usuário */}
-            <Route path="/imov" element={<Imovi />} />
+            {/* Redirect /imov para /home */}
+            <Route path="/imov" element={<Navigate to="/home" replace />} />
             
             {/* Central do Cliente */}
             <Route path="/central-cliente" element={<CentralCliente />} />

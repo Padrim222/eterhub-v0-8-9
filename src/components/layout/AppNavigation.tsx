@@ -3,7 +3,6 @@ import { cn } from "@/lib/utils";
 
 const navigationItems = [
   { name: "Home", path: "/home", enabled: true },
-  { name: "IMOV", path: "/imov", enabled: true },
   { name: "Central do Cliente", path: "/central-cliente", enabled: true },
   { name: "Educação", path: "/educacao", enabled: true },
   { name: "Eterflow", path: "/etherflow", enabled: true },
