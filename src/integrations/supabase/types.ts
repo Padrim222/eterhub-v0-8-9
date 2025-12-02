@@ -68,6 +68,50 @@ export type Database = {
           },
         ]
       }
+      client_project_data: {
+        Row: {
+          alinhamento: Json | null
+          created_at: string | null
+          expectativas: Json | null
+          id: string
+          links: Json | null
+          planejamento: Json | null
+          retrospectiva: Json | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          alinhamento?: Json | null
+          created_at?: string | null
+          expectativas?: Json | null
+          id?: string
+          links?: Json | null
+          planejamento?: Json | null
+          retrospectiva?: Json | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          alinhamento?: Json | null
+          created_at?: string | null
+          expectativas?: Json | null
+          id?: string
+          links?: Json | null
+          planejamento?: Json | null
+          retrospectiva?: Json | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "client_project_data_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ig_posts: {
         Row: {
           caption: string | null
