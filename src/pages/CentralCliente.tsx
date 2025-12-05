@@ -29,49 +29,48 @@ const CentralCliente = () => {
   return (
     <PageLayout showTitle={false}>
       <div className="space-y-6">
-        {/* Título Grande - Padrão da Plataforma */}
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold tracking-tight">Central do Cliente</h1>
-        </div>
-
-        {/* Tabs com Underline - Padrão da Plataforma */}
+        {/* Header com título à esquerda e tabs à direita */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="bg-transparent border-b border-border rounded-none h-auto p-0 w-full justify-start">
-            <TabsTrigger 
-              value="visao-geral"
-              className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary px-6 py-3 flex items-center gap-2"
-            >
-              <Eye className="w-4 h-4" />
-              Visão Geral
-            </TabsTrigger>
-            <TabsTrigger 
-              value="projetos"
-              className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary px-6 py-3 flex items-center gap-2"
-            >
-              <FolderKanban className="w-4 h-4" />
-              Projetos
-            </TabsTrigger>
-            <TabsTrigger 
-              value="entregas"
-              className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary px-6 py-3 flex items-center gap-2"
-            >
-              <Package className="w-4 h-4" />
-              Entregas
-            </TabsTrigger>
-            <TabsTrigger 
-              value="historico"
-              className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary px-6 py-3 flex items-center gap-2"
-            >
-              <History className="w-4 h-4" />
-              Histórico
-            </TabsTrigger>
-          </TabsList>
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+            <h1 className="text-4xl font-bold tracking-tight">Central do Cliente</h1>
+            
+            <TabsList className="bg-gray-900/50 border border-gray-800 rounded-xl p-1 h-auto">
+              <TabsTrigger 
+                value="visao-geral"
+                className="rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground px-4 py-2 flex items-center gap-2"
+              >
+                <Eye className="w-4 h-4" />
+                <span className="hidden sm:inline">Visão Geral</span>
+              </TabsTrigger>
+              <TabsTrigger 
+                value="projetos"
+                className="rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground px-4 py-2 flex items-center gap-2"
+              >
+                <FolderKanban className="w-4 h-4" />
+                <span className="hidden sm:inline">Projetos</span>
+              </TabsTrigger>
+              <TabsTrigger 
+                value="entregas"
+                className="rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground px-4 py-2 flex items-center gap-2"
+              >
+                <Package className="w-4 h-4" />
+                <span className="hidden sm:inline">Entregas</span>
+              </TabsTrigger>
+              <TabsTrigger 
+                value="historico"
+                className="rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground px-4 py-2 flex items-center gap-2"
+              >
+                <History className="w-4 h-4" />
+                <span className="hidden sm:inline">Histórico</span>
+              </TabsTrigger>
+            </TabsList>
+          </div>
 
-          <TabsContent value="visao-geral" className="mt-6">
+          <TabsContent value="visao-geral" className="mt-0">
             <ProjectOverview />
           </TabsContent>
 
-          <TabsContent value="projetos" className="mt-6">
+          <TabsContent value="projetos" className="mt-0">
             <ProjetosTab 
               data={data} 
               setData={setData} 
@@ -80,7 +79,7 @@ const CentralCliente = () => {
             />
           </TabsContent>
 
-          <TabsContent value="entregas" className="mt-6">
+          <TabsContent value="entregas" className="mt-0">
             <EntregasTab 
               data={data} 
               setData={setData} 
@@ -89,7 +88,7 @@ const CentralCliente = () => {
             />
           </TabsContent>
 
-          <TabsContent value="historico" className="mt-6">
+          <TabsContent value="historico" className="mt-0">
             <HistoricoTab />
           </TabsContent>
         </Tabs>
