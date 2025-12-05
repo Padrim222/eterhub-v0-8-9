@@ -5,7 +5,7 @@ import { ProjectOverview } from "@/components/consultoria/ProjectOverview";
 import { ProjetosTab } from "@/components/consultoria/ProjetosTab";
 import { EntregasTab } from "@/components/consultoria/EntregasTab";
 import { HistoricoTab } from "@/components/consultoria/HistoricoTab";
-import { Eye, FolderKanban, Package, History, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { useClientProjectData, ClientProjectData } from "@/hooks/useClientProjectData";
 import { useClientActivities } from "@/hooks/useClientActivities";
 
@@ -55,33 +55,29 @@ const CentralCliente = () => {
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-8">
-          <TabsList className="bg-transparent border-b border-border rounded-none h-auto p-0 w-full justify-start">
+          <TabsList className="bg-transparent border-b border-border rounded-none h-auto p-0 w-full justify-end">
             <TabsTrigger 
               value="visao-geral"
-              className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary px-6 py-3 flex items-center gap-2"
+              className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary px-6 py-3"
             >
-              <Eye className="w-4 h-4" />
               Visão Geral
             </TabsTrigger>
             <TabsTrigger 
               value="projetos"
-              className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary px-6 py-3 flex items-center gap-2"
+              className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary px-6 py-3"
             >
-              <FolderKanban className="w-4 h-4" />
               Projetos
             </TabsTrigger>
             <TabsTrigger 
               value="entregas"
-              className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary px-6 py-3 flex items-center gap-2"
+              className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary px-6 py-3"
             >
-              <Package className="w-4 h-4" />
               Entregas
             </TabsTrigger>
             <TabsTrigger 
               value="historico"
-              className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary px-6 py-3 flex items-center gap-2"
+              className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary px-6 py-3"
             >
-              <History className="w-4 h-4" />
               Histórico
             </TabsTrigger>
           </TabsList>
