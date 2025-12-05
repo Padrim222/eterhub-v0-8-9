@@ -41,7 +41,7 @@ export const RetrospectivaTrimestralCard = ({ data, onChange }: RetrospectivaTri
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {/* Keep Doing */}
-        <Card className="bg-gray-800 border-gray-700 border-l-4 border-l-green-500 p-4 rounded-xl">
+        <Card className="bg-gray-800 border-gray-700 p-4 rounded-xl">
           <div className="flex items-center gap-2 mb-4">
             <CheckCircle className="w-5 h-5 text-green-400" />
             <h4 className="text-green-400 font-semibold">Keep Doing</h4>
@@ -79,7 +79,7 @@ export const RetrospectivaTrimestralCard = ({ data, onChange }: RetrospectivaTri
         </Card>
 
         {/* Stop Doing */}
-        <Card className="bg-gray-800 border-gray-700 border-l-4 border-l-red-500 p-4 rounded-xl">
+        <Card className="bg-gray-800 border-gray-700 p-4 rounded-xl">
           <div className="flex items-center gap-2 mb-4">
             <XCircle className="w-5 h-5 text-red-400" />
             <h4 className="text-red-400 font-semibold">Stop Doing</h4>
@@ -117,7 +117,7 @@ export const RetrospectivaTrimestralCard = ({ data, onChange }: RetrospectivaTri
         </Card>
 
         {/* Start Doing */}
-        <Card className="bg-gray-800 border-gray-700 border-l-4 border-l-blue-500 p-4 rounded-xl">
+        <Card className="bg-gray-800 border-gray-700 p-4 rounded-xl">
           <div className="flex items-center gap-2 mb-4">
             <PlusCircle className="w-5 h-5 text-blue-400" />
             <h4 className="text-blue-400 font-semibold">Start Doing</h4>
