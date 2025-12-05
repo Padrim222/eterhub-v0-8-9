@@ -45,44 +45,18 @@ serve(async (req) => {
       .from("ig_posts")
       .select("*")
       .eq("user_id", user.id)
-      .gte("created_at", thirtyDaysAgo.toISOString())
-      .order("created_at", { ascending: false });
+      .gte("published_at", thirtyDaysAgo.toISOString())
+      .order("published_at", { ascending: false });
 
     if (postsError) {
       console.error("Error fetching posts:", postsError);
     }
 
-    // Fetch leads
-    const { data: leads, error: leadsError } = await supabase
-      .from("leads")
-      .select("*")
-      .order("created_at", { ascending: false });
-
-    if (leadsError) {
-      console.error("Error fetching leads:", leadsError);
-    }
-
-    // Fetch campaigns
-    const { data: campaigns, error: campaignsError } = await supabase
-      .from("campaigns")
-      .select("*")
-      .eq("user_id", user.id);
-
-    if (campaignsError) {
-      console.error("Error fetching campaigns:", campaignsError);
-    }
-
-    // Calculate metrics
+    // Calculate metrics from Instagram posts only (leads/campaigns tables don't exist yet)
     const postsCount = posts?.length || 0;
-    const totalEngagement = posts?.reduce((sum, p) => sum + (p.likes_count || 0) + (p.comments_count || 0), 0) || 0;
+    const totalEngagement = posts?.reduce((sum, p) => sum + (p.likes || 0) + (p.comments || 0), 0) || 0;
     const avgEngagement = postsCount > 0 ? totalEngagement / postsCount : 0;
-    const totalViews = posts?.reduce((sum, p) => sum + (p.plays_count || 0), 0) || 0;
-    
-    const leadsCount = leads?.length || 0;
-    const qualifiedLeads = leads?.filter((l: any) => l.is_qualified).length || 0;
-    const qualificationRate = leadsCount > 0 ? (qualifiedLeads / leadsCount) * 100 : 0;
-
-    const campaignsCount = campaigns?.length || 0;
+    const totalViews = posts?.reduce((sum, p) => sum + (p.views || 0), 0) || 0;
 
     // Prepare context for AI
     const metricsContext = `
@@ -94,15 +68,7 @@ POSTS DO INSTAGRAM (últimos 30 dias):
 - Total de engajamento (likes + comentários): ${totalEngagement.toLocaleString('pt-BR')}
 - Engajamento médio por post: ${avgEngagement.toFixed(1)}
 
-LEADS:
-- Total de leads: ${leadsCount}
-- Leads qualificados: ${qualifiedLeads}
-- Taxa de qualificação: ${qualificationRate.toFixed(1)}%
-
-CAMPANHAS:
-- Total de campanhas ativas: ${campaignsCount}
-
-Com base nestes dados, gere 3 insights acionáveis e práticos para melhorar o desempenho do usuário.
+Com base nestes dados, gere 3 insights acionáveis e práticos para melhorar o desempenho do usuário no Instagram.
 `;
 
     console.log("Calling Lovable AI with metrics:", metricsContext);
