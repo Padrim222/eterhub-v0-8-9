@@ -59,7 +59,7 @@ export const ArquivosLinksSection = ({ data, onChange }: ArquivosLinksSectionPro
   };
 
   return (
-    <Card className="bg-gray-900 border-gray-800 overflow-hidden">
+    <Card className="bg-gray-800/50 border-gray-700/50 backdrop-blur-sm overflow-hidden">
       <div className="flex items-center justify-between p-4 border-b border-gray-800">
         <div className="flex items-center gap-2">
           <div className="p-2 bg-primary/10 rounded-lg">

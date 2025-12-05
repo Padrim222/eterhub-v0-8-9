@@ -14,7 +14,7 @@ interface AlinhamentoCardProps {
 
 export const AlinhamentoCard = ({ data, onChange }: AlinhamentoCardProps) => {
   return (
-    <Card className="bg-gray-900 border-gray-800 p-4">
+    <Card className="bg-gray-800/50 border-gray-700/50 backdrop-blur-sm p-4">
       <div className="flex items-start gap-4">
         <div className="flex items-center gap-3 shrink-0">
           <div className="p-2 bg-primary/10 rounded-lg">
