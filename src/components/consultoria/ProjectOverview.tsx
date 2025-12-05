@@ -28,9 +28,18 @@ export const ProjectOverview = () => {
 
   return (
     <div className="relative">
-      <div className="space-y-6 pb-24">
+      {/* Logo Eter Hub como plano de fundo */}
+      <div className="fixed inset-0 flex items-center justify-center pointer-events-none z-0">
+        <img 
+          src={eterLogo} 
+          alt="" 
+          className="h-64 opacity-10"
+        />
+      </div>
+
+      <div className="space-y-6 pb-24 relative z-10">
         {/* 1. Alinhamento - Card simples */}
-        <AlinhamentoCard 
+        <AlinhamentoCard
           data={data.alinhamento} 
           onChange={(alinhamento) => setData({ ...data, alinhamento })} 
         />
@@ -82,15 +91,6 @@ export const ProjectOverview = () => {
           data={data.links}
           onChange={(links) => setData({ ...data, links })}
         />
-
-        {/* Logo Eter Hub centralizada */}
-        <div className="flex justify-center py-12">
-          <img 
-            src={eterLogo} 
-            alt="Eter Hub" 
-            className="h-16 opacity-40"
-          />
-        </div>
       </div>
 
       <Button
