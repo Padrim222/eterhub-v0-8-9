@@ -1,4 +1,5 @@
 import { ReactNode, useState } from "react";
+
 import { AppNavigation } from "./AppNavigation";
 import { ProfileModal } from "./ProfileModal";
 import eterLogo from "@/assets/eter-logo.png";
