@@ -1,4 +1,4 @@
-import { Rocket, Clock } from "lucide-react";
+import { Clock } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import type { Iniciativa } from "@/hooks/useClientProjectData";
@@ -33,12 +33,7 @@ export const IniciativasSection = ({ iniciativas, onChange }: IniciativasSection
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center gap-2">
-        <div className="p-2 bg-primary/10 rounded-lg">
-          <Rocket className="w-5 h-5 text-primary" />
-        </div>
-        <h3 className="text-lg font-semibold text-white">Iniciativas do Trimestre</h3>
-      </div>
+      <h3 className="text-lg font-semibold text-white">Iniciativas do Trimestre</h3>
       
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {displayedIniciativas.map((ini) => {
@@ -46,7 +41,7 @@ export const IniciativasSection = ({ iniciativas, onChange }: IniciativasSection
           const progress = getProgress(ini);
           
           return (
-            <Card key={ini.id} className="bg-gray-800/50 border-gray-700/50 backdrop-blur-sm p-4">
+            <Card key={ini.id} className="bg-gray-900 border-gray-700 p-4">
               <div className="flex items-center justify-between mb-2">
                 <h4 className="font-medium text-white truncate">{ini.name}</h4>
                 <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${statusConfig[ini.status].className}`}>

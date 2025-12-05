@@ -1,4 +1,4 @@
-import { ClipboardList, Paperclip, User } from "lucide-react";
+import { Paperclip, User } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -56,17 +56,14 @@ export const AtividadesTable = ({ entregas, onChange }: AtividadesTableProps) =>
   const atividades = entregas.length > 0 ? mapEntregasToAtividades(entregas) : defaultAtividades;
 
   return (
-    <Card className="bg-gray-800/50 border-gray-700/50 backdrop-blur-sm overflow-hidden">
+    <Card className="bg-gray-900 border-gray-700 overflow-hidden">
       <div className="flex items-center gap-2 p-4 border-b border-gray-800">
-        <div className="p-2 bg-primary/10 rounded-lg">
-          <ClipboardList className="w-5 h-5 text-primary" />
-        </div>
         <h3 className="text-lg font-semibold text-white">Atividades</h3>
       </div>
       
       <Table>
         <TableHeader>
-          <TableRow className="bg-gray-800/50 hover:bg-gray-800/50 border-gray-700">
+          <TableRow className="bg-gray-800 hover:bg-gray-800 border-gray-700">
             <TableHead className="w-[40px]"></TableHead>
             <TableHead className="text-white/60 font-medium">Atividade</TableHead>
             <TableHead className="text-white/60 font-medium">Responsável</TableHead>
