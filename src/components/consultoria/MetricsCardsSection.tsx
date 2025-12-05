@@ -38,7 +38,7 @@ export const MetricsCardsSection = ({ alinhamento, planejamento }: MetricsCardsS
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
       {/* Status Geral */}
-      <Card className="bg-gray-800/50 border-gray-700/50 backdrop-blur-sm p-4">
+      <Card className="bg-gray-900 border-gray-700 p-4">
         <span className="text-sm text-white/60">Status Geral</span>
         <div className="mt-2 mb-3">
           <span className="text-2xl font-bold text-white">{getStatusLabel()}</span>
@@ -56,7 +56,7 @@ export const MetricsCardsSection = ({ alinhamento, planejamento }: MetricsCardsS
       </Card>
 
       {/* Meta Anual */}
-      <Card className="bg-gray-800/50 border-gray-700/50 backdrop-blur-sm p-4">
+      <Card className="bg-gray-900 border-gray-700 p-4">
         <span className="text-sm text-white/60">Meta Anual</span>
         <div className="mt-2 mb-3">
           <span className="text-xl font-bold text-white truncate block">
@@ -71,7 +71,7 @@ export const MetricsCardsSection = ({ alinhamento, planejamento }: MetricsCardsS
       </Card>
 
       {/* Meta Trimestral */}
-      <Card className="bg-gray-800/50 border-gray-700/50 backdrop-blur-sm p-4">
+      <Card className="bg-gray-900 border-gray-700 p-4">
         <span className="text-sm text-white/60">Meta Trimestral</span>
         <div className="mt-2 mb-3">
           <span className="text-xl font-bold text-white truncate block">
@@ -86,7 +86,7 @@ export const MetricsCardsSection = ({ alinhamento, planejamento }: MetricsCardsS
       </Card>
 
       {/* Indicadores-Chave */}
-      <Card className="bg-gray-800/50 border-gray-700/50 backdrop-blur-sm p-4">
+      <Card className="bg-gray-900 border-gray-700 p-4">
         <span className="text-sm text-white/60 mb-3 block">Indicadores-Chave</span>
         <div className="space-y-3">
           {planejamento.indicadores.slice(0, 3).map((ind) => {
