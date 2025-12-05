@@ -1,3 +1,4 @@
+import { useRef } from "react";
 import { Plus, Trash2, FileText, ExternalLink } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -36,6 +37,8 @@ const getTypeFromUrl = (url: string): LinkItem["type"] => {
 };
 
 export const ArquivosLinksSection = ({ data, onChange }: ArquivosLinksSectionProps) => {
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
   const updateLink = (id: string, field: keyof LinkItem, value: string) => {
     const updated = data.map((link) =>
       link.id === id ? { ...link, [field]: value } : link
@@ -43,15 +46,29 @@ export const ArquivosLinksSection = ({ data, onChange }: ArquivosLinksSectionPro
     onChange(updated);
   };
 
-  const addLink = () => {
-    const newLink: LinkItem = {
-      id: crypto.randomUUID(),
-      name: "",
-      url: "",
-      type: "link",
-      date: new Date().toLocaleDateString('pt-BR'),
-    };
-    onChange([...data, newLink]);
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    if (!files) return;
+
+    const newLinks: LinkItem[] = Array.from(files).map((file) => {
+      const ext = file.name.split('.').pop()?.toLowerCase();
+      let type: LinkItem["type"] = "link";
+      if (ext === "pdf") type = "pdf";
+      else if (ext === "xlsx" || ext === "xls") type = "xlsx";
+      else if (ext === "docx" || ext === "doc") type = "docx";
+      else if (ext === "zip" || ext === "rar") type = "zip";
+
+      return {
+        id: crypto.randomUUID(),
+        name: file.name,
+        url: URL.createObjectURL(file),
+        type,
+        date: new Date().toLocaleDateString('pt-BR'),
+      };
+    });
+
+    onChange([...data, ...newLinks]);
+    event.target.value = "";
   };
 
   const removeLink = (id: string) => {
@@ -60,11 +77,21 @@ export const ArquivosLinksSection = ({ data, onChange }: ArquivosLinksSectionPro
 
   return (
     <div className="space-y-4">
+      {/* Input de arquivo oculto */}
+      <input
+        ref={fileInputRef}
+        type="file"
+        multiple
+        accept=".pdf,.xlsx,.xls,.docx,.doc,.zip,.rar,.png,.jpg,.jpeg"
+        onChange={handleFileUpload}
+        className="hidden"
+      />
+
       {/* Título FORA do card com botão + discreto */}
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-semibold text-white">Arquivos & Links</h3>
         <button
-          onClick={addLink}
+          onClick={() => fileInputRef.current?.click()}
           className="w-8 h-8 rounded-lg bg-gray-800 border border-gray-700 flex items-center justify-center text-gray-400 hover:text-primary hover:border-primary transition-colors"
         >
           <Plus className="w-4 h-4" />
@@ -75,7 +102,7 @@ export const ArquivosLinksSection = ({ data, onChange }: ArquivosLinksSectionPro
       <Card className="bg-card-dark border-gray-700 p-4">
         {data.length === 0 ? (
           <div className="text-center text-white/50 py-8">
-            Nenhum arquivo adicionado.
+            Nenhum arquivo adicionado. Clique no + para fazer upload.
           </div>
         ) : (
           <div className="space-y-1">
@@ -90,8 +117,8 @@ export const ArquivosLinksSection = ({ data, onChange }: ArquivosLinksSectionPro
                   }`}
                 >
                   {/* Ícone documento em quadrado preto/cinza escuro */}
-                  <div className="p-3 bg-gray-900 rounded-lg shrink-0">
-                    <FileText className="w-5 h-5 text-gray-500" />
+                  <div className="p-3 bg-gray-800 rounded-lg shrink-0">
+                    <FileText className="w-6 h-6 text-gray-400" />
                   </div>
                   
                   {/* Nome + Data/Badge */}
@@ -100,13 +127,13 @@ export const ArquivosLinksSection = ({ data, onChange }: ArquivosLinksSectionPro
                       value={link.name}
                       onChange={(value) => updateLink(link.id, "name", value)}
                       placeholder="Nome do arquivo..."
-                      className="font-semibold text-white"
+                      className="font-semibold text-white text-lg"
                     />
-                    <div className="flex items-center gap-2 mt-1">
+                    <div className="flex items-center gap-3 mt-1">
                       <span className="text-sm text-white/50">
                         {link.date || new Date().toLocaleDateString('pt-BR')}
                       </span>
-                      <Badge className="bg-gray-800 text-white/60 border-0 text-xs">
+                      <Badge className="bg-gray-700 text-white/80 border-0 text-xs rounded">
                         {typeConfig[linkType].label}
                       </Badge>
                     </div>
