@@ -1,7 +1,6 @@
-import { Rocket } from "lucide-react";
+import { Rocket, Clock } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { Badge } from "@/components/ui/badge";
 import type { Iniciativa } from "@/hooks/useClientProjectData";
 
 interface IniciativasSectionProps {
@@ -10,9 +9,9 @@ interface IniciativasSectionProps {
 }
 
 const statusConfig = {
-  pendente: { label: "Pendente", variant: "secondary" as const },
-  em_andamento: { label: "Em Andamento", variant: "default" as const },
-  concluido: { label: "Concluído", variant: "outline" as const },
+  pendente: { label: "Atrasado", className: "border border-red-500 text-red-400 bg-transparent" },
+  em_andamento: { label: "Em dia", className: "border border-green-500 text-green-400 bg-transparent" },
+  concluido: { label: "Concluído", className: "bg-green-500 text-black" },
 };
 
 export const IniciativasSection = ({ iniciativas, onChange }: IniciativasSectionProps) => {
@@ -50,18 +49,10 @@ export const IniciativasSection = ({ iniciativas, onChange }: IniciativasSection
             <Card key={ini.id} className="bg-gray-900 border-gray-800 p-4">
               <div className="flex items-center justify-between mb-2">
                 <h4 className="font-medium text-white truncate">{ini.name}</h4>
-                <Badge 
-                  variant={statusConfig[ini.status].variant}
-                  className={
-                    ini.status === "concluido" 
-                      ? "bg-primary/20 text-primary border-primary/30" 
-                      : ini.status === "em_andamento"
-                      ? "bg-yellow-500/20 text-yellow-400 border-yellow-500/30"
-                      : ""
-                  }
-                >
+                <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${statusConfig[ini.status].className}`}>
+                  <Clock className="w-3 h-3" />
                   {statusConfig[ini.status].label}
-                </Badge>
+                </span>
               </div>
               <p className="text-sm text-white/60 mb-3">
                 {steps.completed} de {steps.total} etapas concluídas
