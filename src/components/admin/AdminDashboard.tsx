@@ -30,7 +30,7 @@ export function AdminDashboard() {
               {isLoading ? (
                 <Skeleton className="h-8 w-20" />
               ) : (
-                <div className="text-3xl font-bold text-foreground">{stat.value}</div>
+                <div className="text-3xl font-bold text-black">{stat.value}</div>
               )}
             </CardContent>
           </Card>
@@ -45,7 +45,7 @@ export function AdminDashboard() {
           <CardContent className="space-y-4">
             <div className="flex justify-between items-center py-2 border-b border-border">
               <span className="text-muted-foreground">Taxa de Onboarding</span>
-              <span className="text-foreground font-medium">
+              <span className="text-black font-medium">
                 {stats.totalUsers > 0 
                   ? `${Math.round((stats.usersWithOnboarding / stats.totalUsers) * 100)}%`
                   : "0%"
@@ -54,7 +54,7 @@ export function AdminDashboard() {
             </div>
             <div className="flex justify-between items-center py-2 border-b border-border">
               <span className="text-muted-foreground">Média de Posts/Usuário</span>
-              <span className="text-foreground font-medium">
+              <span className="text-black font-medium">
                 {stats.totalUsers > 0 
                   ? (stats.totalPosts / stats.totalUsers).toFixed(1)
                   : "0"
@@ -63,7 +63,7 @@ export function AdminDashboard() {
             </div>
             <div className="flex justify-between items-center py-2 border-b border-border">
               <span className="text-muted-foreground">Média de Projetos/Usuário</span>
-              <span className="text-foreground font-medium">
+              <span className="text-black font-medium">
                 {stats.totalUsers > 0 
                   ? (stats.totalProjects / stats.totalUsers).toFixed(1)
                   : "0"
@@ -72,7 +72,7 @@ export function AdminDashboard() {
             </div>
             <div className="flex justify-between items-center py-2">
               <span className="text-muted-foreground">Usuários com Onboarding</span>
-              <span className="text-foreground font-medium">
+              <span className="text-black font-medium">
                 {stats.usersWithOnboarding} / {stats.totalUsers}
               </span>
             </div>

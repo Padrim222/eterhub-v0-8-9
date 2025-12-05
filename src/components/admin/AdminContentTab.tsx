@@ -112,87 +112,95 @@ export function AdminContentTab() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filteredPosts.map((post) => (
-              <TableRow key={post.id} className="border-border">
-                <TableCell>
-                  {post.thumbnail_url ? (
-                    <img 
-                      src={post.thumbnail_url} 
-                      alt="Preview" 
-                      className="w-12 h-12 object-cover rounded"
-                    />
-                  ) : (
-                    <div className="w-12 h-12 bg-muted rounded flex items-center justify-center">
-                      <Eye className="w-4 h-4 text-muted-foreground" />
+            {filteredPosts.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
+                  Nenhum post encontrado
+                </TableCell>
+              </TableRow>
+            ) : (
+              filteredPosts.map((post) => (
+                <TableRow key={post.id} className="border-border">
+                  <TableCell>
+                    {post.thumbnail_url ? (
+                      <img 
+                        src={post.thumbnail_url} 
+                        alt="Preview" 
+                        className="w-12 h-12 object-cover rounded"
+                      />
+                    ) : (
+                      <div className="w-12 h-12 bg-muted rounded flex items-center justify-center">
+                        <Eye className="w-4 h-4 text-muted-foreground" />
+                      </div>
+                    )}
+                  </TableCell>
+                  <TableCell>
+                    <div>
+                      <p className="font-medium text-foreground">{post.user_nome}</p>
+                      <p className="text-sm text-muted-foreground">{post.user_email}</p>
                     </div>
-                  )}
-                </TableCell>
-                <TableCell>
-                  <div>
-                    <p className="font-medium text-foreground">{post.user_nome}</p>
-                    <p className="text-sm text-muted-foreground">{post.user_email}</p>
-                  </div>
-                </TableCell>
-                <TableCell>
-                  <Badge variant="outline">{post.post_type || "Post"}</Badge>
-                </TableCell>
-                <TableCell>
-                  <div className="flex items-center gap-3 text-sm">
-                    <span className="flex items-center gap-1 text-muted-foreground">
-                      <Heart className="w-3 h-3" /> {formatNumber(post.likes)}
-                    </span>
-                    <span className="flex items-center gap-1 text-muted-foreground">
-                      <MessageCircle className="w-3 h-3" /> {formatNumber(post.comments)}
-                    </span>
-                    <span className="flex items-center gap-1 text-muted-foreground">
-                      <Bookmark className="w-3 h-3" /> {formatNumber(post.saves)}
-                    </span>
-                  </div>
-                </TableCell>
-                <TableCell>
-                  <Badge 
-                    variant="outline" 
-                    className={
-                      (post.engagement_rate || 0) > 5 
-                        ? "text-green-400 border-green-400/30" 
-                        : "text-muted-foreground"
+                  </TableCell>
+                  <TableCell>
+                    <Badge variant="outline">{post.post_type || "Post"}</Badge>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-3 text-sm">
+                      <span className="flex items-center gap-1 text-muted-foreground">
+                        <Heart className="w-3 h-3" /> {formatNumber(post.likes)}
+                      </span>
+                      <span className="flex items-center gap-1 text-muted-foreground">
+                        <MessageCircle className="w-3 h-3" /> {formatNumber(post.comments)}
+                      </span>
+                      <span className="flex items-center gap-1 text-muted-foreground">
+                        <Bookmark className="w-3 h-3" /> {formatNumber(post.saves)}
+                      </span>
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <Badge 
+                      variant="outline" 
+                      className={
+                        (post.engagement_rate || 0) > 5 
+                          ? "text-green-400 border-green-400/30" 
+                          : "text-muted-foreground"
+                      }
+                    >
+                      {post.engagement_rate?.toFixed(2)}%
+                    </Badge>
+                  </TableCell>
+                  <TableCell className="text-muted-foreground">
+                    {post.published_at 
+                      ? format(new Date(post.published_at), "dd/MM/yyyy", { locale: ptBR })
+                      : "-"
                     }
-                  >
-                    {post.engagement_rate?.toFixed(2)}%
-                  </Badge>
-                </TableCell>
-                <TableCell className="text-muted-foreground">
-                  {post.published_at 
-                    ? format(new Date(post.published_at), "dd/MM/yyyy", { locale: ptBR })
-                    : "-"
-                  }
-                </TableCell>
-                <TableCell className="text-right">
-                  <div className="flex items-center justify-end gap-1">
-                    {post.post_url && (
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <div className="flex items-center justify-end gap-1">
+                      {post.post_url && (
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          asChild
+                          className="h-8 w-8"
+                        >
+                          <a href={post.post_url} target="_blank" rel="noopener noreferrer">
+                            <ExternalLink className="h-4 w-4" />
+                          </a>
+                        </Button>
+                      )}
                       <Button
                         variant="ghost"
                         size="icon"
-                        asChild
-                        className="h-8 w-8"
+                        onClick={() => setDeletePostId(post.id)}
+                        className="h-8 w-8 text-red-400 hover:text-red-300"
                       >
-                        <a href={post.post_url} target="_blank" rel="noopener noreferrer">
-                          <ExternalLink className="h-4 w-4" />
-                        </a>
+                        <Trash2 className="h-4 w-4" />
                       </Button>
-                    )}
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => setDeletePostId(post.id)}
-                      className="h-8 w-8 text-red-400 hover:text-red-300"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </TableCell>
-              </TableRow>
-            ))}
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
           </TableBody>
         </Table>
       </div>
