@@ -12,8 +12,9 @@ import type { Entrega, ClientProjectData } from "@/hooks/useClientProjectData";
 interface EntregasTabProps {
   data: ClientProjectData;
   setData: (data: ClientProjectData) => void;
-  onSave: () => Promise<void>;
+  onSave: (updatedData: ClientProjectData) => Promise<boolean | undefined>;
   isSaving: boolean;
+  onActivityLog?: (tipo: "projeto" | "entrega" | "alteracao", titulo: string, descricao?: string) => Promise<void>;
 }
 
 const statusConfig: Record<Entrega['status'], { icon: React.ElementType; color: string; label: string }> = {
@@ -23,7 +24,7 @@ const statusConfig: Record<Entrega['status'], { icon: React.ElementType; color: 
   rejeitado: { icon: AlertCircle, color: "bg-destructive/20 text-destructive", label: "Rejeitado" },
 };
 
-export const EntregasTab = ({ data, setData, onSave, isSaving }: EntregasTabProps) => {
+export const EntregasTab = ({ data, setData, onSave, isSaving, onActivityLog }: EntregasTabProps) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingEntrega, setEditingEntrega] = useState<Entrega | null>(null);
   const [filterStatus, setFilterStatus] = useState<string>("all");
@@ -64,6 +65,7 @@ export const EntregasTab = ({ data, setData, onSave, isSaving }: EntregasTabProp
   const handleSaveEntrega = async () => {
     if (!formData.nome || !formData.projetoId) return;
 
+    const isEditing = !!editingEntrega;
     const newEntrega: Entrega = {
       id: editingEntrega?.id || crypto.randomUUID(),
       nome: formData.nome || "",
@@ -75,30 +77,59 @@ export const EntregasTab = ({ data, setData, onSave, isSaving }: EntregasTabProp
       feedback: formData.feedback || "",
     };
 
-    const updatedEntregas = editingEntrega
+    const updatedEntregas = isEditing
       ? data.entregas.map(e => e.id === editingEntrega.id ? newEntrega : e)
       : [...data.entregas, newEntrega];
 
-    setData({ ...data, entregas: updatedEntregas });
+    const updatedData = { ...data, entregas: updatedEntregas };
+    setData(updatedData);
     setIsDialogOpen(false);
     resetForm();
-    await onSave();
+    
+    const success = await onSave(updatedData);
+    if (success && onActivityLog) {
+      const projetoNome = data.projetos.find(p => p.id === newEntrega.projetoId)?.nome || "";
+      await onActivityLog(
+        "entrega",
+        isEditing ? `Entrega editada: ${newEntrega.nome}` : `Entrega criada: ${newEntrega.nome}`,
+        projetoNome ? `Projeto: ${projetoNome}` : undefined
+      );
+    }
   };
 
   const handleDeleteEntrega = async (id: string) => {
+    const entrega = data.entregas.find(e => e.id === id);
+    const entregaNome = entrega?.nome || "Entrega";
     const updatedEntregas = data.entregas.filter(e => e.id !== id);
-    setData({ ...data, entregas: updatedEntregas });
-    await onSave();
+    const updatedData = { ...data, entregas: updatedEntregas };
+    setData(updatedData);
+    
+    const success = await onSave(updatedData);
+    if (success && onActivityLog) {
+      await onActivityLog("entrega", `Entrega excluída: ${entregaNome}`);
+    }
   };
 
   const handleUpdateStatus = async (id: string, newStatus: Entrega['status']) => {
+    const entrega = data.entregas.find(e => e.id === id);
     const updatedEntregas = data.entregas.map(e =>
       e.id === id
         ? { ...e, status: newStatus, dataEntrega: newStatus === "aprovado" ? new Date().toISOString().split('T')[0] : e.dataEntrega }
         : e
     );
-    setData({ ...data, entregas: updatedEntregas });
-    await onSave();
+    const updatedData = { ...data, entregas: updatedEntregas };
+    setData(updatedData);
+    
+    const success = await onSave(updatedData);
+    if (success && onActivityLog && entrega) {
+      const statusLabels: Record<Entrega['status'], string> = {
+        pendente: "pendente",
+        em_revisao: "em revisão",
+        aprovado: "aprovada",
+        rejeitado: "rejeitada",
+      };
+      await onActivityLog("entrega", `Entrega ${statusLabels[newStatus]}: ${entrega.nome}`);
+    }
   };
 
   const getProjetoNome = (projetoId: string) => {

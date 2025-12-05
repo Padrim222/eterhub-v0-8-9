@@ -6,14 +6,35 @@ import { ProjetosTab } from "@/components/consultoria/ProjetosTab";
 import { EntregasTab } from "@/components/consultoria/EntregasTab";
 import { HistoricoTab } from "@/components/consultoria/HistoricoTab";
 import { Eye, FolderKanban, Package, History, Loader2 } from "lucide-react";
-import { useClientProjectData } from "@/hooks/useClientProjectData";
+import { useClientProjectData, ClientProjectData } from "@/hooks/useClientProjectData";
+import { useClientActivities } from "@/hooks/useClientActivities";
 
 const CentralCliente = () => {
   const [activeTab, setActiveTab] = useState("visao-geral");
   const { data, setData, isLoading, isSaving, saveData } = useClientProjectData();
+  const { addActivity, refetch: refetchActivities } = useClientActivities();
 
-  const handleSave = async () => {
-    await saveData(data);
+  const handleSave = async (updatedData: ClientProjectData) => {
+    const success = await saveData(updatedData);
+    if (success) {
+      setData(updatedData);
+    }
+    return success;
+  };
+
+  const handleActivityLog = async (
+    tipo: "projeto" | "entrega" | "alteracao",
+    titulo: string,
+    descricao?: string
+  ) => {
+    await addActivity({
+      tipo,
+      titulo,
+      descricao: descricao || null,
+      data: new Date().toISOString(),
+      metadata: {},
+    });
+    refetchActivities();
   };
 
   if (isLoading) {
@@ -74,7 +95,8 @@ const CentralCliente = () => {
               data={data} 
               setData={setData} 
               onSave={handleSave} 
-              isSaving={isSaving} 
+              isSaving={isSaving}
+              onActivityLog={handleActivityLog}
             />
           </TabsContent>
 
@@ -83,7 +105,8 @@ const CentralCliente = () => {
               data={data} 
               setData={setData} 
               onSave={handleSave} 
-              isSaving={isSaving} 
+              isSaving={isSaving}
+              onActivityLog={handleActivityLog}
             />
           </TabsContent>
 
