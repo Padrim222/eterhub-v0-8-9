@@ -1,11 +1,13 @@
 import { Save, Loader2 } from "lucide-react";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { AlinhamentoCard } from "./AlinhamentoCard";
+import { MetricsCardsSection } from "./MetricsCardsSection";
+import { IniciativasSection } from "./IniciativasSection";
+import { AtividadesTable } from "./AtividadesTable";
+import { SprintsTimeline } from "./SprintsTimeline";
 import { ExpectativasCard } from "./ExpectativasCard";
-import { AcessoRapidoCard } from "./AcessoRapidoCard";
-import { PlanejamentoTrimestralCard } from "./PlanejamentoTrimestralCard";
 import { RetrospectivaTrimestralCard } from "./RetrospectivaTrimestralCard";
+import { ArquivosLinksSection } from "./ArquivosLinksSection";
 import { useClientProjectData } from "@/hooks/useClientProjectData";
 
 export const ProjectOverview = () => {
@@ -24,31 +26,62 @@ export const ProjectOverview = () => {
   }
 
   return (
-    <div className="relative h-full">
-      <ScrollArea className="h-[calc(100vh-220px)]">
-        <div className="space-y-4 p-4 pb-24">
-          <AlinhamentoCard 
-            data={data.alinhamento} 
-            onChange={(alinhamento) => setData({ ...data, alinhamento })} 
-          />
-          <ExpectativasCard 
-            data={data.expectativas} 
-            onChange={(expectativas) => setData({ ...data, expectativas })} 
-          />
-          <AcessoRapidoCard 
-            data={data.links} 
-            onChange={(links) => setData({ ...data, links })} 
-          />
-          <PlanejamentoTrimestralCard 
-            data={data.planejamento} 
-            onChange={(planejamento) => setData({ ...data, planejamento })} 
-          />
-          <RetrospectivaTrimestralCard 
-            data={data.retrospectiva} 
-            onChange={(retrospectiva) => setData({ ...data, retrospectiva })} 
-          />
-        </div>
-      </ScrollArea>
+    <div className="relative">
+      <div className="space-y-6 pb-24">
+        {/* 1. Alinhamento - Card simples */}
+        <AlinhamentoCard 
+          data={data.alinhamento} 
+          onChange={(alinhamento) => setData({ ...data, alinhamento })} 
+        />
+        
+        {/* 2. Cards de Métricas - Grid 4 colunas */}
+        <MetricsCardsSection 
+          alinhamento={data.alinhamento}
+          planejamento={data.planejamento}
+        />
+        
+        {/* 3. Iniciativas do Trimestre - 3 cards */}
+        <IniciativasSection 
+          iniciativas={data.planejamento.iniciativas}
+          onChange={(iniciativas) => setData({ 
+            ...data, 
+            planejamento: { ...data.planejamento, iniciativas } 
+          })}
+        />
+        
+        {/* 4. Atividades - Tabela */}
+        <AtividadesTable 
+          entregas={data.entregas}
+          onChange={(entregas) => setData({ ...data, entregas })}
+        />
+        
+        {/* 5. Sprints - Timeline visual */}
+        <SprintsTimeline 
+          sprints={data.planejamento.sprints}
+          onChange={(sprints) => setData({ 
+            ...data, 
+            planejamento: { ...data.planejamento, sprints } 
+          })}
+        />
+        
+        {/* 6. Expectativas - Tabela */}
+        <ExpectativasCard 
+          data={data.expectativas}
+          onChange={(expectativas) => setData({ ...data, expectativas })}
+        />
+        
+        {/* 7. Retrospectiva - Grid 3 colunas */}
+        <RetrospectivaTrimestralCard 
+          data={data.retrospectiva}
+          onChange={(retrospectiva) => setData({ ...data, retrospectiva })}
+        />
+        
+        {/* 8. Arquivos & Links - Lista */}
+        <ArquivosLinksSection 
+          data={data.links}
+          onChange={(links) => setData({ ...data, links })}
+        />
+      </div>
 
       <Button
         onClick={handleSave}

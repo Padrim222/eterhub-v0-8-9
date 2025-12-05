@@ -1,11 +1,5 @@
-import { useState } from "react";
 import { TrendingUp } from "lucide-react";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
+import { Card } from "@/components/ui/card";
 import {
   Table,
   TableBody,
@@ -51,67 +45,56 @@ export const ExpectativasCard = ({ data, onChange }: ExpectativasCardProps) => {
   };
 
   return (
-    <div className="bg-gray-900 border border-gray-800 rounded-2xl overflow-hidden">
-      <Accordion type="single" collapsible defaultValue="expectativas">
-        <AccordionItem value="expectativas" className="border-none">
-          <AccordionTrigger className="px-6 py-4 hover:no-underline hover:bg-white/5">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-primary/10 rounded-lg">
-                <TrendingUp className="w-5 h-5 text-primary" />
-              </div>
-              <span className="text-lg font-semibold text-white">
-                Expectativas
-              </span>
-            </div>
-          </AccordionTrigger>
-          <AccordionContent className="px-6 pb-6">
-            <div className="border border-gray-700 rounded-xl overflow-hidden">
-              <Table>
-                <TableHeader>
-                  <TableRow className="bg-gray-800 hover:bg-gray-800">
-                    <TableHead className="text-primary font-semibold">Métrica</TableHead>
-                    <TableHead className="text-primary font-semibold">Valor</TableHead>
-                    <TableHead className="text-primary font-semibold">Status</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {data.map((exp) => (
-                    <TableRow key={exp.id} className="border-t border-gray-700 hover:bg-white/5">
-                      <TableCell className="font-medium text-white">
-                        {exp.name}
-                      </TableCell>
-                      <TableCell>
-                        <EditableField
-                          value={exp.value}
-                          onChange={(value) => updateExpectativa(exp.id, "value", value)}
-                          placeholder="Definir valor..."
-                        />
-                      </TableCell>
-                      <TableCell>
-                        <Select
-                          value={exp.status}
-                          onValueChange={(value) => updateExpectativa(exp.id, "status", value)}
-                        >
-                          <SelectTrigger className={`w-[140px] border-0 ${statusConfig[exp.status].color}`}>
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {Object.entries(statusConfig).map(([key, config]) => (
-                              <SelectItem key={key} value={key}>
-                                {config.label}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
-          </AccordionContent>
-        </AccordionItem>
-      </Accordion>
-    </div>
+    <Card className="bg-gray-900 border-gray-800 overflow-hidden">
+      <div className="flex items-center gap-2 p-4 border-b border-gray-800">
+        <div className="p-2 bg-primary/10 rounded-lg">
+          <TrendingUp className="w-5 h-5 text-primary" />
+        </div>
+        <h3 className="text-lg font-semibold text-white">Expectativas</h3>
+      </div>
+      
+      <Table>
+        <TableHeader>
+          <TableRow className="bg-gray-800/50 hover:bg-gray-800/50 border-gray-700">
+            <TableHead className="text-white/60 font-medium">Métrica</TableHead>
+            <TableHead className="text-white/60 font-medium">Valor</TableHead>
+            <TableHead className="text-white/60 font-medium">Status</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {data.map((exp) => (
+            <TableRow key={exp.id} className="border-gray-700 hover:bg-white/5">
+              <TableCell className="font-medium text-white">
+                {exp.name}
+              </TableCell>
+              <TableCell>
+                <EditableField
+                  value={exp.value}
+                  onChange={(value) => updateExpectativa(exp.id, "value", value)}
+                  placeholder="Definir valor..."
+                />
+              </TableCell>
+              <TableCell>
+                <Select
+                  value={exp.status}
+                  onValueChange={(value) => updateExpectativa(exp.id, "status", value)}
+                >
+                  <SelectTrigger className={`w-[140px] border-0 ${statusConfig[exp.status].color}`}>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {Object.entries(statusConfig).map(([key, config]) => (
+                      <SelectItem key={key} value={key}>
+                        {config.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </Card>
   );
 };
