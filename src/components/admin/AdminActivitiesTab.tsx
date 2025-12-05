@@ -58,15 +58,15 @@ export function AdminActivitiesTab() {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center gap-4 flex-wrap">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4">
         <Input
           placeholder="Buscar por título, descrição, usuário..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="max-w-md"
+          className="w-full sm:max-w-md"
         />
         <Select value={tipoFilter} onValueChange={setTipoFilter}>
-          <SelectTrigger className="w-40">
+          <SelectTrigger className="w-full sm:w-40">
             <SelectValue placeholder="Tipo" />
           </SelectTrigger>
           <SelectContent>
@@ -76,7 +76,7 @@ export function AdminActivitiesTab() {
             ))}
           </SelectContent>
         </Select>
-        <Badge variant="outline" className="text-muted-foreground">
+        <Badge variant="outline" className="text-muted-foreground whitespace-nowrap">
           {filteredActivities.length} atividade(s)
         </Badge>
       </div>
