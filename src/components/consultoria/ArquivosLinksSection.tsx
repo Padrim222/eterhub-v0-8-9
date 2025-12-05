@@ -1,5 +1,7 @@
-import { useRef } from "react";
-import { Plus, Trash2, FileText, ExternalLink } from "lucide-react";
+import { useRef, useState } from "react";
+import { Plus, Trash2, FileText, ExternalLink, Upload, Link } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -38,6 +40,33 @@ const getTypeFromUrl = (url: string): LinkItem["type"] => {
 
 export const ArquivosLinksSection = ({ data, onChange }: ArquivosLinksSectionProps) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isPopoverOpen, setIsPopoverOpen] = useState(false);
+  const [showLinkInput, setShowLinkInput] = useState(false);
+  const [newLinkUrl, setNewLinkUrl] = useState("");
+
+  const addLink = () => {
+    if (!newLinkUrl.trim()) return;
+    
+    let hostname = newLinkUrl;
+    try {
+      hostname = new URL(newLinkUrl).hostname || newLinkUrl;
+    } catch {
+      hostname = newLinkUrl;
+    }
+    
+    const newItem: LinkItem = {
+      id: crypto.randomUUID(),
+      name: hostname,
+      url: newLinkUrl.startsWith("http") ? newLinkUrl : `https://${newLinkUrl}`,
+      type: "link",
+      date: new Date().toLocaleDateString('pt-BR'),
+    };
+    
+    onChange([...data, newItem]);
+    setNewLinkUrl("");
+    setShowLinkInput(false);
+    setIsPopoverOpen(false);
+  };
 
   const updateLink = (id: string, field: keyof LinkItem, value: string) => {
     const updated = data.map((link) =>
@@ -90,12 +119,71 @@ export const ArquivosLinksSection = ({ data, onChange }: ArquivosLinksSectionPro
       {/* Título FORA do card com botão + discreto */}
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-semibold text-white">Arquivos & Links</h3>
-        <button
-          onClick={() => fileInputRef.current?.click()}
-          className="w-8 h-8 rounded-lg bg-gray-800 border border-gray-700 flex items-center justify-center text-gray-400 hover:text-primary hover:border-primary transition-colors"
-        >
-          <Plus className="w-4 h-4" />
-        </button>
+        <Popover open={isPopoverOpen} onOpenChange={(open) => {
+          setIsPopoverOpen(open);
+          if (!open) {
+            setShowLinkInput(false);
+            setNewLinkUrl("");
+          }
+        }}>
+          <PopoverTrigger asChild>
+            <button className="w-8 h-8 rounded-lg bg-gray-800 border border-gray-700 flex items-center justify-center text-gray-400 hover:text-primary hover:border-primary transition-colors">
+              <Plus className="w-4 h-4" />
+            </button>
+          </PopoverTrigger>
+          <PopoverContent className="w-56 p-2 bg-gray-900 border-gray-700" align="end">
+            {!showLinkInput ? (
+              <div className="space-y-1">
+                <button
+                  onClick={() => {
+                    fileInputRef.current?.click();
+                    setIsPopoverOpen(false);
+                  }}
+                  className="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-800 text-white/80 hover:text-white transition-colors"
+                >
+                  <Upload className="w-4 h-4" />
+                  <span>Anexar Arquivo</span>
+                </button>
+                <button
+                  onClick={() => setShowLinkInput(true)}
+                  className="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-800 text-white/80 hover:text-white transition-colors"
+                >
+                  <Link className="w-4 h-4" />
+                  <span>Adicionar Link</span>
+                </button>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                <Input
+                  type="url"
+                  value={newLinkUrl}
+                  onChange={(e) => setNewLinkUrl(e.target.value)}
+                  placeholder="https://exemplo.com"
+                  className="bg-gray-800 border-gray-700 text-white text-sm"
+                  autoFocus
+                  onKeyDown={(e) => e.key === "Enter" && addLink()}
+                />
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => {
+                      setShowLinkInput(false);
+                      setNewLinkUrl("");
+                    }}
+                    className="flex-1 px-3 py-1.5 text-sm text-white/70 hover:text-white rounded-lg hover:bg-gray-800 transition-colors"
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    onClick={addLink}
+                    className="flex-1 px-3 py-1.5 text-sm bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
+                  >
+                    Adicionar
+                  </button>
+                </div>
+              </div>
+            )}
+          </PopoverContent>
+        </Popover>
       </div>
       
       {/* Card com fundo cinza */}
