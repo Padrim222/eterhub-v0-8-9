@@ -13,8 +13,9 @@ import type { Projeto, ClientProjectData } from "@/hooks/useClientProjectData";
 interface ProjetosTabProps {
   data: ClientProjectData;
   setData: (data: ClientProjectData) => void;
-  onSave: () => Promise<void>;
+  onSave: (updatedData: ClientProjectData) => Promise<boolean | undefined>;
   isSaving: boolean;
+  onActivityLog?: (tipo: "projeto" | "entrega" | "alteracao", titulo: string, descricao?: string) => Promise<void>;
 }
 
 const statusColors: Record<Projeto['status'], string> = {
@@ -40,7 +41,7 @@ const prioridadeColors: Record<Projeto['prioridade'], string> = {
   urgente: "bg-red-500/20 text-red-400",
 };
 
-export const ProjetosTab = ({ data, setData, onSave, isSaving }: ProjetosTabProps) => {
+export const ProjetosTab = ({ data, setData, onSave, isSaving, onActivityLog }: ProjetosTabProps) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingProjeto, setEditingProjeto] = useState<Projeto | null>(null);
   const [formData, setFormData] = useState<Partial<Projeto>>({
@@ -85,6 +86,7 @@ export const ProjetosTab = ({ data, setData, onSave, isSaving }: ProjetosTabProp
   const handleSaveProjeto = async () => {
     if (!formData.nome) return;
 
+    const isEditing = !!editingProjeto;
     const newProjeto: Projeto = {
       id: editingProjeto?.id || crypto.randomUUID(),
       nome: formData.nome || "",
@@ -98,21 +100,36 @@ export const ProjetosTab = ({ data, setData, onSave, isSaving }: ProjetosTabProp
       tags: formData.tags || [],
     };
 
-    const updatedProjetos = editingProjeto
+    const updatedProjetos = isEditing
       ? data.projetos.map(p => p.id === editingProjeto.id ? newProjeto : p)
       : [...data.projetos, newProjeto];
 
-    setData({ ...data, projetos: updatedProjetos });
+    const updatedData = { ...data, projetos: updatedProjetos };
+    setData(updatedData);
     setIsDialogOpen(false);
     resetForm();
-    await onSave();
+    
+    const success = await onSave(updatedData);
+    if (success && onActivityLog) {
+      await onActivityLog(
+        "projeto",
+        isEditing ? `Projeto editado: ${newProjeto.nome}` : `Projeto criado: ${newProjeto.nome}`,
+        newProjeto.descricao || undefined
+      );
+    }
   };
 
   const handleDeleteProjeto = async (id: string) => {
+    const projetoNome = data.projetos.find(p => p.id === id)?.nome || "Projeto";
     const updatedProjetos = data.projetos.filter(p => p.id !== id);
     const updatedEntregas = data.entregas.filter(e => e.projetoId !== id);
-    setData({ ...data, projetos: updatedProjetos, entregas: updatedEntregas });
-    await onSave();
+    const updatedData = { ...data, projetos: updatedProjetos, entregas: updatedEntregas };
+    setData(updatedData);
+    
+    const success = await onSave(updatedData);
+    if (success && onActivityLog) {
+      await onActivityLog("projeto", `Projeto excluído: ${projetoNome}`);
+    }
   };
 
   const addTag = () => {
