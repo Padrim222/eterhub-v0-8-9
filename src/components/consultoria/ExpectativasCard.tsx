@@ -1,4 +1,4 @@
-import { TrendingUp } from "lucide-react";
+
 import { Card } from "@/components/ui/card";
 import {
   Table,
@@ -46,10 +46,7 @@ export const ExpectativasCard = ({ data, onChange }: ExpectativasCardProps) => {
 
   return (
     <Card className="bg-gray-800/50 border-gray-700/50 backdrop-blur-sm overflow-hidden">
-      <div className="flex items-center gap-2 p-4 border-b border-gray-800">
-        <div className="p-2 bg-primary/10 rounded-lg">
-          <TrendingUp className="w-5 h-5 text-primary" />
-        </div>
+      <div className="p-4 border-b border-gray-800">
         <h3 className="text-lg font-semibold text-white">Expectativas</h3>
       </div>
       
