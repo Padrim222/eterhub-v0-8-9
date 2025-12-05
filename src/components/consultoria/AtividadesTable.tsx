@@ -65,12 +65,12 @@ export const AtividadesTable = ({ entregas, onChange }: AtividadesTableProps) =>
         <TableHeader>
           <TableRow className="bg-gray-800 hover:bg-gray-800 border-gray-700">
             <TableHead className="w-[40px]"></TableHead>
-            <TableHead className="text-white/60 font-medium">Atividade</TableHead>
-            <TableHead className="text-white/60 font-medium">Responsável</TableHead>
-            <TableHead className="text-white/60 font-medium">Prazo</TableHead>
-            <TableHead className="text-white/60 font-medium">Status</TableHead>
-            <TableHead className="text-white/60 font-medium">Anexo</TableHead>
-            <TableHead className="text-white/60 font-medium">Prioridade</TableHead>
+            <TableHead className="text-white font-medium">Atividade</TableHead>
+            <TableHead className="text-white font-medium">Responsável</TableHead>
+            <TableHead className="text-white font-medium">Prazo</TableHead>
+            <TableHead className="text-white font-medium">Status</TableHead>
+            <TableHead className="text-white font-medium">Anexo</TableHead>
+            <TableHead className="text-white font-medium">Prioridade</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -99,7 +99,7 @@ export const AtividadesTable = ({ entregas, onChange }: AtividadesTableProps) =>
                 {atividade.prazo}
               </TableCell>
               <TableCell>
-                <Badge className={`${statusConfig[atividade.status].color} border-0`}>
+                <Badge className={statusConfig[atividade.status].color}>
                   {statusConfig[atividade.status].label}
                 </Badge>
               </TableCell>
@@ -114,7 +114,7 @@ export const AtividadesTable = ({ entregas, onChange }: AtividadesTableProps) =>
                 )}
               </TableCell>
               <TableCell>
-                <Badge className={`${prioridadeConfig[atividade.prioridade].color} border-0`}>
+                <Badge className={prioridadeConfig[atividade.prioridade].color}>
                   {prioridadeConfig[atividade.prioridade].label}
                 </Badge>
               </TableCell>

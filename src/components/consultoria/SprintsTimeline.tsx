@@ -1,4 +1,4 @@
-import { Calendar, MoreHorizontal } from "lucide-react";
+import { Calendar } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
@@ -75,15 +75,15 @@ export const SprintsTimeline = ({ sprints, onChange }: SprintsTimelineProps) => 
               <Badge className="bg-primary text-black font-medium">Atual</Badge>
             </div>
             
-            <div className="flex items-center gap-4 text-sm text-white/60">
-              <span>Tarefas {completedTasks} de {totalTasks}</span>
-              <span>{remainingTasks} restantes</span>
+            <div className="flex items-center gap-4 text-sm">
+              <span className="text-white/80">Tarefas {completedTasks} de {totalTasks}</span>
+              <span className="text-primary">{remainingTasks} restantes</span>
             </div>
             
             <div className="flex items-center gap-3">
               <span className="text-white/60 text-sm">Progresso</span>
-              <Progress value={progressPercent} className="w-32 h-2" />
-              <MoreHorizontal className="w-4 h-4 text-white/40" />
+              <Progress value={progressPercent} className="w-40 h-3" />
+              <span className="text-white text-sm font-medium">{progressPercent}%</span>
             </div>
           </div>
         )}
