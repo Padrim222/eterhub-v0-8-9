@@ -1,4 +1,4 @@
-import { RefreshCw, Plus, Trash2, CheckCircle, XCircle, Rocket } from "lucide-react";
+import { RefreshCw, Plus, Trash2, CheckCircle, XCircle, PlusCircle } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { EditableField } from "./EditableField";
@@ -41,7 +41,7 @@ export const RetrospectivaTrimestralCard = ({ data, onChange }: RetrospectivaTri
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {/* Keep Doing */}
-        <Card className="bg-green-950/30 border-green-500/30 p-4">
+        <Card className="bg-gray-800 border-gray-700 border-l-4 border-l-green-500 p-4 rounded-xl">
           <div className="flex items-center gap-2 mb-4">
             <CheckCircle className="w-5 h-5 text-green-400" />
             <h4 className="text-green-400 font-semibold">Keep Doing</h4>
@@ -49,7 +49,7 @@ export const RetrospectivaTrimestralCard = ({ data, onChange }: RetrospectivaTri
           <div className="space-y-2">
             {data.keepDoing.map((item, index) => (
               <div key={index} className="flex items-center gap-2 group">
-                <span className="w-1.5 h-1.5 bg-green-400 rounded-full shrink-0" />
+                <span className="text-green-400 shrink-0">-</span>
                 <EditableField
                   value={item}
                   onChange={(value) => updateItem("keepDoing", index, value)}
@@ -79,7 +79,7 @@ export const RetrospectivaTrimestralCard = ({ data, onChange }: RetrospectivaTri
         </Card>
 
         {/* Stop Doing */}
-        <Card className="bg-red-950/30 border-red-500/30 p-4">
+        <Card className="bg-gray-800 border-gray-700 border-l-4 border-l-red-500 p-4 rounded-xl">
           <div className="flex items-center gap-2 mb-4">
             <XCircle className="w-5 h-5 text-red-400" />
             <h4 className="text-red-400 font-semibold">Stop Doing</h4>
@@ -87,7 +87,7 @@ export const RetrospectivaTrimestralCard = ({ data, onChange }: RetrospectivaTri
           <div className="space-y-2">
             {data.stopDoing.map((item, index) => (
               <div key={index} className="flex items-center gap-2 group">
-                <span className="w-1.5 h-1.5 bg-red-400 rounded-full shrink-0" />
+                <span className="text-red-400 shrink-0">-</span>
                 <EditableField
                   value={item}
                   onChange={(value) => updateItem("stopDoing", index, value)}
@@ -117,15 +117,15 @@ export const RetrospectivaTrimestralCard = ({ data, onChange }: RetrospectivaTri
         </Card>
 
         {/* Start Doing */}
-        <Card className="bg-blue-950/30 border-blue-500/30 p-4">
+        <Card className="bg-gray-800 border-gray-700 border-l-4 border-l-blue-500 p-4 rounded-xl">
           <div className="flex items-center gap-2 mb-4">
-            <Rocket className="w-5 h-5 text-blue-400" />
+            <PlusCircle className="w-5 h-5 text-blue-400" />
             <h4 className="text-blue-400 font-semibold">Start Doing</h4>
           </div>
           <div className="space-y-2">
             {data.startDoing.map((item, index) => (
               <div key={index} className="flex items-center gap-2 group">
-                <span className="w-1.5 h-1.5 bg-blue-400 rounded-full shrink-0" />
+                <span className="text-blue-400 shrink-0">-</span>
                 <EditableField
                   value={item}
                   onChange={(value) => updateItem("startDoing", index, value)}
