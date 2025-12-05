@@ -25,7 +25,7 @@ export const SprintsTimeline = ({ sprints, onChange }: SprintsTimelineProps) => 
       </div>
 
       {/* Timeline horizontal */}
-      <Card className="bg-gray-900 border-gray-800 p-6">
+      <Card className="bg-gray-800/50 border-gray-700/50 backdrop-blur-sm p-6">
         <div className="relative flex items-center justify-between mb-8">
           {/* Connecting line */}
           <div className="absolute left-0 right-0 h-0.5 bg-gray-700 top-4" />
