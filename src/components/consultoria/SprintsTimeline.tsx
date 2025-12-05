@@ -21,32 +21,44 @@ export const SprintsTimeline = ({ sprints, onChange }: SprintsTimelineProps) => 
   const remainingTasks = totalTasks - completedTasks;
   const progressPercent = Math.round((completedTasks / totalTasks) * 100);
 
+  // Ensure we always have 4 sprints for the grid
+  const displaySprints = [...sprints];
+  while (displaySprints.length < 4) {
+    displaySprints.push({
+      id: `placeholder-${displaySprints.length}`,
+      name: `Sprint ${displaySprints.length + 1}`,
+      start: "DD/MM",
+      end: "DD/MM",
+      status: "planejado"
+    });
+  }
+
   return (
     <div className="space-y-4">
       <h3 className="text-lg font-semibold text-white">Sprints</h3>
 
       <Card className="bg-card-dark border-gray-700 p-6">
-        {/* Timeline horizontal */}
-        <div className="relative flex items-center justify-between mb-6">
-          {/* Connecting line */}
-          <div className="absolute left-0 right-0 h-0.5 bg-gray-700 top-6" />
+        {/* Timeline horizontal com grid de 5 colunas iguais */}
+        <div className="relative grid grid-cols-5 mb-6">
+          {/* Linha de conexão cinza (fundo) */}
+          <div className="absolute left-6 right-6 h-0.5 bg-gray-700 top-6" />
           
-          {/* Progress line */}
+          {/* Linha de progresso verde */}
           <div 
-            className="absolute left-0 h-0.5 bg-primary top-6 transition-all"
+            className="absolute left-6 h-0.5 bg-primary top-6 transition-all"
             style={{ 
-              width: `${activeIndex >= 0 ? ((activeIndex + 0.5) / (sprints.length + 1)) * 100 : 0}%` 
+              width: activeIndex >= 0 ? `calc(${((activeIndex + 1) / 5) * 100}% - 24px)` : '0%'
             }}
           />
 
-          {sprints.map((sprint, index) => (
-            <div key={sprint.id} className="relative flex flex-col items-center z-10 flex-1">
+          {displaySprints.slice(0, 4).map((sprint, index) => (
+            <div key={sprint.id} className="relative flex flex-col items-center z-10">
               <div
                 className={cn(
                   "w-12 h-12 rounded-full flex items-center justify-center transition-all text-lg font-bold",
                   sprint.status !== "planejado" 
-                    ? "bg-primary text-primary-foreground" 
-                    : "bg-gray-800 border-2 border-gray-600 text-gray-400"
+                    ? "bg-gradient-to-br from-gray-600 to-gray-800 border-2 border-primary text-white" 
+                    : "bg-gradient-to-br from-gray-700 to-gray-900 border-2 border-gray-600 text-gray-400"
                 )}
               >
                 {index + 1}
@@ -62,7 +74,7 @@ export const SprintsTimeline = ({ sprints, onChange }: SprintsTimelineProps) => 
             </div>
           ))}
 
-          {/* Botão adicionar sprint */}
+          {/* Botão adicionar sprint na 5ª coluna */}
           <div className="relative flex flex-col items-center z-10">
             <button
               onClick={() => {
@@ -77,7 +89,7 @@ export const SprintsTimeline = ({ sprints, onChange }: SprintsTimelineProps) => 
                   onChange([...sprints, newSprint]);
                 }
               }}
-              className="w-12 h-12 rounded-full flex items-center justify-center bg-gray-800 border-2 border-dashed border-gray-600 text-gray-400 hover:border-primary hover:text-primary transition-all"
+              className="w-12 h-12 rounded-full flex items-center justify-center bg-gradient-to-br from-gray-700 to-gray-900 border-2 border-dashed border-gray-600 text-gray-400 hover:border-primary hover:text-primary transition-all"
             >
               <Plus className="w-5 h-5" />
             </button>

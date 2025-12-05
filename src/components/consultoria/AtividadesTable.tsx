@@ -19,16 +19,16 @@ interface AtividadesTableProps {
 }
 
 const statusConfig = {
-  pendente: { label: "Não Iniciado", color: "border border-gray-500 text-gray-400 bg-transparent rounded-full", hasIcon: false },
-  em_revisao: { label: "Em Andamento", color: "border border-blue-500 text-blue-400 bg-transparent rounded-full", hasIcon: false },
-  aprovado: { label: "Concluído", color: "bg-green-500 text-black rounded-full", hasIcon: false },
-  rejeitado: { label: "Atrasado", color: "border border-red-500 text-red-400 bg-transparent rounded-full", hasIcon: true },
+  pendente: { label: "Não Iniciado", color: "border border-gray-500 text-gray-400 bg-transparent rounded-lg px-3 py-1", hasIcon: false },
+  em_revisao: { label: "Em Andamento", color: "border border-blue-500 text-blue-400 bg-transparent rounded-lg px-3 py-1", hasIcon: false },
+  aprovado: { label: "Concluído", color: "bg-green-500 text-black rounded-lg px-3 py-1", hasIcon: false },
+  rejeitado: { label: "Atrasado", color: "border border-red-500 text-red-400 bg-transparent rounded-lg px-3 py-1", hasIcon: true },
 };
 
 const prioridadeConfig = {
-  alta: { label: "Alta", color: "border border-red-500 text-red-400 bg-transparent rounded-full" },
-  media: { label: "Média", color: "border border-yellow-500 text-yellow-400 bg-transparent rounded-full" },
-  baixa: { label: "Baixa", color: "border border-green-500 text-green-400 bg-transparent rounded-full" },
+  alta: { label: "Alta", color: "border border-red-500 text-red-400 bg-transparent rounded-lg px-3 py-1" },
+  media: { label: "Média", color: "border border-yellow-500 text-yellow-400 bg-transparent rounded-lg px-3 py-1" },
+  baixa: { label: "Baixa", color: "border border-green-500 text-green-400 bg-transparent rounded-lg px-3 py-1" },
 };
 
 // Map entregas to atividades format
