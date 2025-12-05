@@ -1,4 +1,4 @@
-import { Calendar } from "lucide-react";
+
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
@@ -22,12 +22,7 @@ export const SprintsTimeline = ({ sprints, onChange }: SprintsTimelineProps) => 
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center gap-2">
-        <div className="p-2 bg-primary/10 rounded-lg">
-          <Calendar className="w-5 h-5 text-primary" />
-        </div>
-        <h3 className="text-lg font-semibold text-white">Sprints</h3>
-      </div>
+      <h3 className="text-lg font-semibold text-white">Sprints</h3>
 
       <Card className="bg-gray-800/50 border-gray-700/50 backdrop-blur-sm p-6">
         {/* Timeline horizontal */}
