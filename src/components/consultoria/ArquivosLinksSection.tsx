@@ -1,4 +1,4 @@
-import { Folder, Plus, Trash2, ExternalLink, FileText, FileSpreadsheet, File, FileArchive, Link2 } from "lucide-react";
+import { Plus, Trash2, FileText, ExternalLink } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -18,11 +18,11 @@ interface ArquivosLinksSectionProps {
 }
 
 const typeConfig = {
-  pdf: { icon: FileText, color: "bg-red-500/20 text-red-400", label: "PDF" },
-  xlsx: { icon: FileSpreadsheet, color: "bg-green-500/20 text-green-400", label: "XLSX" },
-  docx: { icon: FileText, color: "bg-blue-500/20 text-blue-400", label: "DOCX" },
-  zip: { icon: FileArchive, color: "bg-yellow-500/20 text-yellow-400", label: "ZIP" },
-  link: { icon: Link2, color: "bg-primary/20 text-primary", label: "LINK" },
+  pdf: { label: "PDF" },
+  xlsx: { label: "XLSX" },
+  docx: { label: "DOCX" },
+  zip: { label: "ZIP" },
+  link: { label: "LINK" },
 };
 
 const getTypeFromUrl = (url: string): LinkItem["type"] => {
@@ -59,92 +59,86 @@ export const ArquivosLinksSection = ({ data, onChange }: ArquivosLinksSectionPro
   };
 
   return (
-    <Card className="bg-gray-800/50 border-gray-700/50 backdrop-blur-sm overflow-hidden">
-      <div className="flex items-center justify-between p-4 border-b border-gray-800">
-        <div className="flex items-center gap-2">
-          <div className="p-2 bg-primary/10 rounded-lg">
-            <Folder className="w-5 h-5 text-primary" />
-          </div>
-          <h3 className="text-lg font-semibold text-white">Arquivos & Links</h3>
-        </div>
-        <Button
-          variant="outline"
-          size="sm"
+    <div className="space-y-4">
+      {/* Título FORA do card com botão + discreto */}
+      <div className="flex items-center justify-between">
+        <h3 className="text-lg font-semibold text-white">Arquivos & Links</h3>
+        <button
           onClick={addLink}
-          className="border-gray-700 text-primary hover:bg-primary/10 hover:border-primary"
+          className="w-8 h-8 rounded-lg bg-gray-800 border border-gray-700 flex items-center justify-center text-gray-400 hover:text-primary hover:border-primary transition-colors"
         >
-          <Plus className="w-4 h-4 mr-1" />
-          Adicionar
-        </Button>
+          <Plus className="w-4 h-4" />
+        </button>
       </div>
       
-      <div className="p-4 space-y-2">
+      {/* Card com fundo PRETO */}
+      <Card className="bg-black border-gray-800 p-4">
         {data.length === 0 ? (
           <div className="text-center text-white/50 py-8">
-            Nenhum arquivo ou link adicionado. Clique em "Adicionar" para começar.
+            Nenhum arquivo adicionado.
           </div>
         ) : (
-          data.map((link) => {
-            const linkType = link.type || getTypeFromUrl(link.url);
-            const config = typeConfig[linkType];
-            const IconComponent = config.icon;
-            
-            return (
-              <div
-                key={link.id}
-                className="flex items-center justify-between p-3 bg-gray-800/50 rounded-lg hover:bg-gray-800 transition-colors group"
-              >
-                <div className="flex items-center gap-3 flex-1 min-w-0">
-                  <div className={`p-2 rounded-lg ${config.color.split(' ')[0]}`}>
-                    <IconComponent className={`w-4 h-4 ${config.color.split(' ')[1]}`} />
+          <div className="space-y-1">
+            {data.map((link, index) => {
+              const linkType = link.type || getTypeFromUrl(link.url);
+              
+              return (
+                <div
+                  key={link.id}
+                  className={`flex items-center gap-4 p-3 hover:bg-gray-900 rounded-lg transition-colors group ${
+                    index !== data.length - 1 ? "border-b border-gray-800" : ""
+                  }`}
+                >
+                  {/* Ícone documento em quadrado preto/cinza escuro */}
+                  <div className="p-3 bg-gray-900 rounded-lg shrink-0">
+                    <FileText className="w-5 h-5 text-gray-500" />
                   </div>
+                  
+                  {/* Nome + Data/Badge */}
                   <div className="flex-1 min-w-0">
                     <EditableField
                       value={link.name}
                       onChange={(value) => updateLink(link.id, "name", value)}
                       placeholder="Nome do arquivo..."
-                      className="font-medium"
+                      className="font-semibold text-white"
                     />
-                    <EditableField
-                      value={link.url}
-                      onChange={(value) => updateLink(link.id, "url", value)}
-                      placeholder="https://..."
-                      className="text-xs text-white/50"
-                    />
+                    <div className="flex items-center gap-2 mt-1">
+                      <span className="text-sm text-white/50">
+                        {link.date || new Date().toLocaleDateString('pt-BR')}
+                      </span>
+                      <Badge className="bg-gray-800 text-white/60 border-0 text-xs">
+                        {typeConfig[linkType].label}
+                      </Badge>
+                    </div>
+                  </div>
+                  
+                  {/* Link externo + Deletar (hover) */}
+                  <div className="flex items-center gap-1 shrink-0">
+                    {link.url && (
+                      <a
+                        href={link.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="p-2 hover:bg-gray-800 rounded-lg opacity-0 group-hover:opacity-100 transition-all"
+                      >
+                        <ExternalLink className="w-4 h-4 text-gray-400" />
+                      </a>
+                    )}
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => removeLink(link.id)}
+                      className="opacity-0 group-hover:opacity-100 hover:bg-red-500/10 hover:text-red-400 h-8 w-8"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
                   </div>
                 </div>
-                
-                <div className="flex items-center gap-2 shrink-0">
-                  <span className="text-xs text-white/40 hidden sm:block">
-                    {link.date || new Date().toLocaleDateString('pt-BR')}
-                  </span>
-                  <Badge className={`${config.color} border-0 text-xs`}>
-                    {config.label}
-                  </Badge>
-                  {link.url && (
-                    <a
-                      href={link.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="p-2 hover:bg-primary/10 rounded-lg transition-colors"
-                    >
-                      <ExternalLink className="w-4 h-4 text-primary" />
-                    </a>
-                  )}
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => removeLink(link.id)}
-                    className="opacity-0 group-hover:opacity-100 hover:bg-red-500/10 hover:text-red-400 h-8 w-8"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
-                </div>
-              </div>
-            );
-          })
+              );
+            })}
+          </div>
         )}
-      </div>
-    </Card>
+      </Card>
+    </div>
   );
 };
