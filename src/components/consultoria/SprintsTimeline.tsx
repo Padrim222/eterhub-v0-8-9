@@ -1,4 +1,5 @@
 
+import { Plus } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
@@ -24,7 +25,7 @@ export const SprintsTimeline = ({ sprints, onChange }: SprintsTimelineProps) => 
     <div className="space-y-4">
       <h3 className="text-lg font-semibold text-white">Sprints</h3>
 
-      <Card className="bg-gray-800/50 border-gray-700/50 backdrop-blur-sm p-6">
+      <Card className="bg-black border-gray-800 p-6">
         {/* Timeline horizontal */}
         <div className="relative flex items-center justify-between mb-6">
           {/* Connecting line */}
@@ -34,7 +35,7 @@ export const SprintsTimeline = ({ sprints, onChange }: SprintsTimelineProps) => 
           <div 
             className="absolute left-0 h-0.5 bg-primary top-6 transition-all"
             style={{ 
-              width: `${activeIndex >= 0 ? ((activeIndex + 0.5) / sprints.length) * 100 : 0}%` 
+              width: `${activeIndex >= 0 ? ((activeIndex + 0.5) / (sprints.length + 1)) * 100 : 0}%` 
             }}
           />
 
@@ -60,6 +61,30 @@ export const SprintsTimeline = ({ sprints, onChange }: SprintsTimelineProps) => 
               </span>
             </div>
           ))}
+
+          {/* Botão adicionar sprint */}
+          <div className="relative flex flex-col items-center z-10">
+            <button
+              onClick={() => {
+                if (onChange) {
+                  const newSprint: Sprint = {
+                    id: `sprint-${sprints.length + 1}`,
+                    name: `Sprint ${sprints.length + 1}`,
+                    start: "DD/MM",
+                    end: "DD/MM",
+                    status: "planejado"
+                  };
+                  onChange([...sprints, newSprint]);
+                }
+              }}
+              className="w-12 h-12 rounded-full flex items-center justify-center bg-gray-800 border-2 border-dashed border-gray-600 text-gray-400 hover:border-primary hover:text-primary transition-all"
+            >
+              <Plus className="w-5 h-5" />
+            </button>
+            <span className="text-xs mt-3 px-3 py-1 text-white/40">
+              Adicionar
+            </span>
+          </div>
         </div>
 
         {/* Active Sprint Card - Horizontal Compact */}

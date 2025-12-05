@@ -56,7 +56,7 @@ export const AtividadesTable = ({ entregas, onChange }: AtividadesTableProps) =>
   const atividades = entregas.length > 0 ? mapEntregasToAtividades(entregas) : defaultAtividades;
 
   return (
-    <Card className="bg-gray-800/50 border-gray-700/50 backdrop-blur-sm overflow-hidden">
+    <Card className="bg-black border-gray-800 overflow-hidden">
       <div className="flex items-center gap-2 p-4 border-b border-gray-800">
         <h3 className="text-lg font-semibold text-white">Atividades</h3>
       </div>

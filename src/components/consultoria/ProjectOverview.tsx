@@ -6,7 +6,6 @@ import { MetricsCardsSection } from "./MetricsCardsSection";
 import { IniciativasSection } from "./IniciativasSection";
 import { AtividadesTable } from "./AtividadesTable";
 import { SprintsTimeline } from "./SprintsTimeline";
-import { ExpectativasCard } from "./ExpectativasCard";
 import { RetrospectivaTrimestralCard } from "./RetrospectivaTrimestralCard";
 import { ArquivosLinksSection } from "./ArquivosLinksSection";
 import { useClientProjectData } from "@/hooks/useClientProjectData";
@@ -74,13 +73,7 @@ export const ProjectOverview = () => {
           })}
         />
         
-        {/* 6. Expectativas - Tabela */}
-        <ExpectativasCard 
-          data={data.expectativas}
-          onChange={(expectativas) => setData({ ...data, expectativas })}
-        />
-        
-        {/* 7. Retrospectiva - Grid 3 colunas */}
+        {/* 6. Retrospectiva - Grid 3 colunas */}
         <RetrospectivaTrimestralCard 
           data={data.retrospectiva}
           onChange={(retrospectiva) => setData({ ...data, retrospectiva })}
