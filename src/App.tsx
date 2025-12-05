@@ -18,6 +18,7 @@ import Auth from "./pages/Auth";
 import Leads from "./pages/Leads";
 import NotFound from "./pages/NotFound";
 import Configuracoes from "./pages/Configuracoes";
+import Admin from "./pages/Admin";
 
 const queryClient = new QueryClient();
 
@@ -81,6 +82,9 @@ const App = () => (
             
             {/* Configurações */}
             <Route path="/configuracoes" element={<Configuracoes />} />
+            
+            {/* Admin */}
+            <Route path="/admin" element={<Admin />} />
             
             {/* Legacy redirects */}
             <Route path="/dashboard" element={<Navigate to="/home" replace />} />
