@@ -1,4 +1,5 @@
 import { Save, Loader2 } from "lucide-react";
+import eterLogo from "@/assets/eter-logo.png";
 import { Button } from "@/components/ui/button";
 import { AlinhamentoCard } from "./AlinhamentoCard";
 import { MetricsCardsSection } from "./MetricsCardsSection";
@@ -81,6 +82,15 @@ export const ProjectOverview = () => {
           data={data.links}
           onChange={(links) => setData({ ...data, links })}
         />
+
+        {/* Logo Eter Hub centralizada */}
+        <div className="flex justify-center py-12">
+          <img 
+            src={eterLogo} 
+            alt="Eter Hub" 
+            className="h-16 opacity-40"
+          />
+        </div>
       </div>
 
       <Button

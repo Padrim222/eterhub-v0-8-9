@@ -71,7 +71,7 @@ export const SprintsTimeline = ({ sprints, onChange }: SprintsTimelineProps) => 
         {activeSprint && (
           <div className="flex items-center justify-between gap-4 bg-gray-800/70 rounded-xl px-4 py-3 border border-gray-700">
             <div className="flex items-center gap-3">
-              <span className="font-semibold text-white">Sprint {activeIndex + 1}</span>
+              <span className="font-semibold text-white">Sprints {activeIndex + 1}</span>
               <Badge className="bg-primary text-black font-medium">Atual</Badge>
             </div>
             
