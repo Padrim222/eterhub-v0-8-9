@@ -1,4 +1,4 @@
-import { Paperclip, User } from "lucide-react";
+import { Paperclip, Clock } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -19,16 +19,16 @@ interface AtividadesTableProps {
 }
 
 const statusConfig = {
-  pendente: { label: "Não Iniciado", color: "border border-gray-500 text-gray-400 bg-transparent" },
-  em_revisao: { label: "Em Andamento", color: "border border-green-500 text-green-400 bg-transparent" },
-  aprovado: { label: "Concluído", color: "bg-green-500 text-black" },
-  rejeitado: { label: "Atrasado", color: "border border-red-500 text-red-400 bg-transparent" },
+  pendente: { label: "Não Iniciado", color: "border border-gray-500 text-gray-400 bg-transparent rounded-full", hasIcon: false },
+  em_revisao: { label: "Em Andamento", color: "border border-blue-500 text-blue-400 bg-transparent rounded-full", hasIcon: false },
+  aprovado: { label: "Concluído", color: "bg-green-500 text-black rounded-full", hasIcon: false },
+  rejeitado: { label: "Atrasado", color: "border border-red-500 text-red-400 bg-transparent rounded-full", hasIcon: true },
 };
 
 const prioridadeConfig = {
-  alta: { label: "Alta", color: "border border-red-500 text-red-400 bg-transparent" },
-  media: { label: "Média", color: "border border-yellow-500 text-yellow-400 bg-transparent" },
-  baixa: { label: "Baixa", color: "border border-green-500 text-green-400 bg-transparent" },
+  alta: { label: "Alta", color: "border border-red-500 text-red-400 bg-transparent rounded-full" },
+  media: { label: "Média", color: "border border-yellow-500 text-yellow-400 bg-transparent rounded-full" },
+  baixa: { label: "Baixa", color: "border border-green-500 text-green-400 bg-transparent rounded-full" },
 };
 
 // Map entregas to atividades format
@@ -56,14 +56,14 @@ export const AtividadesTable = ({ entregas, onChange }: AtividadesTableProps) =>
   const atividades = entregas.length > 0 ? mapEntregasToAtividades(entregas) : defaultAtividades;
 
   return (
-    <Card className="bg-black border-gray-800 overflow-hidden">
-      <div className="flex items-center gap-2 p-4 border-b border-gray-800">
+    <Card className="bg-card-dark border-gray-700 overflow-hidden">
+      <div className="flex items-center gap-2 p-4 border-b border-gray-700">
         <h3 className="text-lg font-semibold text-white">Atividades</h3>
       </div>
       
       <Table>
         <TableHeader>
-          <TableRow className="bg-gray-800 hover:bg-gray-800 border-gray-700">
+          <TableRow className="bg-card-dark hover:bg-card-dark border-gray-700">
             <TableHead className="w-[40px]"></TableHead>
             <TableHead className="text-white font-medium">Atividade</TableHead>
             <TableHead className="text-white font-medium">Responsável</TableHead>
@@ -100,14 +100,17 @@ export const AtividadesTable = ({ entregas, onChange }: AtividadesTableProps) =>
               </TableCell>
               <TableCell>
                 <Badge className={statusConfig[atividade.status].color}>
+                  {statusConfig[atividade.status].hasIcon && (
+                    <Clock className="w-3 h-3 mr-1" />
+                  )}
                   {statusConfig[atividade.status].label}
                 </Badge>
               </TableCell>
               <TableCell>
                 {atividade.anexo ? (
-                  <div className="flex items-center gap-1 text-primary text-sm">
-                    <Paperclip className="w-3 h-3" />
-                    <span className="truncate max-w-[100px]">{atividade.anexo}</span>
+                  <div className="flex items-center gap-2 text-sm">
+                    <Paperclip className="w-4 h-4 text-gray-400" />
+                    <span className="text-white/80 truncate max-w-[100px]">{atividade.anexo}</span>
                   </div>
                 ) : (
                   <span className="text-white/40 text-sm">-</span>

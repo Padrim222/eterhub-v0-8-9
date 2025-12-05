@@ -71,8 +71,8 @@ export const ArquivosLinksSection = ({ data, onChange }: ArquivosLinksSectionPro
         </button>
       </div>
       
-      {/* Card com fundo PRETO */}
-      <Card className="bg-black border-gray-800 p-4">
+      {/* Card com fundo cinza */}
+      <Card className="bg-card-dark border-gray-700 p-4">
         {data.length === 0 ? (
           <div className="text-center text-white/50 py-8">
             Nenhum arquivo adicionado.

@@ -41,7 +41,7 @@ export const IniciativasSection = ({ iniciativas, onChange }: IniciativasSection
           const progress = getProgress(ini);
           
           return (
-            <Card key={ini.id} className="bg-black border-gray-800 p-4">
+            <Card key={ini.id} className="bg-card-dark border-gray-700 p-4">
               <div className="flex items-center justify-between mb-2">
                 <h4 className="font-medium text-white truncate">{ini.name}</h4>
                 <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${statusConfig[ini.status].className}`}>
