@@ -128,39 +128,47 @@ export function AdminProjectsTab() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredProjects.map((project) => (
-                  <TableRow key={project.id} className="border-border">
-                    <TableCell className="font-medium text-foreground">
-                      {project.nome}
-                    </TableCell>
-                    <TableCell>
-                      <div>
-                        <p className="text-foreground">{project.user_nome}</p>
-                        <p className="text-sm text-muted-foreground">{project.user_email}</p>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <Badge className={statusColors[project.status] || ""}>
-                        {statusLabels[project.status] || project.status}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        <Progress value={project.progresso} className="w-20 h-2" />
-                        <span className="text-sm text-muted-foreground">{project.progresso}%</span>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant="outline">{project.prioridade}</Badge>
-                    </TableCell>
-                    <TableCell className="text-muted-foreground">
-                      {project.data_alvo 
-                        ? format(new Date(project.data_alvo), "dd/MM/yyyy", { locale: ptBR })
-                        : "-"
-                      }
+                {filteredProjects.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+                      Nenhum projeto encontrado
                     </TableCell>
                   </TableRow>
-                ))}
+                ) : (
+                  filteredProjects.map((project) => (
+                    <TableRow key={project.id} className="border-border">
+                      <TableCell className="font-medium text-foreground">
+                        {project.nome}
+                      </TableCell>
+                      <TableCell>
+                        <div>
+                          <p className="text-foreground">{project.user_nome}</p>
+                          <p className="text-sm text-muted-foreground">{project.user_email}</p>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <Badge className={statusColors[project.status] || ""}>
+                          {statusLabels[project.status] || project.status}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-2">
+                          <Progress value={project.progresso} className="w-20 h-2" />
+                          <span className="text-sm text-muted-foreground">{project.progresso}%</span>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant="outline">{project.prioridade}</Badge>
+                      </TableCell>
+                      <TableCell className="text-muted-foreground">
+                        {project.data_alvo 
+                          ? format(new Date(project.data_alvo), "dd/MM/yyyy", { locale: ptBR })
+                          : "-"
+                        }
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
               </TableBody>
             </Table>
           </div>
@@ -179,36 +187,44 @@ export function AdminProjectsTab() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredEntregas.map((entrega) => (
-                  <TableRow key={entrega.id} className="border-border">
-                    <TableCell className="font-medium text-foreground">
-                      {entrega.nome}
-                    </TableCell>
-                    <TableCell>
-                      <div>
-                        <p className="text-foreground">{entrega.user_nome}</p>
-                        <p className="text-sm text-muted-foreground">{entrega.user_email}</p>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <Badge className={statusColors[entrega.status] || ""}>
-                        {statusLabels[entrega.status] || entrega.status}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-muted-foreground">
-                      {entrega.data_alvo 
-                        ? format(new Date(entrega.data_alvo), "dd/MM/yyyy", { locale: ptBR })
-                        : "-"
-                      }
-                    </TableCell>
-                    <TableCell className="text-muted-foreground">
-                      {entrega.data_entrega 
-                        ? format(new Date(entrega.data_entrega), "dd/MM/yyyy", { locale: ptBR })
-                        : "-"
-                      }
+                {filteredEntregas.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
+                      Nenhuma entrega encontrada
                     </TableCell>
                   </TableRow>
-                ))}
+                ) : (
+                  filteredEntregas.map((entrega) => (
+                    <TableRow key={entrega.id} className="border-border">
+                      <TableCell className="font-medium text-foreground">
+                        {entrega.nome}
+                      </TableCell>
+                      <TableCell>
+                        <div>
+                          <p className="text-foreground">{entrega.user_nome}</p>
+                          <p className="text-sm text-muted-foreground">{entrega.user_email}</p>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <Badge className={statusColors[entrega.status] || ""}>
+                          {statusLabels[entrega.status] || entrega.status}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-muted-foreground">
+                        {entrega.data_alvo 
+                          ? format(new Date(entrega.data_alvo), "dd/MM/yyyy", { locale: ptBR })
+                          : "-"
+                        }
+                      </TableCell>
+                      <TableCell className="text-muted-foreground">
+                        {entrega.data_entrega 
+                          ? format(new Date(entrega.data_entrega), "dd/MM/yyyy", { locale: ptBR })
+                          : "-"
+                        }
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
               </TableBody>
             </Table>
           </div>
