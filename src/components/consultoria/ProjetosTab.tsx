@@ -169,11 +169,11 @@ export const ProjetosTab = ({ data, setData, onSave, isSaving, onActivityLog }: 
               Novo Projeto
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-lg">
+          <DialogContent className="max-w-lg max-h-[85vh] flex flex-col">
             <DialogHeader>
               <DialogTitle>{editingProjeto ? "Editar Projeto" : "Novo Projeto"}</DialogTitle>
             </DialogHeader>
-            <div className="space-y-4 pt-4">
+            <div className="space-y-4 pt-4 overflow-y-auto flex-1 pr-2">
               <div>
                 <label className="text-sm font-medium text-foreground">Nome</label>
                 <Input
@@ -284,6 +284,8 @@ export const ProjetosTab = ({ data, setData, onSave, isSaving, onActivityLog }: 
                   ))}
                 </div>
               </div>
+            </div>
+            <div className="pt-4 border-t border-border mt-auto">
               <Button onClick={handleSaveProjeto} className="w-full" disabled={!formData.nome}>
                 {isSaving ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
                 {editingProjeto ? "Salvar Alterações" : "Criar Projeto"}
