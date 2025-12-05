@@ -1,4 +1,4 @@
-import { RefreshCw, Plus, Trash2, CheckCircle, XCircle, PlusCircle } from "lucide-react";
+import { Plus, Trash2, CheckCircle, XCircle, PlusCircle } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { EditableField } from "./EditableField";
@@ -32,16 +32,11 @@ export const RetrospectivaTrimestralCard = ({ data, onChange }: RetrospectivaTri
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center gap-2">
-        <div className="p-2 bg-primary/10 rounded-lg">
-          <RefreshCw className="w-5 h-5 text-primary" />
-        </div>
-        <h3 className="text-lg font-semibold text-white">Retrospectiva Trimestral</h3>
-      </div>
+      <h3 className="text-lg font-semibold text-white">Retrospectiva Trimestral</h3>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {/* Keep Doing */}
-        <Card className="bg-gray-800 border-gray-700 p-4 rounded-xl">
+        <Card className="bg-gray-800/50 border-gray-700/50 backdrop-blur-sm p-4 rounded-xl">
           <div className="flex items-center gap-2 mb-4">
             <CheckCircle className="w-5 h-5 text-green-400" />
             <h4 className="text-green-400 font-semibold">Keep Doing</h4>
@@ -79,7 +74,7 @@ export const RetrospectivaTrimestralCard = ({ data, onChange }: RetrospectivaTri
         </Card>
 
         {/* Stop Doing */}
-        <Card className="bg-gray-800 border-gray-700 p-4 rounded-xl">
+        <Card className="bg-gray-800/50 border-gray-700/50 backdrop-blur-sm p-4 rounded-xl">
           <div className="flex items-center gap-2 mb-4">
             <XCircle className="w-5 h-5 text-red-400" />
             <h4 className="text-red-400 font-semibold">Stop Doing</h4>
@@ -117,7 +112,7 @@ export const RetrospectivaTrimestralCard = ({ data, onChange }: RetrospectivaTri
         </Card>
 
         {/* Start Doing */}
-        <Card className="bg-gray-800 border-gray-700 p-4 rounded-xl">
+        <Card className="bg-gray-800/50 border-gray-700/50 backdrop-blur-sm p-4 rounded-xl">
           <div className="flex items-center gap-2 mb-4">
             <PlusCircle className="w-5 h-5 text-blue-400" />
             <h4 className="text-blue-400 font-semibold">Start Doing</h4>
