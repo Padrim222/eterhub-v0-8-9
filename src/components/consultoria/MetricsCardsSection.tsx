@@ -1,8 +1,5 @@
-import { TrendingUp, Target, Calendar, BarChart3 } from "lucide-react";
 import { Card } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
-import { Badge } from "@/components/ui/badge";
-import type { AlinhamentoData, PlanejamentoData, Iniciativa } from "@/hooks/useClientProjectData";
+import type { AlinhamentoData, PlanejamentoData } from "@/hooks/useClientProjectData";
 
 interface MetricsCardsSectionProps {
   alinhamento: AlinhamentoData;
@@ -24,90 +21,86 @@ export const MetricsCardsSection = ({ alinhamento, planejamento }: MetricsCardsS
 
   const isOnTrack = progressPercentage >= 40; // Simplified check
 
+  // Custom progress bar with circle indicator
+  const ProgressWithIndicator = ({ value, className }: { value: number; className?: string }) => (
+    <div className={`relative w-full h-2 bg-gray-700 rounded-full ${className || ""}`}>
+      <div 
+        className="absolute left-0 top-0 h-full bg-primary rounded-full transition-all"
+        style={{ width: `${value}%` }}
+      />
+      <div 
+        className="absolute top-1/2 -translate-y-1/2 w-3 h-3 bg-primary rounded-full border-2 border-white shadow-md transition-all"
+        style={{ left: `calc(${value}% - 6px)` }}
+      />
+    </div>
+  );
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
       {/* Status Geral */}
       <Card className="bg-gray-900 border-gray-800 p-4">
-        <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center gap-2">
-            <div className="p-2 bg-primary/10 rounded-lg">
-              <TrendingUp className="w-4 h-4 text-primary" />
-            </div>
-            <span className="text-sm text-white/60">Status Geral</span>
-          </div>
-          <Badge variant={isOnTrack ? "default" : "destructive"} className="text-xs">
-            {isOnTrack ? "No Prazo" : "Atrasado"}
-          </Badge>
+        <span className="text-sm text-white/60">Status Geral</span>
+        <div className="mt-2 mb-3">
+          <span className="text-2xl font-bold text-white">{getStatusLabel()}</span>
         </div>
-        <div className="space-y-2">
-          <div className="flex items-end justify-between">
-            <span className="text-2xl font-bold text-white">{getStatusLabel()}</span>
-            <span className="text-primary text-sm font-medium">+12%</span>
-          </div>
-          <Progress value={progressPercentage} className="h-2" />
-          <span className="text-xs text-white/60">{progressPercentage}% concluído</span>
+        <div className="flex items-center gap-2 mb-2">
+          <span className="text-primary text-sm font-medium">{progressPercentage}%</span>
+          <ProgressWithIndicator value={progressPercentage} className="flex-1" />
+        </div>
+        <div className="flex items-center justify-between">
+          <span className={`text-xs px-2 py-0.5 rounded-full ${isOnTrack ? "bg-green-500/20 text-green-400" : "bg-red-500/20 text-red-400"}`}>
+            {isOnTrack ? "No Prazo" : "Atrasado"}
+          </span>
+          <span className="text-primary text-xs font-medium">+12%</span>
         </div>
       </Card>
 
       {/* Meta Anual */}
       <Card className="bg-gray-900 border-gray-800 p-4">
-        <div className="flex items-center gap-2 mb-3">
-          <div className="p-2 bg-primary/10 rounded-lg">
-            <Target className="w-4 h-4 text-primary" />
-          </div>
-          <span className="text-sm text-white/60">Meta Anual</span>
+        <span className="text-sm text-white/60">Meta Anual</span>
+        <div className="mt-2 mb-3">
+          <span className="text-xl font-bold text-white truncate block">
+            {alinhamento.metaAnual || "Não definida"}
+          </span>
         </div>
-        <div className="space-y-2">
-          <div className="flex items-end justify-between">
-            <span className="text-xl font-bold text-white truncate">
-              {alinhamento.metaAnual || "Não definida"}
-            </span>
-          </div>
-          <Progress value={80} className="h-2" />
-          <span className="text-xs text-white/60">80% do objetivo</span>
+        <div className="flex items-center gap-2 mb-2">
+          <span className="text-primary text-sm font-medium">80%</span>
+          <ProgressWithIndicator value={80} className="flex-1" />
         </div>
+        <span className="text-xs text-white/60">80% do objetivo</span>
       </Card>
 
       {/* Meta Trimestral */}
       <Card className="bg-gray-900 border-gray-800 p-4">
-        <div className="flex items-center gap-2 mb-3">
-          <div className="p-2 bg-primary/10 rounded-lg">
-            <Calendar className="w-4 h-4 text-primary" />
-          </div>
-          <span className="text-sm text-white/60">Meta Trimestral</span>
+        <span className="text-sm text-white/60">Meta Trimestral</span>
+        <div className="mt-2 mb-3">
+          <span className="text-xl font-bold text-white truncate block">
+            {planejamento.metaTrimestral || "Q4 2025"}
+          </span>
         </div>
-        <div className="space-y-2">
-          <div className="flex items-end justify-between">
-            <span className="text-xl font-bold text-white truncate">
-              {planejamento.metaTrimestral || "Q4 2025"}
-            </span>
-          </div>
-          <Progress value={45} className="h-2" />
-          <span className="text-xs text-white/60">45% concluído</span>
+        <div className="flex items-center gap-2 mb-2">
+          <span className="text-primary text-sm font-medium">45%</span>
+          <ProgressWithIndicator value={45} className="flex-1" />
         </div>
+        <span className="text-xs text-white/60">45% concluído</span>
       </Card>
 
       {/* Indicadores-Chave */}
       <Card className="bg-gray-900 border-gray-800 p-4">
-        <div className="flex items-center gap-2 mb-3">
-          <div className="p-2 bg-primary/10 rounded-lg">
-            <BarChart3 className="w-4 h-4 text-primary" />
-          </div>
-          <span className="text-sm text-white/60">Indicadores-Chave</span>
-        </div>
-        <div className="space-y-2">
-          {planejamento.indicadores.slice(0, 3).map((ind) => (
-            <div key={ind.id} className="space-y-1">
-              <div className="flex justify-between text-xs">
-                <span className="text-white/60 truncate">{ind.name}</span>
-                <span className="text-white">{ind.atual || "0"}/{ind.meta || "0"}</span>
+        <span className="text-sm text-white/60 mb-3 block">Indicadores-Chave</span>
+        <div className="space-y-3">
+          {planejamento.indicadores.slice(0, 3).map((ind) => {
+            const value = ind.meta && ind.atual ? (parseFloat(ind.atual) / parseFloat(ind.meta)) * 100 : 0;
+            return (
+              <div key={ind.id} className="space-y-1">
+                <div className="flex justify-between text-xs">
+                  <span className="text-white/60 truncate">{ind.name}</span>
+                  <span className="text-white">{ind.atual || "0"}/{ind.meta || "0"}</span>
+                </div>
+                <ProgressWithIndicator value={value} className="h-1.5" />
               </div>
-              <Progress 
-                value={ind.meta && ind.atual ? (parseFloat(ind.atual) / parseFloat(ind.meta)) * 100 : 0} 
-                className="h-1.5" 
-              />
-            </div>
-          ))}
+            );
+          })}
         </div>
       </Card>
     </div>

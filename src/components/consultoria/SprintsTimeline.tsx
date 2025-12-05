@@ -1,7 +1,8 @@
-import { Calendar, Check } from "lucide-react";
+import { Calendar, Check, Plus } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import type { Sprint } from "@/hooks/useClientProjectData";
 
@@ -41,20 +42,15 @@ export const SprintsTimeline = ({ sprints, onChange }: SprintsTimelineProps) => 
             <div key={sprint.id} className="relative flex flex-col items-center z-10 flex-1">
               <div
                 className={cn(
-                  "w-8 h-8 rounded-full border-2 flex items-center justify-center transition-all",
-                  sprint.status === "ativo" && "bg-primary border-primary scale-125 shadow-lg shadow-primary/30",
-                  sprint.status === "concluido" && "bg-primary border-primary",
-                  sprint.status === "planejado" && "bg-gray-800 border-gray-600"
+                  "w-8 h-8 rounded-full border-2 flex items-center justify-center transition-all text-sm font-semibold",
+                  sprint.status === "ativo" && "bg-primary border-primary scale-125 shadow-lg shadow-primary/30 text-primary-foreground",
+                  sprint.status === "concluido" && "bg-primary border-primary text-primary-foreground",
+                  sprint.status === "planejado" && "bg-gray-800 border-gray-600 text-gray-400"
                 )}
               >
-                {sprint.status === "concluido" && (
-                  <Check className="w-4 h-4 text-primary-foreground" />
-                )}
-                {sprint.status === "ativo" && (
-                  <div className="w-2 h-2 bg-primary-foreground rounded-full" />
-                )}
+                {index + 1}
               </div>
-              <span className="text-xs text-white/60 mt-2 whitespace-nowrap">
+              <span className="text-xs text-white/60 mt-2 px-2 py-0.5 border border-gray-600 rounded whitespace-nowrap">
                 {sprint.start}
               </span>
               <span className="text-xs text-white/40 whitespace-nowrap">
@@ -62,6 +58,17 @@ export const SprintsTimeline = ({ sprints, onChange }: SprintsTimelineProps) => 
               </span>
             </div>
           ))}
+
+          {/* Add Sprint Button */}
+          <div className="relative flex flex-col items-center z-10">
+            <Button
+              variant="outline"
+              size="icon"
+              className="w-8 h-8 rounded-full border-2 border-dashed border-gray-600 bg-transparent hover:bg-gray-800 hover:border-primary"
+            >
+              <Plus className="w-4 h-4 text-gray-400" />
+            </Button>
+          </div>
         </div>
 
         {/* Active Sprint Card */}

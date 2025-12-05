@@ -19,16 +19,16 @@ interface AtividadesTableProps {
 }
 
 const statusConfig = {
-  pendente: { label: "Não Iniciado", color: "bg-gray-500/20 text-gray-400" },
-  em_revisao: { label: "Em Andamento", color: "bg-yellow-500/20 text-yellow-400" },
-  aprovado: { label: "Concluído", color: "bg-primary/20 text-primary" },
-  rejeitado: { label: "Atrasado", color: "bg-red-500/20 text-red-400" },
+  pendente: { label: "Não Iniciado", color: "border border-gray-500 text-gray-400 bg-transparent" },
+  em_revisao: { label: "Em Andamento", color: "border border-green-500 text-green-400 bg-transparent" },
+  aprovado: { label: "Concluído", color: "bg-green-500 text-black" },
+  rejeitado: { label: "Atrasado", color: "border border-red-500 text-red-400 bg-transparent" },
 };
 
 const prioridadeConfig = {
-  alta: { label: "Alta", color: "bg-red-500/20 text-red-400" },
-  media: { label: "Média", color: "bg-yellow-500/20 text-yellow-400" },
-  baixa: { label: "Baixa", color: "bg-gray-500/20 text-gray-400" },
+  alta: { label: "Alta", color: "border border-red-500 text-red-400 bg-transparent" },
+  media: { label: "Média", color: "border border-yellow-500 text-yellow-400 bg-transparent" },
+  baixa: { label: "Baixa", color: "border border-green-500 text-green-400 bg-transparent" },
 };
 
 // Map entregas to atividades format
