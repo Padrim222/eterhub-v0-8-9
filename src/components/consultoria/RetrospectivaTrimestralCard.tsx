@@ -44,7 +44,7 @@ export const RetrospectivaTrimestralCard = ({ data, onChange }: RetrospectivaTri
           <div className="space-y-2">
             {data.keepDoing.map((item, index) => (
               <div key={index} className="flex items-center gap-2 group">
-                <span className="text-green-400 shrink-0">-</span>
+                <span className="text-green-400 shrink-0">•</span>
                 <EditableField
                   value={item}
                   onChange={(value) => updateItem("keepDoing", index, value)}
@@ -67,8 +67,8 @@ export const RetrospectivaTrimestralCard = ({ data, onChange }: RetrospectivaTri
               onClick={() => addItem("keepDoing")}
               className="text-green-400 hover:bg-green-500/10 w-full justify-start"
             >
-              <Plus className="w-4 h-4 mr-1" />
-              Adicionar
+              <Plus className="w-4 h-4 mr-1 text-green-400" />
+              <span className="text-green-400">Adicionar</span>
             </Button>
           </div>
         </Card>
@@ -82,7 +82,7 @@ export const RetrospectivaTrimestralCard = ({ data, onChange }: RetrospectivaTri
           <div className="space-y-2">
             {data.stopDoing.map((item, index) => (
               <div key={index} className="flex items-center gap-2 group">
-                <span className="text-red-400 shrink-0">-</span>
+                <span className="text-red-400 shrink-0">•</span>
                 <EditableField
                   value={item}
                   onChange={(value) => updateItem("stopDoing", index, value)}
@@ -105,8 +105,8 @@ export const RetrospectivaTrimestralCard = ({ data, onChange }: RetrospectivaTri
               onClick={() => addItem("stopDoing")}
               className="text-red-400 hover:bg-red-500/10 w-full justify-start"
             >
-              <Plus className="w-4 h-4 mr-1" />
-              Adicionar
+              <Plus className="w-4 h-4 mr-1 text-red-400" />
+              <span className="text-red-400">Adicionar</span>
             </Button>
           </div>
         </Card>
@@ -120,7 +120,7 @@ export const RetrospectivaTrimestralCard = ({ data, onChange }: RetrospectivaTri
           <div className="space-y-2">
             {data.startDoing.map((item, index) => (
               <div key={index} className="flex items-center gap-2 group">
-                <span className="text-blue-400 shrink-0">-</span>
+                <span className="text-blue-400 shrink-0">•</span>
                 <EditableField
                   value={item}
                   onChange={(value) => updateItem("startDoing", index, value)}
@@ -143,8 +143,8 @@ export const RetrospectivaTrimestralCard = ({ data, onChange }: RetrospectivaTri
               onClick={() => addItem("startDoing")}
               className="text-blue-400 hover:bg-blue-500/10 w-full justify-start"
             >
-              <Plus className="w-4 h-4 mr-1" />
-              Adicionar
+              <Plus className="w-4 h-4 mr-1 text-blue-400" />
+              <span className="text-blue-400">Adicionar</span>
             </Button>
           </div>
         </Card>
