@@ -77,20 +77,20 @@ export function AdminUsersTab() {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center gap-4">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4">
         <Input
           placeholder="Buscar por nome, email ou Instagram..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="max-w-md"
+          className="w-full sm:max-w-md"
         />
-        <Badge variant="outline" className="text-muted-foreground">
+        <Badge variant="outline" className="text-muted-foreground whitespace-nowrap">
           {filteredUsers.length} usuário(s)
         </Badge>
       </div>
 
-      <div className="border border-border rounded-lg overflow-hidden">
-        <Table>
+      <div className="border border-border rounded-lg overflow-x-auto">
+        <Table className="min-w-[800px]">
           <TableHeader>
             <TableRow className="bg-muted/50">
               <TableHead className="text-foreground">Nome</TableHead>

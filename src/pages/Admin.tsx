@@ -26,37 +26,37 @@ export default function Admin() {
 
   return (
     <PageLayout>
-      <div className="p-6 space-y-6">
+      <div className="p-4 md:p-6 space-y-4 md:space-y-6">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Painel Administrativo</h1>
-          <p className="text-muted-foreground mt-1">
+          <h1 className="text-2xl md:text-3xl font-bold text-foreground">Painel Administrativo</h1>
+          <p className="text-sm md:text-base text-muted-foreground mt-1">
             Gerencie usuários, conteúdo e configurações do sistema
           </p>
         </div>
 
         <Tabs defaultValue="dashboard" className="w-full">
-          <TabsList className="bg-muted grid grid-cols-6 w-full max-w-4xl">
-            <TabsTrigger value="dashboard" className="flex items-center gap-2">
+          <TabsList className="bg-muted flex flex-wrap gap-1 h-auto p-1 w-full md:grid md:grid-cols-6 md:max-w-4xl">
+            <TabsTrigger value="dashboard" className="flex items-center gap-2 flex-1 min-w-[calc(33%-4px)] md:min-w-0">
               <LayoutDashboard className="w-4 h-4" />
               <span className="hidden sm:inline">Dashboard</span>
             </TabsTrigger>
-            <TabsTrigger value="usuarios" className="flex items-center gap-2">
+            <TabsTrigger value="usuarios" className="flex items-center gap-2 flex-1 min-w-[calc(33%-4px)] md:min-w-0">
               <Users className="w-4 h-4" />
               <span className="hidden sm:inline">Usuários</span>
             </TabsTrigger>
-            <TabsTrigger value="conteudo" className="flex items-center gap-2">
+            <TabsTrigger value="conteudo" className="flex items-center gap-2 flex-1 min-w-[calc(33%-4px)] md:min-w-0">
               <FileText className="w-4 h-4" />
               <span className="hidden sm:inline">Conteúdo</span>
             </TabsTrigger>
-            <TabsTrigger value="projetos" className="flex items-center gap-2">
+            <TabsTrigger value="projetos" className="flex items-center gap-2 flex-1 min-w-[calc(33%-4px)] md:min-w-0">
               <FolderKanban className="w-4 h-4" />
               <span className="hidden sm:inline">Projetos</span>
             </TabsTrigger>
-            <TabsTrigger value="atividades" className="flex items-center gap-2">
+            <TabsTrigger value="atividades" className="flex items-center gap-2 flex-1 min-w-[calc(33%-4px)] md:min-w-0">
               <Activity className="w-4 h-4" />
               <span className="hidden sm:inline">Atividades</span>
             </TabsTrigger>
-            <TabsTrigger value="configuracoes" className="flex items-center gap-2">
+            <TabsTrigger value="configuracoes" className="flex items-center gap-2 flex-1 min-w-[calc(33%-4px)] md:min-w-0">
               <Settings className="w-4 h-4" />
               <span className="hidden sm:inline">Config</span>
             </TabsTrigger>
