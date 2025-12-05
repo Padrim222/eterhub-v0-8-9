@@ -12,19 +12,42 @@ serve(async (req) => {
   }
 
   try {
-    const supabaseClient = createClient(
+    // Create Supabase client with service role for admin operations
+    const supabaseAdmin = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_ANON_KEY') ?? ''
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
-    const payload = await req.json();
-    console.log('Received Pipedrive payload:', JSON.stringify(payload, null, 2));
-
-    const { user_id, person, deal } = payload;
-
-    if (!user_id) {
-      throw new Error('user_id é obrigatório');
+    // Validate authentication - require valid JWT token
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      console.error('Missing or invalid Authorization header');
+      return new Response(
+        JSON.stringify({ error: 'Authorization header required' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
+
+    const token = authHeader.replace('Bearer ', '');
+    
+    // Verify the JWT token and get the authenticated user
+    const { data: { user }, error: authError } = await supabaseAdmin.auth.getUser(token);
+    
+    if (authError || !user) {
+      console.error('Invalid token:', authError?.message);
+      return new Response(
+        JSON.stringify({ error: 'Invalid or expired token' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const payload = await req.json();
+    console.log('Received Pipedrive payload for authenticated user:', user.id);
+
+    const { person, deal } = payload;
+    
+    // Use authenticated user's ID - ignore any user_id from payload for security
+    const finalUserId = user.id;
 
     if (!person || !person.id) {
       throw new Error('Dados da pessoa são obrigatórios');
@@ -50,10 +73,10 @@ serve(async (req) => {
     }
 
     // Buscar ICP do usuário
-    const { data: icps } = await supabaseClient
+    const { data: icps } = await supabaseAdmin
       .from('icps')
       .select('id')
-      .eq('user_id', user_id)
+      .eq('user_id', finalUserId)
       .eq('position', icpPosition)
       .limit(1);
 
@@ -67,10 +90,10 @@ serve(async (req) => {
     const isQualified = leadScore >= 75;
 
     // Buscar posição atual para o lead
-    const { data: existingLeads } = await supabaseClient
+    const { data: existingLeads } = await supabaseAdmin
       .from('leads')
       .select('position')
-      .eq('user_id', user_id)
+      .eq('user_id', finalUserId)
       .eq('icp_id', icpId)
       .order('position', { ascending: false })
       .limit(1);
@@ -81,7 +104,7 @@ serve(async (req) => {
 
     // Criar ou atualizar lead
     const leadData = {
-      user_id,
+      user_id: finalUserId,
       icp_id: icpId,
       name: person.name,
       email: person.email || null,
@@ -101,16 +124,17 @@ serve(async (req) => {
     };
 
     // Verificar se lead já existe
-    const { data: existingLead } = await supabaseClient
+    const { data: existingLead } = await supabaseAdmin
       .from('leads')
       .select('id')
       .eq('pipedrive_person_id', person.id.toString())
+      .eq('user_id', finalUserId)
       .limit(1);
 
     let result;
     if (existingLead && existingLead.length > 0) {
       // Atualizar lead existente
-      result = await supabaseClient
+      result = await supabaseAdmin
         .from('leads')
         .update(leadData)
         .eq('id', existingLead[0].id);
@@ -118,7 +142,7 @@ serve(async (req) => {
       console.log('Lead atualizado:', existingLead[0].id);
     } else {
       // Criar novo lead
-      result = await supabaseClient
+      result = await supabaseAdmin
         .from('leads')
         .insert(leadData);
       

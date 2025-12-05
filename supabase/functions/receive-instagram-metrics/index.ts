@@ -12,19 +12,46 @@ serve(async (req) => {
   }
 
   try {
-    const supabaseClient = createClient(
+    // Create Supabase client with service role for admin operations
+    const supabaseAdmin = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_ANON_KEY') ?? ''
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
+    // Validate authentication - require valid JWT token
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      console.error('Missing or invalid Authorization header');
+      return new Response(
+        JSON.stringify({ error: 'Authorization header required' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const token = authHeader.replace('Bearer ', '');
+    
+    // Verify the JWT token and get the authenticated user
+    const { data: { user }, error: authError } = await supabaseAdmin.auth.getUser(token);
+    
+    if (authError || !user) {
+      console.error('Invalid token:', authError?.message);
+      return new Response(
+        JSON.stringify({ error: 'Invalid or expired token' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
     const payload = await req.json();
-    console.log('Received Instagram metrics payload:', JSON.stringify(payload, null, 2));
+    console.log('Received Instagram metrics payload for authenticated user:', user.id);
 
     const { userId, user_id, profile, account_metrics, posts, stories, instagram_stats, general_metrics } = payload;
-    const finalUserId = userId || user_id;
-
-    if (!finalUserId) {
-      throw new Error('user_id é obrigatório');
+    
+    // Use authenticated user's ID - ignore any user_id from payload for security
+    const finalUserId = user.id;
+    
+    // Log warning if payload tried to specify a different user
+    if ((userId || user_id) && (userId || user_id) !== user.id) {
+      console.warn('Payload contained different user_id, using authenticated user instead');
     }
 
     const today = new Date().toISOString().split('T')[0];
@@ -47,7 +74,7 @@ serve(async (req) => {
       }
 
       if (Object.keys(updateData).length > 0) {
-        const { error: userError } = await supabaseClient
+        const { error: userError } = await supabaseAdmin
           .from('users')
           .update(updateData)
           .eq('id', finalUserId);
@@ -82,7 +109,7 @@ serve(async (req) => {
         stories_exits: metrics.stories_exits || 0,
       };
 
-      const { error: metricsError } = await supabaseClient
+      const { error: metricsError } = await supabaseAdmin
         .from('instagram_metrics')
         .upsert(metricsData, { onConflict: 'user_id,date' });
 
@@ -113,7 +140,7 @@ serve(async (req) => {
           scraped_at: new Date().toISOString(),
         };
 
-        const { error: postError } = await supabaseClient
+        const { error: postError } = await supabaseAdmin
           .from('ig_posts')
           .upsert(postData, { onConflict: 'post_url' });
 
