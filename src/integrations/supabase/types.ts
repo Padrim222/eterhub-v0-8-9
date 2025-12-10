@@ -210,6 +210,66 @@ export type Database = {
           },
         ]
       }
+      contents: {
+        Row: {
+          content_type: string
+          created_at: string | null
+          id: string
+          is_canonical: boolean | null
+          metadata: Json | null
+          narrative_skeleton_id: string | null
+          resource_format_id: string
+          style_checker_score: number | null
+          text_content: string
+          title: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          content_type: string
+          created_at?: string | null
+          id?: string
+          is_canonical?: boolean | null
+          metadata?: Json | null
+          narrative_skeleton_id?: string | null
+          resource_format_id: string
+          style_checker_score?: number | null
+          text_content: string
+          title: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          content_type?: string
+          created_at?: string | null
+          id?: string
+          is_canonical?: boolean | null
+          metadata?: Json | null
+          narrative_skeleton_id?: string | null
+          resource_format_id?: string
+          style_checker_score?: number | null
+          text_content?: string
+          title?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contents_narrative_skeleton_id_fkey"
+            columns: ["narrative_skeleton_id"]
+            isOneToOne: false
+            referencedRelation: "narrative_skeletons"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contents_resource_format_id_fkey"
+            columns: ["resource_format_id"]
+            isOneToOne: false
+            referencedRelation: "resource_formats"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       deals: {
         Row: {
           created_at: string | null
@@ -450,6 +510,181 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      narrative_skeletons: {
+        Row: {
+          angle_suggestions: Json | null
+          created_at: string | null
+          format_defined: string
+          id: string
+          research_map_id: string
+          resource_format_id: string | null
+          skeleton_structure: Json
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          angle_suggestions?: Json | null
+          created_at?: string | null
+          format_defined: string
+          id?: string
+          research_map_id: string
+          resource_format_id?: string | null
+          skeleton_structure?: Json
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          angle_suggestions?: Json | null
+          created_at?: string | null
+          format_defined?: string
+          id?: string
+          research_map_id?: string
+          resource_format_id?: string | null
+          skeleton_structure?: Json
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "narrative_skeletons_research_map_id_fkey"
+            columns: ["research_map_id"]
+            isOneToOne: false
+            referencedRelation: "research_maps"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "narrative_skeletons_resource_format_id_fkey"
+            columns: ["resource_format_id"]
+            isOneToOne: false
+            referencedRelation: "resource_formats"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      playbooks: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          id: string
+          is_active: boolean | null
+          name: string
+          position: number | null
+          slug: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          position?: number | null
+          slug: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          position?: number | null
+          slug?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      research_maps: {
+        Row: {
+          created_at: string | null
+          id: string
+          map_data: Json
+          playbook_id: string | null
+          source_context: string | null
+          theme_title: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          map_data?: Json
+          playbook_id?: string | null
+          source_context?: string | null
+          theme_title: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          map_data?: Json
+          playbook_id?: string | null
+          source_context?: string | null
+          theme_title?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "research_maps_playbook_id_fkey"
+            columns: ["playbook_id"]
+            isOneToOne: false
+            referencedRelation: "playbooks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      resource_formats: {
+        Row: {
+          created_at: string | null
+          duration_or_slides: string | null
+          format_type: string
+          id: string
+          is_active: boolean | null
+          name: string
+          playbook_id: string
+          style_rules: Json | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          duration_or_slides?: string | null
+          format_type: string
+          id?: string
+          is_active?: boolean | null
+          name: string
+          playbook_id: string
+          style_rules?: Json | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          duration_or_slides?: string | null
+          format_type?: string
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          playbook_id?: string
+          style_rules?: Json | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "resource_formats_playbook_id_fkey"
+            columns: ["playbook_id"]
+            isOneToOne: false
+            referencedRelation: "playbooks"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       sprint_tasks: {
         Row: {
