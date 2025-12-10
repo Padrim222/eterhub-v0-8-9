@@ -79,10 +79,20 @@ export interface Entrega {
   descricao: string;
   status: "pendente" | "em_revisao" | "aprovado" | "rejeitado";
   prioridade: "baixa" | "media" | "alta";
+  responsavel: string;
   dataPrevista: string;
   dataEntrega: string | null;
   feedback: string;
 }
+
+// Available responsible persons for dropdown
+export const responsaveisOptions = [
+  { value: "equipe", label: "Equipe", initials: "EQ" },
+  { value: "gerente", label: "Gerente", initials: "GE" },
+  { value: "designer", label: "Designer", initials: "DS" },
+  { value: "desenvolvedor", label: "Desenvolvedor", initials: "DV" },
+  { value: "marketing", label: "Marketing", initials: "MK" },
+];
 
 export interface ClientProjectData {
   alinhamento: AlinhamentoData;

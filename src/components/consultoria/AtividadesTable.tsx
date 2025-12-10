@@ -16,9 +16,8 @@ import {
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue,
 } from "@/components/ui/select";
-import type { Entrega } from "@/hooks/useClientProjectData";
+import { Entrega, responsaveisOptions } from "@/hooks/useClientProjectData";
 
 interface AtividadesTableProps {
   entregas: Entrega[];
@@ -43,10 +42,10 @@ const prioridadeConfig: Record<PrioridadeType, { label: string; color: string }>
 
 // Default activities if no entregas exist
 const defaultAtividades: Entrega[] = [
-  { id: "1", projetoId: "", nome: "Revisar estratégia de marketing", descricao: "", dataPrevista: "15/12/2025", dataEntrega: null, status: "em_revisao", prioridade: "alta", feedback: "Estrategia.pdf" },
-  { id: "2", projetoId: "", nome: "Atualizar landing page", descricao: "", dataPrevista: "18/12/2025", dataEntrega: null, status: "pendente", prioridade: "media", feedback: "" },
-  { id: "3", projetoId: "", nome: "Criar campanha de email", descricao: "", dataPrevista: "20/12/2025", dataEntrega: null, status: "aprovado", prioridade: "baixa", feedback: "Campanha.xlsx" },
-  { id: "4", projetoId: "", nome: "Análise de concorrentes", descricao: "", dataPrevista: "10/12/2025", dataEntrega: null, status: "rejeitado", prioridade: "alta", feedback: "Analise.docx" },
+  { id: "1", projetoId: "", nome: "Revisar estratégia de marketing", descricao: "", dataPrevista: "15/12/2025", dataEntrega: null, status: "em_revisao", prioridade: "alta", responsavel: "marketing", feedback: "Estrategia.pdf" },
+  { id: "2", projetoId: "", nome: "Atualizar landing page", descricao: "", dataPrevista: "18/12/2025", dataEntrega: null, status: "pendente", prioridade: "media", responsavel: "desenvolvedor", feedback: "" },
+  { id: "3", projetoId: "", nome: "Criar campanha de email", descricao: "", dataPrevista: "20/12/2025", dataEntrega: null, status: "aprovado", prioridade: "baixa", responsavel: "equipe", feedback: "Campanha.xlsx" },
+  { id: "4", projetoId: "", nome: "Análise de concorrentes", descricao: "", dataPrevista: "10/12/2025", dataEntrega: null, status: "rejeitado", prioridade: "alta", responsavel: "gerente", feedback: "Analise.docx" },
 ];
 
 export const AtividadesTable = ({ entregas, onChange }: AtividadesTableProps) => {
@@ -69,6 +68,17 @@ export const AtividadesTable = ({ entregas, onChange }: AtividadesTableProps) =>
   const handleCheckboxChange = (id: string, checked: boolean) => {
     const newStatus: StatusType = checked ? "aprovado" : "pendente";
     handleStatusChange(id, newStatus);
+  };
+
+  const handleResponsavelChange = (id: string, responsavel: string) => {
+    const updatedEntregas = atividades.map(e => 
+      e.id === id ? { ...e, responsavel } : e
+    );
+    onChange?.(updatedEntregas);
+  };
+
+  const getResponsavelInfo = (responsavel: string) => {
+    return responsaveisOptions.find(r => r.value === responsavel) || responsaveisOptions[0];
   };
 
   return (
@@ -103,14 +113,33 @@ export const AtividadesTable = ({ entregas, onChange }: AtividadesTableProps) =>
                 {atividade.nome}
               </TableCell>
               <TableCell>
-                <div className="flex items-center gap-2">
-                  <Avatar className="w-6 h-6">
-                    <AvatarFallback className="bg-gray-700 text-white text-xs">
-                      EQ
-                    </AvatarFallback>
-                  </Avatar>
-                  <span className="text-white/80 text-sm">Equipe</span>
-                </div>
+                <Select 
+                  value={atividade.responsavel || "equipe"} 
+                  onValueChange={(value) => handleResponsavelChange(atividade.id, value)}
+                >
+                  <SelectTrigger className="w-auto border-0 bg-transparent p-0 h-auto focus:ring-0 [&>svg]:hidden">
+                    <div className="flex items-center gap-2 cursor-pointer">
+                      <Avatar className="w-6 h-6">
+                        <AvatarFallback className="bg-gray-700 text-white text-xs">
+                          {getResponsavelInfo(atividade.responsavel || "equipe").initials}
+                        </AvatarFallback>
+                      </Avatar>
+                      <span className="text-white/80 text-sm">{getResponsavelInfo(atividade.responsavel || "equipe").label}</span>
+                    </div>
+                  </SelectTrigger>
+                  <SelectContent className="bg-gray-800 border-gray-700">
+                    {responsaveisOptions.map((resp) => (
+                      <SelectItem key={resp.value} value={resp.value} className="text-white hover:bg-gray-700">
+                        <div className="flex items-center gap-2">
+                          <span className="w-6 h-6 flex items-center justify-center bg-gray-600 rounded-full text-xs">
+                            {resp.initials}
+                          </span>
+                          {resp.label}
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </TableCell>
               <TableCell className="text-white/60 text-sm">
                 {atividade.dataPrevista}
