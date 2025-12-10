@@ -1,24 +1,49 @@
-import { SignInPage } from "@/components/ui/sign-in";
+import { SignInPage, PasswordStrength, PasswordRequirements } from "@/components/ui/sign-in";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import eterLogo from "@/assets/eter-logo.png";
+
+const calculatePasswordStrength = (password: string): PasswordStrength => {
+  if (!password) return { level: 0, label: '', color: 'bg-muted', textColor: 'text-muted-foreground' };
+  
+  const hasMinLength = password.length >= 6;
+  const hasGoodLength = password.length >= 8;
+  const hasUppercase = /[A-Z]/.test(password);
+  const hasLowercase = /[a-z]/.test(password);
+  const hasNumbers = /[0-9]/.test(password);
+  const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+  
+  const score = [hasMinLength, hasGoodLength, hasUppercase && hasLowercase, hasNumbers, hasSpecial].filter(Boolean).length;
+  
+  if (score <= 1) return { level: 1, label: 'Muito fraca', color: 'bg-red-500', textColor: 'text-red-500' };
+  if (score === 2) return { level: 2, label: 'Fraca', color: 'bg-orange-500', textColor: 'text-orange-500' };
+  if (score === 3) return { level: 3, label: 'Média', color: 'bg-yellow-500', textColor: 'text-yellow-500' };
+  return { level: 4, label: 'Forte', color: 'bg-green-500', textColor: 'text-green-500' };
+};
+
+const calculatePasswordRequirements = (password: string): PasswordRequirements => ({
+  minLength: password.length >= 6,
+  hasUppercase: /[A-Z]/.test(password),
+  hasNumber: /[0-9]/.test(password),
+  hasSpecial: /[!@#$%^&*(),.?":{}|<>]/.test(password),
+});
+
 const Auth = () => {
   const navigate = useNavigate();
-  const {
-    toast
-  } = useToast();
+  const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [isSignUp, setIsSignUp] = useState(false);
+  const [password, setPassword] = useState('');
+
+  const passwordStrength = useMemo(() => calculatePasswordStrength(password), [password]);
+  const passwordRequirements = useMemo(() => calculatePasswordRequirements(password), [password]);
+
   useEffect(() => {
     // Check if user is already logged in
     const checkUser = async () => {
-      const {
-        data: {
-          session
-        }
-      } = await supabase.auth.getSession();
+      const { data: { session } } = await supabase.auth.getSession();
       if (session) {
         navigate("/home");
       }
@@ -26,11 +51,7 @@ const Auth = () => {
     checkUser();
 
     // Listen for auth state changes (email confirmation, etc)
-    const {
-      data: {
-        subscription
-      }
-    } = supabase.auth.onAuthStateChange(async (event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log('Auth event:', event);
       if (event === 'SIGNED_IN' && session) {
         toast({
@@ -48,14 +69,15 @@ const Auth = () => {
     });
     return () => subscription.unsubscribe();
   }, [navigate, toast]);
+
   const handleSignIn = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setLoading(true);
     const formData = new FormData(event.currentTarget);
     const email = formData.get("email") as string;
-    const password = formData.get("password") as string;
+    const passwordValue = formData.get("password") as string;
 
-    if (!email || !password) {
+    if (!email || !passwordValue) {
       toast({
         title: "Campos obrigatórios",
         description: "Por favor, preencha email e senha.",
@@ -68,7 +90,7 @@ const Auth = () => {
     try {
       const { error } = await supabase.auth.signInWithPassword({
         email: email.trim(),
-        password
+        password: passwordValue
       });
       if (error) throw error;
       toast({
@@ -97,11 +119,10 @@ const Auth = () => {
       setLoading(false);
     }
   };
+
   const handleGoogleSignIn = async () => {
     try {
-      const {
-        error
-      } = await supabase.auth.signInWithOAuth({
+      const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
           redirectTo: `${window.location.origin}/home`
@@ -119,9 +140,7 @@ const Auth = () => {
 
   const handleFacebookSignIn = async () => {
     try {
-      const {
-        error
-      } = await supabase.auth.signInWithOAuth({
+      const { error } = await supabase.auth.signInWithOAuth({
         provider: "facebook",
         options: {
           redirectTo: `${window.location.origin}/home`,
@@ -137,21 +156,23 @@ const Auth = () => {
       });
     }
   };
+
   const handleResetPassword = () => {
     toast({
       title: "Redefinir Senha",
       description: "Funcionalidade de redefinição de senha em breve!"
     });
   };
+
   const handleSignUp = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setLoading(true);
     const formData = new FormData(event.currentTarget);
     const email = formData.get("email") as string;
-    const password = formData.get("password") as string;
+    const passwordValue = formData.get("password") as string;
 
     // Validação básica
-    if (!email || !password) {
+    if (!email || !passwordValue) {
       toast({
         title: "Campos obrigatórios",
         description: "Por favor, preencha email e senha.",
@@ -161,7 +182,7 @@ const Auth = () => {
       return;
     }
 
-    if (password.length < 6) {
+    if (passwordValue.length < 6) {
       toast({
         title: "Senha muito curta",
         description: "A senha deve ter pelo menos 6 caracteres.",
@@ -175,7 +196,7 @@ const Auth = () => {
       const redirectUrl = window.location.origin;
       const { data, error } = await supabase.auth.signUp({
         email: email.trim(),
-        password,
+        password: passwordValue,
         options: {
           emailRedirectTo: redirectUrl,
           data: {
@@ -201,6 +222,7 @@ const Auth = () => {
           duration: 8000
         });
         setIsSignUp(false);
+        setPassword('');
       } else {
         // Fallback - show generic success
         toast({
@@ -208,6 +230,7 @@ const Auth = () => {
           description: "Você pode fazer login agora."
         });
         setIsSignUp(false);
+        setPassword('');
       }
     } catch (error: any) {
       console.error("Signup error:", error);
@@ -234,13 +257,41 @@ const Auth = () => {
       setLoading(false);
     }
   };
+
   const handleCreateAccount = () => {
     setIsSignUp(true);
+    setPassword('');
   };
-  return <div className="bg-background text-foreground">
-      <SignInPage logoSrc={eterLogo} title={<span className="font-semibold text-foreground tracking-tight">
-          {isSignUp ? "Criar Conta no" : "Bem-vindo ao"} <span className="text-primary">Seu Movimento.</span>
-        </span>} description={isSignUp ? "Crie sua conta e comece a ter insights poderosos do seu Instagram" : "Acesse sua conta e tenha insights poderosos do seu Instagram"} heroImageSrc="https://www.instagram.com/p/DOUffdoEfYF/embed" onSignIn={isSignUp ? handleSignUp : handleSignIn} onGoogleSignIn={handleGoogleSignIn} onFacebookSignIn={handleFacebookSignIn} onResetPassword={handleResetPassword} onCreateAccount={handleCreateAccount} isSignUp={isSignUp} onSwitchToSignIn={() => setIsSignUp(false)} />
-    </div>;
+
+  const handleSwitchToSignIn = () => {
+    setIsSignUp(false);
+    setPassword('');
+  };
+
+  return (
+    <div className="bg-background text-foreground">
+      <SignInPage 
+        logoSrc={eterLogo} 
+        title={
+          <span className="font-semibold text-foreground tracking-tight">
+            {isSignUp ? "Criar Conta no" : "Bem-vindo ao"} <span className="text-primary">Seu Movimento.</span>
+          </span>
+        } 
+        description={isSignUp ? "Crie sua conta e comece a ter insights poderosos do seu Instagram" : "Acesse sua conta e tenha insights poderosos do seu Instagram"} 
+        heroImageSrc="https://www.instagram.com/p/DOUffdoEfYF/embed" 
+        onSignIn={isSignUp ? handleSignUp : handleSignIn} 
+        onGoogleSignIn={handleGoogleSignIn} 
+        onFacebookSignIn={handleFacebookSignIn} 
+        onResetPassword={handleResetPassword} 
+        onCreateAccount={handleCreateAccount} 
+        isSignUp={isSignUp} 
+        onSwitchToSignIn={handleSwitchToSignIn}
+        passwordStrength={passwordStrength}
+        passwordRequirements={passwordRequirements}
+        onPasswordChange={setPassword}
+      />
+    </div>
+  );
 };
+
 export default Auth;
