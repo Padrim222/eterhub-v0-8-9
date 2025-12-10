@@ -8,3 +8,6 @@ verify_jwt = true
 
 [functions.fetch-pipedrive-data]
 verify_jwt = true
+
+[functions.send-metrics-to-n8n]
+verify_jwt = true
