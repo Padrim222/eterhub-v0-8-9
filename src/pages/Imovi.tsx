@@ -12,6 +12,7 @@ import { QualificationRateCard } from "@/components/dashboard/QualificationRateC
 import { IMOVICard } from "@/components/dashboard/IMOVICard";
 import { InsightsIACard } from "@/components/dashboard/InsightsIACard";
 import { LeaderBanner } from "@/components/dashboard/LeaderBanner";
+import { InstagramImportCard } from "@/components/dashboard/InstagramImportCard";
 import { useDashboardData } from "@/hooks/useDashboardData";
 import { useLeadsData } from "@/hooks/useLeadsData";
 import { ChannelView } from "@/components/canais/ChannelView";
@@ -45,7 +46,10 @@ const Imovi = () => {
 
   const data = useDashboardData();
   const { metrics: leadsMetrics, isLoading: leadsLoading } = useLeadsData();
-  const { isLoading, error } = data;
+  const { isLoading, error, totalPosts } = data;
+  
+  // Check if user has Instagram data
+  const hasInstagramData = totalPosts > 0 || (userProfile?.instagram_posts_count ?? 0) > 0;
 
   // Calculate metrics from real data
   const mqlPercentage = leadsMetrics.qualificationRate || 0;
@@ -113,6 +117,14 @@ const Imovi = () => {
               <ChannelView />
             ) : activeFilter === "geral" ? (
               <div className="space-y-4 md:space-y-6">
+                {/* Show Instagram Import Card if no data */}
+                {!hasInstagramData && (
+                  <InstagramImportCard 
+                    userProfile={userProfile} 
+                    onProfileUpdate={loadUserProfile} 
+                  />
+                )}
+                
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 md:gap-6">
                   <MQLCard 
                     mqlPercentage={mqlPercentage}
