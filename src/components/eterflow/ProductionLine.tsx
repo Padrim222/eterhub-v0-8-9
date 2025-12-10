@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils";
 import { BarChart3, Lightbulb, Search, FileText, PenTool, CheckCircle } from "lucide-react";
-import type { ProductionStage, ProductionStatus } from "@/hooks/useEtherflow";
+import type { ProductionStage, ProductionStatus } from "@/hooks/useEterflow";
 
 interface ProductionLineProps {
   currentStage: ProductionStage;

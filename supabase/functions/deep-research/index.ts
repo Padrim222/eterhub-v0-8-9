@@ -6,7 +6,7 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
+const OPENROUTER_API_KEY = Deno.env.get("OPENROUTER_API_KEY");
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 
@@ -22,6 +22,14 @@ serve(async (req) => {
       return new Response(
         JSON.stringify({ error: "user_id, playbook_id, and theme_index are required" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    if (!OPENROUTER_API_KEY) {
+      console.error("OPENROUTER_API_KEY is not configured");
+      return new Response(
+        JSON.stringify({ error: "API key not configured" }),
+        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
@@ -46,48 +54,63 @@ serve(async (req) => {
     const selectedTheme = playbook.themes?.[theme_index] || { title: theme_title };
     const themeTitle = selectedTheme.title || theme_title;
 
-    const systemPrompt = `Você é um Agente de IA especialista em Pesquisa Profunda. Sua habilidade é mergulhar em um tema e emergir com um arsenal de informações ricas e diversas, prontas para serem transformadas em conteúdo de alto impacto. Você vai além do superficial, buscando dados, histórias e insights que ninguém mais encontrou.
+    const systemPrompt = `Você é um Agente de IA especialista em Pesquisa Profunda com acesso à internet em tempo real. Sua habilidade é mergulhar em um tema e emergir com um arsenal de informações ricas, REAIS e verificáveis, prontas para serem transformadas em conteúdo de alto impacto.
 
-Sua missão é construir um dossiê completo de insumos que servirá de matéria-prima para a criação de roteiros.
+IMPORTANTE: 
+- Você DEVE buscar informações REAIS e ATUAIS da internet
+- SEMPRE inclua fontes com URLs quando disponíveis
+- Cite estatísticas reais de institutos de pesquisa, estudos acadêmicos, relatórios de mercado
+- Traga cases reais de empresas e pessoas conhecidas
+- Você DEVE responder APENAS com um JSON válido, sem texto adicional antes ou depois`;
 
-IMPORTANTE: Você DEVE responder APENAS com um JSON válido, sem texto adicional antes ou depois.`;
-
-    const userPrompt = `Realize uma pesquisa profunda sobre o tema: "${themeTitle}"
+    const userPrompt = `Realize uma pesquisa profunda NA INTERNET sobre o tema: "${themeTitle}"
 
 ## Contexto do Cliente
 ${playbook.client_context || "Empresa focada em crescimento digital e engajamento nas redes sociais."}
 
 ## Instruções de Pesquisa
 
-1. Execute uma pesquisa exaustiva considerando:
-   - Fontes Acadêmicas: Estudos, artigos científicos, dados de pesquisa
-   - Fontes de Mercado: Relatórios, dados de mercado, tendências
-   - Fontes de Mídia: Notícias, artigos, revistas especializadas
-   - Fontes Sociais: Opiniões, polêmicas, dúvidas e crenças do público
+Busque informações REAIS e ATUAIS sobre este tema, incluindo:
 
-2. Colete ativamente:
-   - 2-5 estatísticas impactantes com fontes
-   - 2 cases de sucesso ou fracasso relevantes
-   - Histórias, metáforas e analogias
-   - Tendências culturais relacionadas
-   - Principais objeções e crenças limitantes do público
+1. **Dados Numéricos Reais** (com fontes verificáveis):
+   - Estatísticas de institutos como IBGE, Statista, HubSpot, Hootsuite
+   - Dados de pesquisas recentes (2023-2024)
+   - Métricas de mercado verificáveis
+
+2. **Cases Reais**:
+   - Histórias de sucesso ou fracasso de empresas/pessoas conhecidas
+   - Exemplos do Brasil e do mundo
+
+3. **Tendências Atuais**:
+   - O que está sendo discutido nas redes sociais AGORA
+   - Debates e polêmicas recentes sobre o tema
+
+4. **Insights de Especialistas**:
+   - Opiniões de líderes de mercado
+   - Conteúdos de influenciadores reconhecidos
 
 Responda APENAS com este JSON (sem markdown, sem texto extra):
 {
   "theme_title": "${themeTitle}",
+  "research_date": "${new Date().toISOString().split('T')[0]}",
   "numerical_data": [
     {
-      "statistic": "Descrição da estatística",
-      "source": "Fonte/referência",
+      "statistic": "Descrição da estatística REAL",
+      "value": "Valor numérico",
+      "source": "Nome da fonte",
+      "source_url": "URL da fonte (se disponível)",
+      "year": "Ano do dado",
       "impact_level": "high/medium/low"
     }
   ],
   "cases": [
     {
       "type": "success/failure",
+      "company_or_person": "Nome real da empresa/pessoa",
       "title": "Título do case",
-      "description": "Descrição detalhada",
-      "main_lesson": "Principal lição"
+      "description": "Descrição detalhada do que aconteceu",
+      "main_lesson": "Principal lição",
+      "source_url": "URL da fonte (se disponível)"
     }
   ],
   "narratives_metaphors": [
@@ -97,30 +120,42 @@ Responda APENAS com este JSON (sem markdown, sem texto extra):
     }
   ],
   "social_voice": {
-    "main_controversy": "Principal polêmica/debate nas redes",
+    "main_controversy": "Principal polêmica/debate ATUAL nas redes",
+    "trending_hashtags": ["#hashtag1", "#hashtag2"],
     "limiting_beliefs": ["Crença limitante 1", "Crença limitante 2"],
     "frequent_questions": ["Pergunta frequente 1", "Pergunta frequente 2"]
   },
   "antagonists": [
     {
-      "objection": "Descrição da objeção",
-      "counter_argument": "Possível contra-argumento"
+      "objection": "Descrição da objeção comum",
+      "counter_argument": "Contra-argumento baseado em dados"
     }
   ],
-  "cultural_trends": ["Tendência 1", "Tendência 2"],
+  "expert_quotes": [
+    {
+      "expert_name": "Nome do especialista",
+      "title": "Cargo/Título",
+      "quote": "Citação relevante",
+      "source_url": "URL da fonte"
+    }
+  ],
+  "cultural_trends": ["Tendência atual 1", "Tendência atual 2"],
   "central_message_connection": "Como este tema pode reforçar a mensagem central da marca"
 }`;
 
-    console.log("Calling Lovable AI for deep research...");
+    console.log("Calling OpenRouter with Perplexity for deep research...");
 
-    const aiResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    // Use OpenRouter with Perplexity model for real internet search
+    const aiResponse = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
+        "Authorization": `Bearer ${OPENROUTER_API_KEY}`,
         "Content-Type": "application/json",
+        "HTTP-Referer": "https://eter.company",
+        "X-Title": "Eterflow Deep Research",
       },
       body: JSON.stringify({
-        model: "google/gemini-2.5-pro",
+        model: "perplexity/sonar-pro",
         messages: [
           { role: "system", content: systemPrompt },
           { role: "user", content: userPrompt },
@@ -130,7 +165,7 @@ Responda APENAS com este JSON (sem markdown, sem texto extra):
 
     if (!aiResponse.ok) {
       const errorText = await aiResponse.text();
-      console.error("AI API error:", aiResponse.status, errorText);
+      console.error("OpenRouter API error:", aiResponse.status, errorText);
       
       if (aiResponse.status === 429) {
         return new Response(
@@ -146,7 +181,7 @@ Responda APENAS com este JSON (sem markdown, sem texto extra):
       }
       
       return new Response(
-        JSON.stringify({ error: "AI service error" }),
+        JSON.stringify({ error: "AI service error", details: errorText }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
@@ -155,6 +190,7 @@ Responda APENAS com este JSON (sem markdown, sem texto extra):
     const content = aiData.choices?.[0]?.message?.content;
 
     if (!content) {
+      console.error("No content in AI response:", aiData);
       return new Response(
         JSON.stringify({ error: "No content generated" }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
@@ -205,6 +241,8 @@ Responda APENAS com este JSON (sem markdown, sem texto extra):
       })
       .eq("id", playbook_id)
       .eq("user_id", user_id);
+
+    console.log("Deep research completed successfully with Perplexity");
 
     return new Response(
       JSON.stringify({ 

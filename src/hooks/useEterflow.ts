@@ -50,7 +50,7 @@ const initialState: ProductionState = {
   selected_theme_index: null,
 };
 
-export function useEtherflow() {
+export function useEterflow() {
   const { userProfile } = useAuth();
   const userId = getUserId(userProfile);
   const [production, setProduction] = useState<ProductionState>(initialState);
@@ -68,7 +68,7 @@ export function useEtherflow() {
     return newMessage;
   }, []);
 
-  // Stage 1: Start analysis
+  // Stage 1: Start analysis - Now fetches real metrics first
   const startAnalysis = useCallback(async (clientContext?: string) => {
     if (!userId) {
       toast.error("Você precisa estar logado");
@@ -78,11 +78,60 @@ export function useEtherflow() {
     setIsLoading(true);
     addMessage({
       role: "system",
-      content: "Iniciando análise de métricas do Instagram...",
+      content: "🔍 Buscando suas métricas do Instagram...",
       stage: "analysis",
     });
 
     try {
+      // Fetch real Instagram posts with format categorization
+      const { data: posts, error: postsError } = await supabase
+        .from("ig_posts")
+        .select("*")
+        .eq("user_id", userId)
+        .order("published_at", { ascending: false });
+
+      if (postsError) throw postsError;
+
+      // Fetch user profile data
+      const { data: userData, error: userError } = await supabase
+        .from("users")
+        .select("instagram_username, instagram_followers, instagram_posts_count")
+        .eq("id", userId)
+        .single();
+
+      if (userError) console.warn("Could not fetch user profile:", userError);
+
+      // Categorize posts by format
+      const reels = posts?.filter(p => p.post_type?.toLowerCase() === "reel" || p.post_type?.toLowerCase() === "reels") || [];
+      const carousels = posts?.filter(p => p.post_type?.toLowerCase() === "carousel" || p.post_type?.toLowerCase() === "carrossel") || [];
+      const images = posts?.filter(p => p.post_type?.toLowerCase() === "image" || p.post_type?.toLowerCase() === "post" || !p.post_type) || [];
+
+      // Calculate average engagement rate
+      const postsWithEngagement = posts?.filter(p => p.engagement_rate != null) || [];
+      const avgEngagement = postsWithEngagement.length > 0
+        ? postsWithEngagement.reduce((sum, p) => sum + (p.engagement_rate || 0), 0) / postsWithEngagement.length
+        : 0;
+
+      // Show metrics summary in chat
+      const username = userData?.instagram_username || "seu perfil";
+      const followers = userData?.instagram_followers || 0;
+      const totalPosts = posts?.length || 0;
+
+      addMessage({
+        role: "assistant",
+        content: `📊 **Métricas encontradas para @${username}**
+
+• **${totalPosts}** posts analisados
+• 🎬 **${reels.length}** Reels | 📚 **${carousels.length}** Carrosséis | 🖼️ **${images.length}** Posts
+• 👥 **${followers.toLocaleString()}** seguidores
+• 📈 Taxa de engajamento média: **${avgEngagement.toFixed(2)}%**
+
+Iniciando análise de padrões de sucesso...`,
+        stage: "analysis",
+        data: { posts, userData, categories: { reels: reels.length, carousels: carousels.length, images: images.length } },
+      });
+
+      // Now call the analysis Edge Function
       const response = await supabase.functions.invoke("analyze-metrics", {
         body: { user_id: userId },
       });
@@ -100,7 +149,7 @@ export function useEtherflow() {
 
       addMessage({
         role: "assistant",
-        content: `Análise concluída! Encontrei ${analysis_result?.top_posts?.length || 0} posts de alta performance.`,
+        content: `✅ Análise concluída! Encontrei **${analysis_result?.top_posts?.length || 0}** posts de alta performance.`,
         stage: "analysis",
         data: analysis_result,
       });
@@ -112,7 +161,7 @@ export function useEtherflow() {
       toast.error("Erro ao analisar métricas");
       addMessage({
         role: "system",
-        content: "Erro ao analisar métricas. Tente novamente.",
+        content: "❌ Erro ao analisar métricas. Tente novamente.",
         stage: "analysis",
       });
     } finally {
