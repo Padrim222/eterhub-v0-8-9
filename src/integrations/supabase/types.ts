@@ -210,6 +210,51 @@ export type Database = {
           },
         ]
       }
+      deals: {
+        Row: {
+          created_at: string | null
+          currency: string | null
+          id: string
+          lost_at: string | null
+          pipedrive_deal_id: string | null
+          stage_name: string | null
+          status: string | null
+          title: string
+          updated_at: string | null
+          user_id: string
+          value: number | null
+          won_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          currency?: string | null
+          id?: string
+          lost_at?: string | null
+          pipedrive_deal_id?: string | null
+          stage_name?: string | null
+          status?: string | null
+          title: string
+          updated_at?: string | null
+          user_id: string
+          value?: number | null
+          won_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          currency?: string | null
+          id?: string
+          lost_at?: string | null
+          pipedrive_deal_id?: string | null
+          stage_name?: string | null
+          status?: string | null
+          title?: string
+          updated_at?: string | null
+          user_id?: string
+          value?: number | null
+          won_at?: string | null
+        }
+        Relationships: []
+      }
       icps: {
         Row: {
           color: string | null
@@ -502,6 +547,7 @@ export type Database = {
         Row: {
           avatar_url: string | null
           created_at: string | null
+          crm_last_sync_at: string | null
           email: string | null
           id: string
           instagram_followers: number | null
@@ -513,12 +559,15 @@ export type Database = {
           leader_title: string | null
           nome: string | null
           onboarding_completed: boolean | null
+          pipedrive_api_token: string | null
+          pipedrive_company_domain: string | null
           reportei_api_key: string | null
           updated_at: string | null
         }
         Insert: {
           avatar_url?: string | null
           created_at?: string | null
+          crm_last_sync_at?: string | null
           email?: string | null
           id: string
           instagram_followers?: number | null
@@ -530,12 +579,15 @@ export type Database = {
           leader_title?: string | null
           nome?: string | null
           onboarding_completed?: boolean | null
+          pipedrive_api_token?: string | null
+          pipedrive_company_domain?: string | null
           reportei_api_key?: string | null
           updated_at?: string | null
         }
         Update: {
           avatar_url?: string | null
           created_at?: string | null
+          crm_last_sync_at?: string | null
           email?: string | null
           id?: string
           instagram_followers?: number | null
@@ -547,6 +599,8 @@ export type Database = {
           leader_title?: string | null
           nome?: string | null
           onboarding_completed?: boolean | null
+          pipedrive_api_token?: string | null
+          pipedrive_company_domain?: string | null
           reportei_api_key?: string | null
           updated_at?: string | null
         }
