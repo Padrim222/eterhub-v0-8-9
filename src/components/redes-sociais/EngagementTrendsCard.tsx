@@ -10,6 +10,20 @@ export const EngagementTrendsCard = () => {
 
   if (isLoading || posts.length === 0) return null;
 
+  // Helper function to calculate engagement rate dynamically
+  const calculateEngagementRate = (post: any) => {
+    if (post.engagement_rate && post.engagement_rate > 0) {
+      return post.engagement_rate;
+    }
+    // Calculate dynamically if null
+    const views = post.views || 0;
+    if (views === 0) return 0;
+    const likes = post.likes || 0;
+    const comments = post.comments || 0;
+    const saves = post.saves || 0;
+    return ((likes + comments + saves) / views) * 100;
+  };
+
   // Agrupar posts por dia dos últimos 30 dias
   const last30Days = Array.from({ length: 30 }, (_, i) => {
     const date = startOfDay(subDays(new Date(), 29 - i));
@@ -22,7 +36,7 @@ export const EngagementTrendsCard = () => {
     });
 
     const avgEngagement = dayPosts.length > 0
-      ? dayPosts.reduce((sum, p) => sum + (p.engagement_rate || 0), 0) / dayPosts.length
+      ? dayPosts.reduce((sum, p) => sum + calculateEngagementRate(p), 0) / dayPosts.length
       : 0;
 
     const totalViews = dayPosts.reduce((sum, p) => sum + (p.views || 0), 0);

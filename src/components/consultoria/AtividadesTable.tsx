@@ -30,7 +30,7 @@ type PrioridadeType = "baixa" | "media" | "alta";
 const statusConfig: Record<StatusType, { label: string; color: string; hasIcon: boolean }> = {
   pendente: { label: "Não Iniciado", color: "border border-gray-500 text-gray-400 bg-transparent rounded-lg px-3 py-1", hasIcon: false },
   em_revisao: { label: "Em Andamento", color: "border border-blue-500 text-blue-400 bg-transparent rounded-lg px-3 py-1", hasIcon: false },
-  aprovado: { label: "Concluído", color: "bg-green-500 text-black rounded-lg px-3 py-1", hasIcon: false },
+  aprovado: { label: "Concluído", color: "bg-green-500 text-black border-0 rounded-lg px-3 py-1", hasIcon: false },
   rejeitado: { label: "Atrasado", color: "border border-red-500 text-red-400 bg-transparent rounded-lg px-3 py-1", hasIcon: true },
 };
 

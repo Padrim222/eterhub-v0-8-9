@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import type { Json } from '@/integrations/supabase/types';
@@ -16,7 +16,7 @@ export const useClientActivities = () => {
   const [activities, setActivities] = useState<Activity[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  const loadActivities = async () => {
+  const loadActivities = useCallback(async () => {
     try {
       setIsLoading(true);
       const { data: { session } } = await supabase.auth.getSession();
@@ -49,7 +49,7 @@ export const useClientActivities = () => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
 
   const addActivity = async (activity: Omit<Activity, 'id'>) => {
     try {
@@ -83,7 +83,41 @@ export const useClientActivities = () => {
 
   useEffect(() => {
     loadActivities();
-  }, []);
+
+    // Set up realtime subscription
+    const setupRealtimeSubscription = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
+
+      const channel = supabase
+        .channel('client-activities-changes')
+        .on(
+          'postgres_changes',
+          {
+            event: '*',
+            schema: 'public',
+            table: 'client_activities',
+            filter: `user_id=eq.${session.user.id}`,
+          },
+          (payload) => {
+            console.log('Realtime activity update:', payload);
+            // Reload activities on any change
+            loadActivities();
+          }
+        )
+        .subscribe();
+
+      return () => {
+        supabase.removeChannel(channel);
+      };
+    };
+
+    const cleanup = setupRealtimeSubscription();
+
+    return () => {
+      cleanup.then((unsubscribe) => unsubscribe?.());
+    };
+  }, [loadActivities]);
 
   return {
     activities,
