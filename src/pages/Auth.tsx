@@ -54,27 +54,37 @@ const Auth = () => {
     const formData = new FormData(event.currentTarget);
     const email = formData.get("email") as string;
     const password = formData.get("password") as string;
+
+    if (!email || !password) {
+      toast({
+        title: "Campos obrigatórios",
+        description: "Por favor, preencha email e senha.",
+        variant: "destructive"
+      });
+      setLoading(false);
+      return;
+    }
+
     try {
-      const {
-        error
-      } = await supabase.auth.signInWithPassword({
-        email,
+      const { error } = await supabase.auth.signInWithPassword({
+        email: email.trim(),
         password
       });
       if (error) throw error;
       toast({
-        title: "Success!",
-        description: "You've been signed in successfully."
+        title: "Login realizado!",
+        description: "Você foi autenticado com sucesso."
       });
       navigate("/home");
     } catch (error: any) {
+      console.error("Login error:", error);
       let errorMessage = "Falha ao fazer login. Tente novamente.";
       
-      if (error.message.includes("Invalid login credentials")) {
+      if (error.message?.includes("Invalid login credentials")) {
         errorMessage = "Email ou senha incorretos. Verifique suas credenciais.";
-      } else if (error.message.includes("Email not confirmed")) {
+      } else if (error.message?.includes("Email not confirmed")) {
         errorMessage = "Conta não ativada. Verifique seu email para confirmar sua conta.";
-      } else if (error.message.includes("User not found")) {
+      } else if (error.message?.includes("User not found")) {
         errorMessage = "Conta não encontrada. Verifique o email ou crie uma nova conta.";
       }
       
@@ -139,22 +149,41 @@ const Auth = () => {
     const formData = new FormData(event.currentTarget);
     const email = formData.get("email") as string;
     const password = formData.get("password") as string;
+
+    // Validação básica
+    if (!email || !password) {
+      toast({
+        title: "Campos obrigatórios",
+        description: "Por favor, preencha email e senha.",
+        variant: "destructive"
+      });
+      setLoading(false);
+      return;
+    }
+
+    if (password.length < 6) {
+      toast({
+        title: "Senha muito curta",
+        description: "A senha deve ter pelo menos 6 caracteres.",
+        variant: "destructive"
+      });
+      setLoading(false);
+      return;
+    }
+
     try {
-      // Get current origin for redirect
       const redirectUrl = window.location.origin;
-      const {
-        data,
-        error
-      } = await supabase.auth.signUp({
-        email,
+      const { data, error } = await supabase.auth.signUp({
+        email: email.trim(),
         password,
         options: {
           emailRedirectTo: redirectUrl,
           data: {
-            email: email
+            email: email.trim()
           }
         }
       });
+      
       if (error) throw error;
 
       // Check if email confirmation is disabled (auto-confirm)
@@ -164,18 +193,41 @@ const Auth = () => {
           description: "Login realizado com sucesso."
         });
         navigate("/home");
-      } else {
+      } else if (data?.user && !data?.session) {
+        // User created but needs email confirmation
         toast({
           title: "Verifique seu email",
           description: "Enviamos um link de confirmação para seu email. Clique no link para ativar sua conta.",
           duration: 8000
         });
         setIsSignUp(false);
+      } else {
+        // Fallback - show generic success
+        toast({
+          title: "Conta criada!",
+          description: "Você pode fazer login agora."
+        });
+        setIsSignUp(false);
       }
     } catch (error: any) {
+      console.error("Signup error:", error);
+      let errorMessage = "Falha ao criar conta. Tente novamente.";
+      
+      if (error.message?.includes("User already registered")) {
+        errorMessage = "Este email já está cadastrado. Tente fazer login ou use outro email.";
+      } else if (error.message?.includes("Password should be at least")) {
+        errorMessage = "A senha deve ter pelo menos 6 caracteres.";
+      } else if (error.message?.includes("Unable to validate email")) {
+        errorMessage = "Email inválido. Verifique o formato do email.";
+      } else if (error.message?.includes("Signup is disabled")) {
+        errorMessage = "Cadastro temporariamente desabilitado. Tente novamente mais tarde.";
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
       toast({
         title: "Erro ao criar conta",
-        description: error.message || "Falha ao criar conta. Tente novamente.",
+        description: errorMessage,
         variant: "destructive"
       });
     } finally {
