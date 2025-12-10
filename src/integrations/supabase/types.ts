@@ -210,6 +210,63 @@ export type Database = {
           },
         ]
       }
+      content_analyses: {
+        Row: {
+          analysis_result: Json
+          analysis_type: string
+          created_at: string | null
+          error_message: string | null
+          id: string
+          input_data: Json
+          metrics_summary: Json | null
+          model_used: string | null
+          processing_time_ms: number | null
+          recommendations: Json | null
+          status: string
+          success_patterns: Json | null
+          tokens_used: number | null
+          top_posts: Json | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          analysis_result?: Json
+          analysis_type?: string
+          created_at?: string | null
+          error_message?: string | null
+          id?: string
+          input_data?: Json
+          metrics_summary?: Json | null
+          model_used?: string | null
+          processing_time_ms?: number | null
+          recommendations?: Json | null
+          status?: string
+          success_patterns?: Json | null
+          tokens_used?: number | null
+          top_posts?: Json | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          analysis_result?: Json
+          analysis_type?: string
+          created_at?: string | null
+          error_message?: string | null
+          id?: string
+          input_data?: Json
+          metrics_summary?: Json | null
+          model_used?: string | null
+          processing_time_ms?: number | null
+          recommendations?: Json | null
+          status?: string
+          success_patterns?: Json | null
+          tokens_used?: number | null
+          top_posts?: Json | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       content_metrics: {
         Row: {
           attribution_data: Json | null
