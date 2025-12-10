@@ -6,14 +6,19 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useEffect, useState } from "react";
-import { Loader2, Save, Key, Webhook } from "lucide-react";
+import { Loader2, Save, Key, Webhook, RefreshCw, CheckCircle, XCircle, Instagram } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 
 export default function Configuracoes() {
   const { toast } = useToast();
-  const { userProfile } = useAuth();
+  const { userProfile, refetch: refreshProfile } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [isSyncing, setIsSyncing] = useState(false);
+  const [syncStatus, setSyncStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  
+  const [reporteiApiKey, setReporteiApiKey] = useState("");
+  const [instagramUsername, setInstagramUsername] = useState("");
   
   const [settings, setSettings] = useState({
     n8n_reportei_webhook: "",
@@ -22,6 +27,10 @@ export default function Configuracoes() {
   });
 
   useEffect(() => {
+    if (userProfile) {
+      setReporteiApiKey(userProfile.reportei_api_key || "");
+      setInstagramUsername(userProfile.instagram_username || "");
+    }
     loadSettings();
   }, [userProfile]);
 
@@ -47,13 +56,93 @@ export default function Configuracoes() {
       }
     } catch (error) {
       console.error("Error loading settings:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleSaveReportei = async () => {
+    if (!userProfile?.id) return;
+
+    setIsSaving(true);
+    try {
+      const { error } = await supabase
+        .from('users')
+        .update({
+          reportei_api_key: reporteiApiKey.trim() || null,
+          instagram_username: instagramUsername.trim() || null,
+        })
+        .eq('id', userProfile.id);
+
+      if (error) throw error;
+
       toast({
-        title: "Erro ao carregar configurações",
-        description: "Não foi possível carregar suas configurações.",
+        title: "Configurações salvas",
+        description: "Chave Reportei e Instagram atualizados com sucesso.",
+      });
+
+      refreshProfile?.();
+    } catch (error) {
+      console.error("Error saving Reportei settings:", error);
+      toast({
+        title: "Erro ao salvar",
+        description: "Não foi possível salvar suas configurações.",
         variant: "destructive",
       });
     } finally {
-      setIsLoading(false);
+      setIsSaving(false);
+    }
+  };
+
+  const handleSyncReportei = async () => {
+    if (!reporteiApiKey.trim()) {
+      toast({
+        title: "Chave não configurada",
+        description: "Por favor, configure sua chave Reportei primeiro.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsSyncing(true);
+    setSyncStatus('idle');
+
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session) {
+        throw new Error('Sessão expirada');
+      }
+
+      const { data, error } = await supabase.functions.invoke('fetch-reportei-data', {
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+        },
+      });
+
+      if (error) throw error;
+
+      if (data?.error) {
+        throw new Error(data.error);
+      }
+
+      setSyncStatus('success');
+      toast({
+        title: "Sincronização concluída",
+        description: data?.message || `${data?.posts_synced || 0} posts sincronizados.`,
+      });
+
+      refreshProfile?.();
+    } catch (error: any) {
+      console.error("Sync error:", error);
+      setSyncStatus('error');
+      toast({
+        title: "Erro na sincronização",
+        description: error.message || "Não foi possível sincronizar com a Reportei.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSyncing(false);
     }
   };
 
@@ -94,14 +183,119 @@ export default function Configuracoes() {
   return (
     <PageLayout title="Configurações" showTitle>
       <div className="max-w-4xl mx-auto space-y-6">
+        {/* Reportei Integration Card */}
+        <Card>
+          <CardHeader>
+            <div className="flex items-center gap-2">
+              <Key className="h-5 w-5 text-primary" />
+              <CardTitle>Integração Reportei</CardTitle>
+            </div>
+            <CardDescription>
+              Configure sua chave API da Reportei para sincronizar métricas do Instagram
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="space-y-2">
+                <Label htmlFor="instagram-username" className="flex items-center gap-2">
+                  <Instagram className="h-4 w-4" />
+                  @ do Instagram
+                </Label>
+                <Input
+                  id="instagram-username"
+                  type="text"
+                  placeholder="@seuusuario"
+                  value={instagramUsername}
+                  onChange={(e) => setInstagramUsername(e.target.value.replace('@', ''))}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="reportei-key">Chave API Reportei</Label>
+                <Input
+                  id="reportei-key"
+                  type="text"
+                  placeholder="HEWC39Iu0ImogbkVoB8ExThpB0HOdRYmFKHBcdo7"
+                  value={reporteiApiKey}
+                  onChange={(e) => setReporteiApiKey(e.target.value)}
+                  className="font-mono text-sm"
+                />
+              </div>
+            </div>
+            
+            <p className="text-xs text-muted-foreground">
+              Encontre sua chave em{" "}
+              <a 
+                href="https://app.reportei.com" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-primary underline"
+              >
+                app.reportei.com
+              </a>
+              {" "}→ Dashboard → Copie o código da URL de compartilhamento
+            </p>
+
+            <div className="flex flex-wrap gap-2">
+              <Button onClick={handleSaveReportei} disabled={isSaving}>
+                {isSaving ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Salvando...
+                  </>
+                ) : (
+                  <>
+                    <Save className="mr-2 h-4 w-4" />
+                    Salvar
+                  </>
+                )}
+              </Button>
+              
+              <Button 
+                variant="outline" 
+                onClick={handleSyncReportei} 
+                disabled={isSyncing || !reporteiApiKey.trim()}
+              >
+                {isSyncing ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Sincronizando...
+                  </>
+                ) : syncStatus === 'success' ? (
+                  <>
+                    <CheckCircle className="mr-2 h-4 w-4 text-green-500" />
+                    Sincronizado
+                  </>
+                ) : syncStatus === 'error' ? (
+                  <>
+                    <XCircle className="mr-2 h-4 w-4 text-red-500" />
+                    Tentar novamente
+                  </>
+                ) : (
+                  <>
+                    <RefreshCw className="mr-2 h-4 w-4" />
+                    Sincronizar agora
+                  </>
+                )}
+              </Button>
+            </div>
+
+            {userProfile?.last_sync_at && (
+              <p className="text-xs text-muted-foreground">
+                Última sincronização: {new Date(userProfile.last_sync_at).toLocaleString('pt-BR')}
+              </p>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Webhooks Card */}
         <Card>
           <CardHeader>
             <div className="flex items-center gap-2">
               <Webhook className="h-5 w-5 text-primary" />
-              <CardTitle>Webhooks n8n</CardTitle>
+              <CardTitle>Webhooks n8n (Avançado)</CardTitle>
             </div>
             <CardDescription>
-              Configure os webhooks do n8n para integração em tempo real com Reportei e Pipedrive
+              Configure os webhooks do n8n para integração em tempo real com Pipedrive
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
@@ -111,22 +305,6 @@ export default function Configuracoes() {
               </div>
             ) : (
               <>
-                <div className="space-y-2">
-                  <Label htmlFor="reportei-webhook">Webhook Reportei (n8n)</Label>
-                  <Input
-                    id="reportei-webhook"
-                    type="url"
-                    placeholder="https://seu-n8n.app.n8n.cloud/webhook/reportei"
-                    value={settings.n8n_reportei_webhook}
-                    onChange={(e) =>
-                      setSettings({ ...settings, n8n_reportei_webhook: e.target.value })
-                    }
-                  />
-                  <p className="text-xs text-muted-foreground">
-                    URL do webhook n8n que receberá dados do Reportei
-                  </p>
-                </div>
-
                 <div className="space-y-2">
                   <Label htmlFor="pipedrive-webhook">Webhook Pipedrive (n8n)</Label>
                   <Input
@@ -143,28 +321,6 @@ export default function Configuracoes() {
                   </p>
                 </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="update-frequency">
-                    Frequência de atualização Reportei (horas)
-                  </Label>
-                  <Input
-                    id="update-frequency"
-                    type="number"
-                    min="1"
-                    max="24"
-                    value={settings.reportei_update_frequency}
-                    onChange={(e) =>
-                      setSettings({
-                        ...settings,
-                        reportei_update_frequency: parseInt(e.target.value) || 6,
-                      })
-                    }
-                  />
-                  <p className="text-xs text-muted-foreground">
-                    Configure a cada quantas horas o n8n deve buscar dados do Reportei
-                  </p>
-                </div>
-
                 <div className="pt-4">
                   <Button onClick={handleSave} disabled={isSaving} className="w-full sm:w-auto">
                     {isSaving ? (
@@ -175,7 +331,7 @@ export default function Configuracoes() {
                     ) : (
                       <>
                         <Save className="mr-2 h-4 w-4" />
-                        Salvar Configurações
+                        Salvar Webhooks
                       </>
                     )}
                   </Button>
@@ -185,11 +341,12 @@ export default function Configuracoes() {
           </CardContent>
         </Card>
 
+        {/* Info Card */}
         <Card>
           <CardHeader>
             <div className="flex items-center gap-2">
               <Key className="h-5 w-5 text-primary" />
-              <CardTitle>Informações Importantes</CardTitle>
+              <CardTitle>Informações da Conta</CardTitle>
             </div>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -201,18 +358,6 @@ export default function Configuracoes() {
               <p className="text-xs text-muted-foreground">
                 Use este ID nos workflows do n8n para identificar suas métricas
               </p>
-            </div>
-
-            <div className="space-y-2 text-sm text-muted-foreground">
-              <p>
-                <strong>Como configurar:</strong>
-              </p>
-              <ol className="list-decimal list-inside space-y-1 ml-2">
-                <li>Copie seu User ID acima</li>
-                <li>No n8n, configure os webhooks nos workflows de Reportei e Pipedrive</li>
-                <li>Cole as URLs dos webhooks aqui</li>
-                <li>No n8n, use seu User ID no body dos requests para a edge function</li>
-              </ol>
             </div>
           </CardContent>
         </Card>
