@@ -1,0 +1,214 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
+All colors MUST be HSL.
+*/
+
+@layer base {
+  :root {
+    --background: 0 0% 0%;
+    --foreground: 0 0% 100%;
+
+    --card: 0 0% 92%;
+    --card-foreground: 220 9% 15%;
+
+    --card-dark: 0 0% 8%;
+    --card-dark-foreground: 0 0% 100%;
+    
+    --card-darker: 0 0% 4%;
+
+    --popover: 0 0% 10%;
+    --popover-foreground: 0 0% 100%;
+
+    --primary: 120 83% 58%;
+    --primary-foreground: 0 0% 0%;
+
+    --secondary: 0 0% 15%;
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 0 0% 20%;
+    --muted-foreground: 0 0% 50%;
+
+    --accent: 120 83% 58%;
+    --accent-foreground: 0 0% 0%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 0 0% 100% / 0.1;
+    --input: 0 0% 20%;
+    --ring: 120 83% 58%;
+
+    --radius: 1.25rem;
+
+    --sidebar-background: 0 0% 0%;
+    --sidebar-foreground: 0 0% 100%;
+    --sidebar-primary: 120 83% 58%;
+    --sidebar-primary-foreground: 0 0% 0%;
+    --sidebar-accent: 0 0% 10%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 0 0% 20%;
+    --sidebar-ring: 120 83% 58%;
+
+    --chart-1: 120 83% 58%;
+    --chart-2: 0 0% 40%;
+    --chart-3: 0 0% 60%;
+    --chart-4: 120 60% 40%;
+    --chart-5: 120 40% 30%;
+  }
+
+  .dark {
+    --background: 0 0% 0%;
+    --foreground: 0 0% 100%;
+
+    --card: 0 0% 85%;
+    --card-foreground: 220 9% 15%;
+
+    --card-dark: 0 0% 10%;
+    --card-dark-foreground: 0 0% 100%;
+    
+    --card-darker: 0 0% 4%;
+
+    --popover: 0 0% 10%;
+    --popover-foreground: 0 0% 100%;
+
+    --primary: 120 83% 58%;
+    --primary-foreground: 0 0% 0%;
+
+    --secondary: 0 0% 15%;
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 0 0% 20%;
+    --muted-foreground: 0 0% 50%;
+
+    --accent: 120 83% 58%;
+    --accent-foreground: 0 0% 0%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 0 0% 100% / 0.1;
+    --input: 0 0% 20%;
+    --ring: 120 83% 58%;
+
+    --sidebar-background: 0 0% 0%;
+    --sidebar-foreground: 0 0% 100%;
+    --sidebar-primary: 120 83% 58%;
+    --sidebar-primary-foreground: 0 0% 0%;
+    --sidebar-accent: 0 0% 10%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 0 0% 20%;
+    --sidebar-ring: 120 83% 58%;
+
+    --chart-1: 120 83% 58%;
+    --chart-2: 0 0% 40%;
+    --chart-3: 0 0% 60%;
+    --chart-4: 120 60% 40%;
+    --chart-5: 120 40% 30%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* 🎯 MOBILE-FIRST OPTIMIZATION (360px viewport) */
+/* Following Laws of UX: Fitts's Law, Miller's Law, Hick's Law, Aesthetic-Usability Effect */
+
+@layer utilities {
+  /* Touch Target Optimization (Fitts's Law) */
+  .touch-target {
+    @apply min-h-[44px] min-w-[44px];
+  }
+
+  .touch-target-lg {
+    @apply min-h-[56px] min-w-[56px];
+  }
+
+  /* Safe spacing for interactive elements */
+  .interactive-spacing {
+    @apply space-y-2 sm:space-y-3;
+  }
+
+  /* Mobile-optimized text hierarchy */
+  .mobile-h1 {
+    @apply text-2xl sm:text-4xl lg:text-5xl;
+  }
+
+  .mobile-h2 {
+    @apply text-xl sm:text-2xl lg:text-3xl;
+  }
+
+  .mobile-h3 {
+    @apply text-lg sm:text-xl lg:text-2xl;
+  }
+
+  .mobile-body {
+    @apply text-sm sm:text-base;
+  }
+
+  .mobile-caption {
+    @apply text-xs sm:text-sm;
+  }
+}
+
+/* Mobile-specific responsive breakpoint adjustments */
+@media (max-width: 640px) {
+  /* Container adjustments */
+  .container {
+    @apply px-4;
+  }
+
+  /* Reduce padding on mobile cards */
+  .card-mobile {
+    @apply p-4;
+  }
+
+  /* Stack grids on mobile */
+  .grid-mobile-stack {
+    @apply grid-cols-1;
+  }
+
+  /* Full-width buttons on mobile */
+  .btn-mobile-full {
+    @apply w-full;
+  }
+
+  /* Compact header on mobile */
+  .header-mobile {
+    @apply py-3 px-4;
+  }
+
+  /* Hide on mobile (Miller's Law - reduce cognitive load) */
+  .hide-mobile {
+    @apply hidden;
+  }
+
+  /* Show only on mobile */
+  .show-mobile {
+    @apply block sm:hidden;
+  }
+
+  /* Optimize chart heights for mobile */
+  .chart-mobile {
+    @apply h-32 sm:h-48 lg:h-64;
+  }
+
+  /* Touch-friendly spacing */
+  .section-mobile {
+    @apply space-y-4 sm:space-y-6;
+  }
+
+  /* Mobile-optimized modal */
+  .modal-mobile {
+    @apply m-2 max-w-[calc(100vw-1rem)];
+  }
+}
