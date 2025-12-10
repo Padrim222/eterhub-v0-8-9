@@ -1,12 +1,21 @@
 import { Card } from "@/components/ui/card";
-import { Bell, TrendingUp, Menu } from "lucide-react";
+import { Bell, TrendingUp, TrendingDown, Menu } from "lucide-react";
 
 interface IMOVICardProps {
   imoviHistory?: Array<{ month: string; value: number; highlighted?: boolean; label?: string }>;
   currentImovi?: number;
+  growthPercent?: number;
+  leadsPercent?: number;
+  engagementPercent?: number;
 }
 
-export const IMOVICard = ({ imoviHistory, currentImovi = 0 }: IMOVICardProps) => {
+export const IMOVICard = ({ 
+  imoviHistory, 
+  currentImovi = 0,
+  growthPercent = 0,
+  leadsPercent = 0,
+  engagementPercent = 0
+}: IMOVICardProps) => {
   // Use provided history or generate empty months
   const getDefaultMonths = () => {
     const monthNames = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
@@ -28,7 +37,12 @@ export const IMOVICard = ({ imoviHistory, currentImovi = 0 }: IMOVICardProps) =>
 
   const months = imoviHistory && imoviHistory.length > 0 ? imoviHistory : getDefaultMonths();
 
-  const maxValue = Math.max(...months.map(m => m.value));
+  const maxValue = Math.max(...months.map(m => m.value), 1);
+
+  // Determine trend icons based on values
+  const GrowthIcon = growthPercent >= 0 ? TrendingUp : TrendingDown;
+  const LeadsIcon = leadsPercent >= 0 ? TrendingUp : TrendingDown;
+  const EngagementIcon = engagementPercent >= 0 ? TrendingUp : TrendingDown;
 
   return (
     <Card className="bg-[#E8E8E8] border-black/5 p-6 rounded-3xl hover:border-primary/30 transition-all relative overflow-hidden col-span-full lg:col-span-2">
@@ -75,7 +89,7 @@ export const IMOVICard = ({ imoviHistory, currentImovi = 0 }: IMOVICardProps) =>
                             ? 'bg-primary shadow-[0_0_30px_rgba(120,255,100,0.6)]' 
                             : 'bg-gradient-to-b from-black/20 to-black/10'
                         }`}
-                        style={{ height: `${(item.value / maxValue) * 200}px` }}
+                        style={{ height: `${Math.max((item.value / maxValue) * 200, 20)}px` }}
                       >
                         <svg viewBox="0 0 100 100" className="w-full h-full opacity-40">
                           <defs>
@@ -124,16 +138,16 @@ export const IMOVICard = ({ imoviHistory, currentImovi = 0 }: IMOVICardProps) =>
           
           <div className="space-y-2 w-full">
             <div className="flex items-center justify-between text-[10px]">
-              <span className="text-black/60">63% Growth</span>
-              <TrendingUp className="w-3 h-3 text-primary" />
+              <span className="text-black/60">{Math.abs(growthPercent)}% Growth</span>
+              <GrowthIcon className={`w-3 h-3 ${growthPercent >= 0 ? 'text-primary' : 'text-red-500'}`} />
             </div>
             <div className="flex items-center justify-between text-[10px]">
-              <span className="text-black/60">36% Leads</span>
-              <TrendingUp className="w-3 h-3 text-primary" />
+              <span className="text-black/60">{Math.abs(leadsPercent)}% Leads</span>
+              <LeadsIcon className={`w-3 h-3 ${leadsPercent >= 0 ? 'text-primary' : 'text-red-500'}`} />
             </div>
             <div className="flex items-center justify-between text-[10px]">
-              <span className="text-black/60">40% Engaj</span>
-              <TrendingUp className="w-3 h-3 text-primary" />
+              <span className="text-black/60">{Math.abs(engagementPercent)}% Engaj</span>
+              <EngagementIcon className={`w-3 h-3 ${engagementPercent >= 0 ? 'text-primary' : 'text-red-500'}`} />
             </div>
           </div>
         </div>

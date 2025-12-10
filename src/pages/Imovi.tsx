@@ -152,6 +152,9 @@ const Imovi = () => {
                   <IMOVICard 
                     imoviHistory={data.imoviHistory} 
                     currentImovi={data.currentImovi}
+                    growthPercent={data.growthPercent}
+                    leadsPercent={data.leadsPercent}
+                    engagementPercent={data.engagementPercent}
                   />
                 </div>
 
