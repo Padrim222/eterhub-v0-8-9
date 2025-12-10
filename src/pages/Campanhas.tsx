@@ -1,8 +1,7 @@
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Plus, Filter } from "lucide-react";
+import { Plus, Filter, TrendingUp } from "lucide-react";
 import { useCampaignsData, PeriodFilter } from "@/hooks/useCampaignsData";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -10,7 +9,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 const Campanhas = () => {
   const [periodFilter, setPeriodFilter] = useState<PeriodFilter>("month");
   const [selectedCampaigns, setSelectedCampaigns] = useState<Set<string>>(new Set());
-  const { campaigns, averageLine, isLoading } = useCampaignsData(periodFilter);
+  const { campaigns, averageLine, isLoading, addCampaign } = useCampaignsData(periodFilter);
 
   const toggleCampaign = (campaignId: string) => {
     const newSelected = new Set(selectedCampaigns);
@@ -20,6 +19,12 @@ const Campanhas = () => {
       newSelected.add(campaignId);
     }
     setSelectedCampaigns(newSelected);
+  };
+
+  const handleAddCampaign = async () => {
+    const colors = ["#ef4444", "#22c55e", "#f59e0b", "#3b82f6", "#8b5cf6", "#ec4899"];
+    const randomColor = colors[Math.floor(Math.random() * colors.length)];
+    await addCampaign(`Campanha ${campaigns.length + 1}`, randomColor);
   };
 
   // Merge all data points for the chart
@@ -64,17 +69,49 @@ const Campanhas = () => {
     );
   }
 
+  // Empty state when no campaigns exist
+  if (campaigns.length === 0) {
+    return (
+      <div className="space-y-6">
+        {/* Header */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <h1 className="text-3xl font-bold text-white">Campanhas</h1>
+          </div>
+          <Button className="bg-primary hover:bg-primary/90" onClick={handleAddCampaign}>
+            <Plus className="h-4 w-4 mr-2" />
+            Adicionar Campanha
+          </Button>
+        </div>
+
+        {/* Empty State Card */}
+        <Card className="bg-gray-900 border-gray-800 rounded-3xl p-12">
+          <div className="flex flex-col items-center justify-center text-center space-y-4">
+            <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
+              <TrendingUp className="h-8 w-8 text-primary" />
+            </div>
+            <h3 className="text-xl font-semibold text-white">Nenhuma campanha encontrada</h3>
+            <p className="text-white/60 max-w-md">
+              Crie sua primeira campanha para começar a acompanhar o desempenho de leads e conversões.
+            </p>
+            <Button className="bg-primary hover:bg-primary/90 mt-4" onClick={handleAddCampaign}>
+              <Plus className="h-4 w-4 mr-2" />
+              Criar Primeira Campanha
+            </Button>
+          </div>
+        </Card>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <h1 className="text-3xl font-bold text-white">Campanhas</h1>
-          <Badge variant="outline" className="bg-red-500/10 text-red-500 border-red-500/20">
-            DEMO
-          </Badge>
         </div>
-        <Button className="bg-primary hover:bg-primary/90">
+        <Button className="bg-primary hover:bg-primary/90" onClick={handleAddCampaign}>
           <Plus className="h-4 w-4 mr-2" />
           Adicionar Campanha
         </Button>
