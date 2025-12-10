@@ -8,7 +8,7 @@ const navigationItems = [
   { name: "Home", path: "/home", enabled: true },
   { name: "Central do Cliente", path: "/central-cliente", enabled: true },
   { name: "Educação", path: "/educacao", enabled: true },
-  { name: "Eterflow", path: "/etherflow", enabled: true },
+  { name: "Eterflow", path: "/eterflow", enabled: true },
   { name: "Tribes", path: "/tribes", enabled: true },
   { name: "Conteúdo", path: "/conteudo", enabled: true },
   { name: "Integrações", path: "/integracoes", enabled: true },
