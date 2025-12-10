@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { format, subDays, subWeeks, subMonths, startOfWeek, startOfMonth, eachDayOfInterval, eachWeekOfInterval, eachMonthOfInterval } from "date-fns";
+import { format, subWeeks, subMonths, eachDayOfInterval, eachMonthOfInterval } from "date-fns";
 
 export interface Campaign {
   id: string;
@@ -20,38 +20,6 @@ export interface AverageDataPoint {
 }
 
 export type PeriodFilter = "week" | "month" | "year";
-
-// Mock data generator
-const generateMockData = (periodFilter: PeriodFilter) => {
-  const { startDate, endDate } = getDateRange(periodFilter);
-  let intervals: Date[];
-
-  switch (periodFilter) {
-    case "week":
-      intervals = eachDayOfInterval({ start: startDate, end: endDate });
-      return intervals.map(date => ({
-        date: format(date, "dd/MM"),
-        leads: Math.floor(Math.random() * 15 + 5)
-      }));
-    
-    case "month":
-      intervals = eachDayOfInterval({ start: startDate, end: endDate });
-      return intervals.map(date => ({
-        date: format(date, "dd/MM"),
-        leads: Math.floor(Math.random() * 20 + 10)
-      }));
-    
-    case "year":
-      intervals = eachMonthOfInterval({ start: startDate, end: endDate });
-      return intervals.map(date => ({
-        date: format(date, "MMM/yy"),
-        leads: Math.floor(Math.random() * 200 + 100)
-      }));
-    
-    default:
-      return [];
-  }
-};
 
 const getDateRange = (period: PeriodFilter) => {
   const today = new Date();
@@ -74,27 +42,6 @@ const getDateRange = (period: PeriodFilter) => {
   return { startDate, endDate: today };
 };
 
-const mockCampaigns: Campaign[] = [
-  {
-    id: "campaign-1",
-    name: "Campanha 1",
-    color: "#ef4444",
-    data: []
-  },
-  {
-    id: "campaign-2",
-    name: "Campanha 2",
-    color: "#22c55e",
-    data: []
-  },
-  {
-    id: "campaign-3",
-    name: "Campanha 3",
-    color: "#f59e0b",
-    data: []
-  }
-];
-
 export const useCampaignsData = (periodFilter: PeriodFilter = "month") => {
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
   const [averageLine, setAverageLine] = useState<AverageDataPoint[]>([]);
@@ -103,7 +50,6 @@ export const useCampaignsData = (periodFilter: PeriodFilter = "month") => {
   useEffect(() => {
     loadCampaigns();
   }, [periodFilter]);
-
 
   const aggregateDataByPeriod = (data: any[], period: PeriodFilter) => {
     if (!data.length) return [];
@@ -176,14 +122,9 @@ export const useCampaignsData = (periodFilter: PeriodFilter = "month") => {
     try {
       const { data: { session } } = await supabase.auth.getSession();
       
-      // Use mock data if no session or if database has no campaigns
       if (!session) {
-        const mockCampaignsWithData = mockCampaigns.map(campaign => ({
-          ...campaign,
-          data: generateMockData(periodFilter)
-        }));
-        setCampaigns(mockCampaignsWithData);
-        setAverageLine(calculateAverage(mockCampaignsWithData));
+        setCampaigns([]);
+        setAverageLine([]);
         setIsLoading(false);
         return;
       }
@@ -199,14 +140,10 @@ export const useCampaignsData = (periodFilter: PeriodFilter = "month") => {
 
       if (campaignsError) throw campaignsError;
 
-      // If no campaigns in database, use mock data
+      // If no campaigns in database, return empty
       if (!campaignsData || campaignsData.length === 0) {
-        const mockCampaignsWithData = mockCampaigns.map(campaign => ({
-          ...campaign,
-          data: generateMockData(periodFilter)
-        }));
-        setCampaigns(mockCampaignsWithData);
-        setAverageLine(calculateAverage(mockCampaignsWithData));
+        setCampaigns([]);
+        setAverageLine([]);
         setIsLoading(false);
         return;
       }
@@ -236,13 +173,8 @@ export const useCampaignsData = (periodFilter: PeriodFilter = "month") => {
       setAverageLine(calculateAverage(campaignsWithData));
     } catch (error) {
       console.error("Error loading campaigns:", error);
-      // Fallback to mock data on error
-      const mockCampaignsWithData = mockCampaigns.map(campaign => ({
-        ...campaign,
-        data: generateMockData(periodFilter)
-      }));
-      setCampaigns(mockCampaignsWithData);
-      setAverageLine(calculateAverage(mockCampaignsWithData));
+      setCampaigns([]);
+      setAverageLine([]);
     } finally {
       setIsLoading(false);
     }
@@ -253,7 +185,7 @@ export const useCampaignsData = (periodFilter: PeriodFilter = "month") => {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) return;
 
-      const { data, error } = await (supabase as any)
+      const { error } = await (supabase as any)
         .from("campaigns")
         .insert([{ user_id: session.user.id, name, color }])
         .select()

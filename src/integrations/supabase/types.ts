@@ -68,6 +68,65 @@ export type Database = {
           },
         ]
       }
+      campaign_data: {
+        Row: {
+          campaign_id: string
+          created_at: string | null
+          date: string
+          id: string
+          leads_count: number | null
+        }
+        Insert: {
+          campaign_id: string
+          created_at?: string | null
+          date: string
+          id?: string
+          leads_count?: number | null
+        }
+        Update: {
+          campaign_id?: string
+          created_at?: string | null
+          date?: string
+          id?: string
+          leads_count?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "campaign_data_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaigns"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      campaigns: {
+        Row: {
+          color: string | null
+          created_at: string | null
+          id: string
+          name: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          color?: string | null
+          created_at?: string | null
+          id?: string
+          name: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          color?: string | null
+          created_at?: string | null
+          id?: string
+          name?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       client_activities: {
         Row: {
           created_at: string | null
@@ -151,6 +210,33 @@ export type Database = {
           },
         ]
       }
+      icps: {
+        Row: {
+          color: string | null
+          created_at: string | null
+          id: string
+          name: string
+          position: number | null
+          user_id: string
+        }
+        Insert: {
+          color?: string | null
+          created_at?: string | null
+          id?: string
+          name: string
+          position?: number | null
+          user_id: string
+        }
+        Update: {
+          color?: string | null
+          created_at?: string | null
+          id?: string
+          name?: string
+          position?: number | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       ig_posts: {
         Row: {
           caption: string | null
@@ -206,6 +292,71 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      leads: {
+        Row: {
+          created_at: string | null
+          email: string | null
+          engagement_score: number | null
+          icp_id: string | null
+          id: string
+          income: number | null
+          is_qualified: boolean | null
+          lead_score: number | null
+          metadata: Json | null
+          name: string
+          phone: string | null
+          position: number | null
+          qualification_score: number | null
+          source_channel: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          email?: string | null
+          engagement_score?: number | null
+          icp_id?: string | null
+          id?: string
+          income?: number | null
+          is_qualified?: boolean | null
+          lead_score?: number | null
+          metadata?: Json | null
+          name: string
+          phone?: string | null
+          position?: number | null
+          qualification_score?: number | null
+          source_channel?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          email?: string | null
+          engagement_score?: number | null
+          icp_id?: string | null
+          id?: string
+          income?: number | null
+          is_qualified?: boolean | null
+          lead_score?: number | null
+          metadata?: Json | null
+          name?: string
+          phone?: string | null
+          position?: number | null
+          qualification_score?: number | null
+          source_channel?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "leads_icp_id_fkey"
+            columns: ["icp_id"]
+            isOneToOne: false
+            referencedRelation: "icps"
             referencedColumns: ["id"]
           },
         ]
@@ -272,8 +423,12 @@ export type Database = {
           created_at: string | null
           email: string | null
           id: string
+          instagram_followers: number | null
+          instagram_following: number | null
+          instagram_posts_count: number | null
           instagram_username: string | null
           is_active: boolean | null
+          last_sync_at: string | null
           leader_title: string | null
           nome: string | null
           onboarding_completed: boolean | null
@@ -284,8 +439,12 @@ export type Database = {
           created_at?: string | null
           email?: string | null
           id: string
+          instagram_followers?: number | null
+          instagram_following?: number | null
+          instagram_posts_count?: number | null
           instagram_username?: string | null
           is_active?: boolean | null
+          last_sync_at?: string | null
           leader_title?: string | null
           nome?: string | null
           onboarding_completed?: boolean | null
@@ -296,8 +455,12 @@ export type Database = {
           created_at?: string | null
           email?: string | null
           id?: string
+          instagram_followers?: number | null
+          instagram_following?: number | null
+          instagram_posts_count?: number | null
           instagram_username?: string | null
           is_active?: boolean | null
+          last_sync_at?: string | null
           leader_title?: string | null
           nome?: string | null
           onboarding_completed?: boolean | null

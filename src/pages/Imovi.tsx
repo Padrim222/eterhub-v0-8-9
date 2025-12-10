@@ -13,6 +13,7 @@ import { IMOVICard } from "@/components/dashboard/IMOVICard";
 import { InsightsIACard } from "@/components/dashboard/InsightsIACard";
 import { LeaderBanner } from "@/components/dashboard/LeaderBanner";
 import { useDashboardData } from "@/hooks/useDashboardData";
+import { useLeadsData } from "@/hooks/useLeadsData";
 import { ChannelView } from "@/components/canais/ChannelView";
 import Leads from "./Leads";
 import Campanhas from "./Campanhas";
@@ -43,7 +44,22 @@ const Imovi = () => {
   }, []);
 
   const data = useDashboardData();
+  const { metrics: leadsMetrics, isLoading: leadsLoading } = useLeadsData();
   const { isLoading, error } = data;
+
+  // Calculate metrics from real data
+  const mqlPercentage = leadsMetrics.qualificationRate || 0;
+  const totalLeads = leadsMetrics.totalLeads || 0;
+  const totalQualified = leadsMetrics.totalQualified || 0;
+  
+  // Conversion rate based on qualified leads that converted (placeholder - needs sales data)
+  const conversionRate = totalLeads > 0 ? (totalQualified / totalLeads) * 100 * 0.5 : 0;
+  
+  // Sales number (placeholder - needs sales table)
+  const totalSales = Math.floor(totalQualified * 0.3);
+  
+  // Qualification rate
+  const qualificationRate = leadsMetrics.qualificationRate || 0;
 
   return (
     <PageLayout showTitle={false}>
@@ -81,7 +97,7 @@ const Imovi = () => {
           </TabsList>
         </Tabs>
 
-        {isLoading ? (
+        {isLoading || leadsLoading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {[...Array(6)].map((_, i) => (
               <Skeleton key={i} className="h-64 bg-muted" />
@@ -99,24 +115,24 @@ const Imovi = () => {
               <div className="space-y-4 md:space-y-6">
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 md:gap-6">
                   <MQLCard 
-                    mqlPercentage={25.5}
-                    previousPercentage={22.3}
+                    mqlPercentage={mqlPercentage}
+                    previousPercentage={0}
                   />
                   <LeadsQuantityCard 
-                    totalLeads={150}
-                    previousLeads={132}
+                    totalLeads={totalLeads}
+                    previousLeads={0}
                   />
                   <ConversionRateCard 
-                    conversionRate={12.8}
-                    previousRate={11.2}
+                    conversionRate={conversionRate}
+                    previousRate={0}
                   />
                   <SalesNumberCard 
-                    totalSales={42}
-                    previousSales={38}
+                    totalSales={totalSales}
+                    previousSales={0}
                   />
                   <QualificationRateCard 
-                    qualificationRate={68.5}
-                    previousRate={65.1}
+                    qualificationRate={qualificationRate}
+                    previousRate={0}
                   />
                 </div>
 
