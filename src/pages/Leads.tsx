@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Plus, Upload, Download, Bell, Users } from "lucide-react";
 import { LeadsMetrics } from "@/components/leads/LeadsMetrics";
 import { ICPColumn } from "@/components/leads/ICPColumn";
+import { PipedriveIntegrationCard } from "@/components/leads/PipedriveIntegrationCard";
 import { useLeadsData } from "@/hooks/useLeadsData";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -12,6 +13,20 @@ const Leads = () => {
   const { icps, leads, metrics, isLoading, refetch } = useLeadsData();
   const [notificationCount] = useState(0);
   const { toast } = useToast();
+
+  // Calculate Pipedrive sync stats
+  const pipedriveStats = useMemo(() => {
+    const pipedriveLeads = leads.filter(l => (l as any).pipedrive_person_id);
+    const lastSync = pipedriveLeads
+      .map(l => (l as any).pipedrive_last_sync)
+      .filter(Boolean)
+      .sort()
+      .pop();
+    return {
+      totalSynced: pipedriveLeads.length,
+      lastSyncAt: lastSync || null,
+    };
+  }, [leads]);
 
   const handleAddICP = async () => {
     try {
@@ -158,6 +173,17 @@ const Leads = () => {
             leads={leads.filter((lead) => lead.icp_id === icp.id)}
           />
         ))}
+      </div>
+
+      {/* Pipedrive Integration */}
+      <div className="mt-8">
+        <h2 className="text-xl font-bold text-white mb-4">Integrações</h2>
+        <div className="max-w-xl">
+          <PipedriveIntegrationCard 
+            lastSyncAt={pipedriveStats.lastSyncAt}
+            totalSynced={pipedriveStats.totalSynced}
+          />
+        </div>
       </div>
     </div>
   );
