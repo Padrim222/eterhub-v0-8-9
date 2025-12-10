@@ -11,6 +11,13 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import type { Entrega } from "@/hooks/useClientProjectData";
 
 interface AtividadesTableProps {
@@ -18,42 +25,51 @@ interface AtividadesTableProps {
   onChange?: (entregas: Entrega[]) => void;
 }
 
-const statusConfig = {
+type StatusType = "pendente" | "em_revisao" | "aprovado" | "rejeitado";
+type PrioridadeType = "baixa" | "media" | "alta";
+
+const statusConfig: Record<StatusType, { label: string; color: string; hasIcon: boolean }> = {
   pendente: { label: "Não Iniciado", color: "border border-gray-500 text-gray-400 bg-transparent rounded-lg px-3 py-1", hasIcon: false },
   em_revisao: { label: "Em Andamento", color: "border border-blue-500 text-blue-400 bg-transparent rounded-lg px-3 py-1", hasIcon: false },
   aprovado: { label: "Concluído", color: "bg-green-500 text-black rounded-lg px-3 py-1", hasIcon: false },
   rejeitado: { label: "Atrasado", color: "border border-red-500 text-red-400 bg-transparent rounded-lg px-3 py-1", hasIcon: true },
 };
 
-const prioridadeConfig = {
+const prioridadeConfig: Record<PrioridadeType, { label: string; color: string }> = {
   alta: { label: "Alta", color: "border border-red-500 text-red-400 bg-transparent rounded-lg px-3 py-1" },
   media: { label: "Média", color: "border border-yellow-500 text-yellow-400 bg-transparent rounded-lg px-3 py-1" },
   baixa: { label: "Baixa", color: "border border-green-500 text-green-400 bg-transparent rounded-lg px-3 py-1" },
 };
 
-// Map entregas to atividades format
-const mapEntregasToAtividades = (entregas: Entrega[]) => {
-  return entregas.map((entrega) => ({
-    id: entrega.id,
-    nome: entrega.nome,
-    responsavel: "Equipe",
-    prazo: entrega.dataPrevista,
-    status: entrega.status,
-    anexo: entrega.feedback ? "Feedback.pdf" : undefined,
-    prioridade: "media" as const,
-  }));
-};
-
 // Default activities if no entregas exist
-const defaultAtividades = [
-  { id: "1", nome: "Revisar estratégia de marketing", responsavel: "Ana Silva", prazo: "15/12/2025", status: "em_revisao" as const, anexo: "Estrategia.pdf", prioridade: "alta" as const },
-  { id: "2", nome: "Atualizar landing page", responsavel: "Carlos Mendes", prazo: "18/12/2025", status: "pendente" as const, anexo: undefined, prioridade: "media" as const },
-  { id: "3", nome: "Criar campanha de email", responsavel: "Maria Costa", prazo: "20/12/2025", status: "aprovado" as const, anexo: "Campanha.xlsx", prioridade: "baixa" as const },
-  { id: "4", nome: "Análise de concorrentes", responsavel: "João Lima", prazo: "10/12/2025", status: "rejeitado" as const, anexo: "Analise.docx", prioridade: "alta" as const },
+const defaultAtividades: Entrega[] = [
+  { id: "1", projetoId: "", nome: "Revisar estratégia de marketing", descricao: "", dataPrevista: "15/12/2025", dataEntrega: null, status: "em_revisao", prioridade: "alta", feedback: "Estrategia.pdf" },
+  { id: "2", projetoId: "", nome: "Atualizar landing page", descricao: "", dataPrevista: "18/12/2025", dataEntrega: null, status: "pendente", prioridade: "media", feedback: "" },
+  { id: "3", projetoId: "", nome: "Criar campanha de email", descricao: "", dataPrevista: "20/12/2025", dataEntrega: null, status: "aprovado", prioridade: "baixa", feedback: "Campanha.xlsx" },
+  { id: "4", projetoId: "", nome: "Análise de concorrentes", descricao: "", dataPrevista: "10/12/2025", dataEntrega: null, status: "rejeitado", prioridade: "alta", feedback: "Analise.docx" },
 ];
 
 export const AtividadesTable = ({ entregas, onChange }: AtividadesTableProps) => {
-  const atividades = entregas.length > 0 ? mapEntregasToAtividades(entregas) : defaultAtividades;
+  const atividades = entregas.length > 0 ? entregas : defaultAtividades;
+
+  const handleStatusChange = (id: string, newStatus: StatusType) => {
+    const updatedEntregas = atividades.map(e => 
+      e.id === id ? { ...e, status: newStatus } : e
+    );
+    onChange?.(updatedEntregas);
+  };
+
+  const handlePrioridadeChange = (id: string, newPrioridade: PrioridadeType) => {
+    const updatedEntregas = atividades.map(e => 
+      e.id === id ? { ...e, prioridade: newPrioridade } : e
+    );
+    onChange?.(updatedEntregas);
+  };
+
+  const handleCheckboxChange = (id: string, checked: boolean) => {
+    const newStatus: StatusType = checked ? "aprovado" : "pendente";
+    handleStatusChange(id, newStatus);
+  };
 
   return (
     <Card className="bg-card-dark border-gray-700 overflow-hidden">
@@ -79,6 +95,7 @@ export const AtividadesTable = ({ entregas, onChange }: AtividadesTableProps) =>
               <TableCell>
                 <Checkbox 
                   checked={atividade.status === "aprovado"}
+                  onCheckedChange={(checked) => handleCheckboxChange(atividade.id, !!checked)}
                   className="border-gray-600"
                 />
               </TableCell>
@@ -89,37 +106,76 @@ export const AtividadesTable = ({ entregas, onChange }: AtividadesTableProps) =>
                 <div className="flex items-center gap-2">
                   <Avatar className="w-6 h-6">
                     <AvatarFallback className="bg-gray-700 text-white text-xs">
-                      {atividade.responsavel.split(' ').map(n => n[0]).join('')}
+                      EQ
                     </AvatarFallback>
                   </Avatar>
-                  <span className="text-white/80 text-sm">{atividade.responsavel}</span>
+                  <span className="text-white/80 text-sm">Equipe</span>
                 </div>
               </TableCell>
               <TableCell className="text-white/60 text-sm">
-                {atividade.prazo}
+                {atividade.dataPrevista}
               </TableCell>
               <TableCell>
-                <Badge className={statusConfig[atividade.status].color}>
-                  {statusConfig[atividade.status].hasIcon && (
-                    <Clock className="w-3 h-3 mr-1" />
-                  )}
-                  {statusConfig[atividade.status].label}
-                </Badge>
+                <Select 
+                  value={atividade.status} 
+                  onValueChange={(value: StatusType) => handleStatusChange(atividade.id, value)}
+                >
+                  <SelectTrigger className="w-auto border-0 bg-transparent p-0 h-auto focus:ring-0">
+                    <Badge className={statusConfig[atividade.status].color}>
+                      {statusConfig[atividade.status].hasIcon && (
+                        <Clock className="w-3 h-3 mr-1" />
+                      )}
+                      {statusConfig[atividade.status].label}
+                    </Badge>
+                  </SelectTrigger>
+                  <SelectContent className="bg-gray-800 border-gray-700">
+                    <SelectItem value="pendente" className="text-gray-400 hover:bg-gray-700">
+                      Não Iniciado
+                    </SelectItem>
+                    <SelectItem value="em_revisao" className="text-blue-400 hover:bg-gray-700">
+                      Em Andamento
+                    </SelectItem>
+                    <SelectItem value="aprovado" className="text-green-400 hover:bg-gray-700">
+                      Concluído
+                    </SelectItem>
+                    <SelectItem value="rejeitado" className="text-red-400 hover:bg-gray-700">
+                      Atrasado
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
               </TableCell>
               <TableCell>
-                {atividade.anexo ? (
+                {atividade.feedback ? (
                   <div className="flex items-center gap-2 text-sm">
                     <Paperclip className="w-4 h-4 text-gray-400" />
-                    <span className="text-white/80 truncate max-w-[100px]">{atividade.anexo}</span>
+                    <span className="text-white/80 truncate max-w-[100px]">{atividade.feedback}</span>
                   </div>
                 ) : (
                   <span className="text-white/40 text-sm">-</span>
                 )}
               </TableCell>
               <TableCell>
-                <Badge className={prioridadeConfig[atividade.prioridade].color}>
-                  {prioridadeConfig[atividade.prioridade].label}
-                </Badge>
+                <Select 
+                  value={atividade.prioridade || "media"} 
+                  onValueChange={(value: PrioridadeType) => handlePrioridadeChange(atividade.id, value)}
+                >
+                  <SelectTrigger className="w-auto border-0 bg-transparent p-0 h-auto focus:ring-0">
+                    <Badge className={prioridadeConfig[atividade.prioridade || "media"].color}>
+                      {prioridadeConfig[atividade.prioridade || "media"].label}
+                    </Badge>
+                  </SelectTrigger>
+                  <SelectContent className="bg-gray-800 border-gray-700">
+                    <SelectItem value="baixa" className="text-green-400 hover:bg-gray-700">
+                      Baixa
+                    </SelectItem>
+                    <SelectItem value="media" className="text-yellow-400 hover:bg-gray-700">
+                      Média
+                    </SelectItem>
+                    <SelectItem value="alta" className="text-red-400 hover:bg-gray-700">
+                      Alta
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
               </TableCell>
             </TableRow>
           ))}
