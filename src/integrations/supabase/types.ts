@@ -309,6 +309,11 @@ export type Database = {
           metadata: Json | null
           name: string
           phone: string | null
+          pipedrive_deal_id: string | null
+          pipedrive_last_sync: string | null
+          pipedrive_person_id: string | null
+          pipedrive_stage: string | null
+          pipedrive_value: number | null
           position: number | null
           qualification_score: number | null
           source_channel: string | null
@@ -327,6 +332,11 @@ export type Database = {
           metadata?: Json | null
           name: string
           phone?: string | null
+          pipedrive_deal_id?: string | null
+          pipedrive_last_sync?: string | null
+          pipedrive_person_id?: string | null
+          pipedrive_stage?: string | null
+          pipedrive_value?: number | null
           position?: number | null
           qualification_score?: number | null
           source_channel?: string | null
@@ -345,6 +355,11 @@ export type Database = {
           metadata?: Json | null
           name?: string
           phone?: string | null
+          pipedrive_deal_id?: string | null
+          pipedrive_last_sync?: string | null
+          pipedrive_person_id?: string | null
+          pipedrive_stage?: string | null
+          pipedrive_value?: number | null
           position?: number | null
           qualification_score?: number | null
           source_channel?: string | null
@@ -360,6 +375,72 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      movql_metrics: {
+        Row: {
+          created_at: string | null
+          id: string
+          leads_count: number | null
+          month_year: string
+          qualified_count: number | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          leads_count?: number | null
+          month_year: string
+          qualified_count?: number | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          leads_count?: number | null
+          month_year?: string
+          qualified_count?: number | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      sprint_tasks: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          id: string
+          name: string
+          position: number | null
+          sprint_id: string
+          status: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          name: string
+          position?: number | null
+          sprint_id: string
+          status?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          name?: string
+          position?: number | null
+          sprint_id?: string
+          status?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
       }
       transcripts: {
         Row: {

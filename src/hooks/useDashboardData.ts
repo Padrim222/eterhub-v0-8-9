@@ -179,7 +179,7 @@ export const useDashboardData = () => {
 
         // Fetch MOVQL metrics from database
         const { data: movqlMetrics, error: movqlError } = await supabase
-          .from('movql_metrics')
+          .from('movql_metrics' as any)
           .select('*')
           .eq('user_id', session.user.id)
           .order('month_year', { ascending: true });
@@ -187,6 +187,8 @@ export const useDashboardData = () => {
         if (movqlError) {
           console.error('Erro ao carregar métricas MOVQL:', movqlError);
         }
+
+        const typedMovqlMetrics = (movqlMetrics || []) as unknown as Array<{ month_year: string; leads_count: number; qualified_count: number }>;
 
         // Process MOVQL data for last 5 months
         const monthNames = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
@@ -199,7 +201,7 @@ export const useDashboardData = () => {
           const monthYear = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
           const monthName = monthNames[date.getMonth()];
 
-          const metric = movqlMetrics?.find(m => m.month_year === monthYear);
+          const metric = typedMovqlMetrics.find(m => m.month_year === monthYear);
           movqlDataProcessed.push({
             month: monthName,
             leads: metric?.leads_count || 0,
@@ -209,7 +211,7 @@ export const useDashboardData = () => {
 
         // Calculate total MOVQL for current period (last 7 days)
         const currentMonthYear = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}`;
-        const currentMovqlMetric = movqlMetrics?.find(m => m.month_year === currentMonthYear);
+        const currentMovqlMetric = typedMovqlMetrics.find(m => m.month_year === currentMonthYear);
         const currentMovqlCount = currentMovqlMetric?.leads_count || 0;
 
         // Recalculate current IMOVI with real MOVQL data

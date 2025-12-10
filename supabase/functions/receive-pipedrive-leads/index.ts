@@ -3,7 +3,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2.7.1";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-webhook-secret',
 };
 
 serve(async (req) => {
@@ -18,36 +18,27 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
-    // Validate authentication - require valid JWT token
-    const authHeader = req.headers.get('Authorization');
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      console.error('Missing or invalid Authorization header');
-      return new Response(
-        JSON.stringify({ error: 'Authorization header required' }),
-        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
+    // Validate webhook secret (Pipedrive webhooks don't use JWT)
+    const webhookSecret = Deno.env.get('PIPEDRIVE_WEBHOOK_SECRET');
+    const providedSecret = req.headers.get('X-Webhook-Secret');
 
-    const token = authHeader.replace('Bearer ', '');
-    
-    // Verify the JWT token and get the authenticated user
-    const { data: { user }, error: authError } = await supabaseAdmin.auth.getUser(token);
-    
-    if (authError || !user) {
-      console.error('Invalid token:', authError?.message);
+    if (webhookSecret && providedSecret !== webhookSecret) {
+      console.error('Invalid webhook secret');
       return new Response(
-        JSON.stringify({ error: 'Invalid or expired token' }),
+        JSON.stringify({ error: 'Unauthorized' }),
         { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
     const payload = await req.json();
-    console.log('Received Pipedrive payload for authenticated user:', user.id);
+    console.log('Received Pipedrive webhook payload:', JSON.stringify(payload));
 
-    const { person, deal } = payload;
-    
-    // Use authenticated user's ID - ignore any user_id from payload for security
-    const finalUserId = user.id;
+    const { person, deal, user_id } = payload;
+
+    // user_id is required in payload to identify which user's leads to update
+    if (!user_id) {
+      throw new Error('user_id é obrigatório no payload');
+    }
 
     if (!person || !person.id) {
       throw new Error('Dados da pessoa são obrigatórios');
@@ -76,7 +67,7 @@ serve(async (req) => {
     const { data: icps } = await supabaseAdmin
       .from('icps')
       .select('id')
-      .eq('user_id', finalUserId)
+      .eq('user_id', user_id)
       .eq('position', icpPosition)
       .limit(1);
 
@@ -93,7 +84,7 @@ serve(async (req) => {
     const { data: existingLeads } = await supabaseAdmin
       .from('leads')
       .select('position')
-      .eq('user_id', finalUserId)
+      .eq('user_id', user_id)
       .eq('icp_id', icpId)
       .order('position', { ascending: false })
       .limit(1);
@@ -104,7 +95,7 @@ serve(async (req) => {
 
     // Criar ou atualizar lead
     const leadData = {
-      user_id: finalUserId,
+      user_id: user_id,
       icp_id: icpId,
       name: person.name,
       email: person.email || null,
@@ -128,7 +119,7 @@ serve(async (req) => {
       .from('leads')
       .select('id')
       .eq('pipedrive_person_id', person.id.toString())
-      .eq('user_id', finalUserId)
+      .eq('user_id', user_id)
       .limit(1);
 
     let result;
