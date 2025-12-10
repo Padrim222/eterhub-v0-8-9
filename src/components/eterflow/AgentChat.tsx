@@ -2,7 +2,7 @@ import { useRef, useEffect } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ChatMessage } from "./ChatMessage";
 import { ChatInput } from "./ChatInput";
-import type { AgentMessage, ProductionStage } from "@/hooks/useEtherflow";
+import type { AgentMessage, ProductionStage } from "@/hooks/useEterflow";
 import { Bot } from "lucide-react";
 
 interface AgentChatProps {
@@ -52,7 +52,7 @@ export function AgentChat({
         </div>
         <div>
           <h3 className="font-semibold text-white">Agente de {stageNames[currentStage]}</h3>
-          <p className="text-xs text-white/50">Etherflow Production Line</p>
+          <p className="text-xs text-white/50">Eterflow Production Line</p>
         </div>
       </div>
 
