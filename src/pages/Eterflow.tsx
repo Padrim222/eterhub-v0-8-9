@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { PageLayout } from "@/components/layout/PageLayout";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -10,7 +10,7 @@ import { NarrativeEditor } from "@/components/eterflow/NarrativeEditor";
 import { ContentPreview } from "@/components/eterflow/ContentPreview";
 import { ResearchMapView } from "@/components/eterflow/ResearchMapView";
 import { useEterflow } from "@/hooks/useEterflow";
-import { Play, RotateCcw, Settings } from "lucide-react";
+import { Play, RotateCcw, Settings, RefreshCw } from "lucide-react";
 import eterLogo from "@/assets/eter-logo.png";
 import {
   Sheet,
@@ -29,6 +29,7 @@ const Eterflow = () => {
     startAnalysis,
     startResearch,
     writeContent,
+    retryWriting,
     resetProduction,
     loadProduction,
   } = useEterflow();
@@ -82,9 +83,18 @@ const Eterflow = () => {
     writeContent(selectedAngle, toneOfVoice || undefined);
   };
 
+  const handleRetry = () => {
+    if (production.current_stage === "writing" && production.status === "error") {
+      retryWriting(undefined, toneOfVoice || undefined);
+    }
+  };
+
+  const canRetry = production.status === "error" && production.current_stage === "writing";
+  const showContinue = production.status !== "pending" && production.status !== "completed" && !isLoading;
+
   return (
     <PageLayout title="Eterflow">
-      <div className="relative">
+      <div className="relative min-h-screen">
         {/* Logo Eter Hub como plano de fundo */}
         <div className="fixed inset-0 flex items-center justify-center pointer-events-none z-0">
           <img 
@@ -96,16 +106,16 @@ const Eterflow = () => {
 
         <div className="space-y-6 relative z-10">
           {/* Header with actions */}
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
-              <p className="text-white/60">
+              <p className="text-white/60 text-sm">
                 Linha de produção de conteúdo otimizado com IA
               </p>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               <Sheet>
                 <SheetTrigger asChild>
-                  <Button variant="outline" size="sm">
+                  <Button variant="outline" size="sm" className="border-gray-700 hover:bg-gray-800">
                     <Settings className="w-4 h-4 mr-2" />
                     Configurações
                   </Button>
@@ -149,17 +159,32 @@ const Eterflow = () => {
                 size="sm"
                 onClick={resetProduction}
                 disabled={isLoading}
+                className="border-gray-700 hover:bg-gray-800"
               >
                 <RotateCcw className="w-4 h-4 mr-2" />
                 Resetar
               </Button>
 
+              {canRetry && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleRetry}
+                  disabled={isLoading}
+                  className="border-yellow-500/50 text-yellow-400 hover:bg-yellow-500/10"
+                >
+                  <RefreshCw className="w-4 h-4 mr-2" />
+                  Tentar Novamente
+                </Button>
+              )}
+
               <Button
                 onClick={handleStartProduction}
                 disabled={isLoading || production.status === "in_progress"}
+                className="bg-primary hover:bg-primary/90"
               >
                 <Play className="w-4 h-4 mr-2" />
-                {production.status === "pending" ? "Iniciar Produção" : "Continuar"}
+                {production.status === "pending" ? "Iniciar Produção" : showContinue ? "Continuar" : "Nova Produção"}
               </Button>
             </div>
           </div>
@@ -171,15 +196,16 @@ const Eterflow = () => {
           />
 
           {/* Main content area */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Chat area - 2 columns */}
-            <div className="lg:col-span-2 h-[600px]">
+          <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+            {/* Chat area - 2 columns on desktop */}
+            <div className="xl:col-span-2 h-[600px]">
               <AgentChat
                 messages={messages}
                 isLoading={isLoading}
                 currentStage={production.current_stage}
                 onSelectTheme={handleSelectTheme}
                 onValidateNarrative={handleApproveNarrative}
+                onRetry={canRetry ? handleRetry : undefined}
                 themes={themesData || production.themes}
               />
             </div>
@@ -208,7 +234,7 @@ const Eterflow = () => {
                 />
               )}
 
-              {production.current_stage === "completed" && contentData && (
+              {(production.current_stage === "completed" || production.current_stage === "writing") && contentData && (
                 <ContentPreview content={contentData as Parameters<typeof ContentPreview>[0]["content"]} />
               )}
 

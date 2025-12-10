@@ -333,14 +333,17 @@ Iniciando análise de padrões de sucesso...`,
 
   // Stage 5: Write final content
   const writeContent = useCallback(async (selectedAngle?: string, toneOfVoiceGuide?: string) => {
-    if (!userId || !production.narrative_skeleton_id) return;
+    if (!userId || !production.narrative_skeleton_id) {
+      toast.error("Skeleton de narrativa não encontrado");
+      return;
+    }
 
     setIsLoading(true);
     setProduction((prev) => ({ ...prev, current_stage: "writing", status: "in_progress" }));
 
     addMessage({
       role: "system",
-      content: "Escrevendo texto final com Style Checker...",
+      content: "✍️ Escrevendo texto final com Style Checker...",
       stage: "writing",
     });
 
@@ -354,7 +357,10 @@ Iniciando análise de padrões de sucesso...`,
         },
       });
 
-      if (response.error) throw response.error;
+      if (response.error) {
+        console.error("Write content error:", response.error);
+        throw new Error(response.error.message || "Erro na escrita");
+      }
 
       const { content_id, content_data, style_score, status } = response.data;
 
@@ -367,7 +373,7 @@ Iniciando análise de padrões de sucesso...`,
 
       addMessage({
         role: "assistant",
-        content: `Roteiro finalizado! Score do Style Checker: ${style_score?.toFixed(1)}/10 (${status === "approved" ? "✅ Aprovado" : "⚠️ Requer revisão"})`,
+        content: `✅ **Roteiro finalizado!**\n\nScore do Style Checker: **${style_score?.toFixed(1)}/10** (${status === "approved" ? "✅ Aprovado" : "⚠️ Requer revisão"})`,
         stage: "writing",
         data: content_data,
       });
@@ -375,11 +381,60 @@ Iniciando análise de padrões de sucesso...`,
       toast.success("Conteúdo gerado com sucesso!");
     } catch (error) {
       console.error("Error in writeContent:", error);
-      toast.error("Erro ao escrever conteúdo");
+      const errorMsg = error instanceof Error ? error.message : "Erro desconhecido";
+      toast.error(`Erro ao escrever conteúdo: ${errorMsg}`);
+      
+      addMessage({
+        role: "system",
+        content: `❌ Erro ao escrever conteúdo: ${errorMsg}. Clique em "Tentar Novamente" para retry.`,
+        stage: "writing",
+      });
+      
+      setProduction((prev) => ({ ...prev, status: "error" }));
     } finally {
       setIsLoading(false);
     }
   }, [userId, production.narrative_skeleton_id, addMessage]);
+
+  // Retry writing (when stuck in error state)
+  const retryWriting = useCallback(async (selectedAngle?: string, toneOfVoiceGuide?: string) => {
+    if (!userId) return;
+
+    // Find the narrative_skeleton_id from the latest successful narrative
+    let skeletonId = production.narrative_skeleton_id;
+    
+    if (!skeletonId) {
+      // Try to find from messages
+      const narrativeMessage = [...messages].reverse().find(
+        (m) => m.stage === "narrative" && m.data
+      );
+      
+      if (!narrativeMessage) {
+        toast.error("Nenhuma narrativa encontrada para retry");
+        return;
+      }
+      
+      // Fetch from database
+      const { data: latestSkeleton } = await supabase
+        .from("narrative_skeletons")
+        .select("id")
+        .eq("user_id", userId)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      
+      if (!latestSkeleton?.id) {
+        toast.error("Skeleton não encontrado no banco");
+        return;
+      }
+      
+      skeletonId = latestSkeleton.id;
+      setProduction((prev) => ({ ...prev, narrative_skeleton_id: skeletonId }));
+    }
+
+    // Now call writeContent with the skeleton
+    await writeContent(selectedAngle, toneOfVoiceGuide);
+  }, [userId, production.narrative_skeleton_id, messages, writeContent]);
 
   // Reset production line
   const resetProduction = useCallback(() => {
@@ -429,6 +484,7 @@ Iniciando análise de padrões de sucesso...`,
     startResearch,
     buildNarrative,
     writeContent,
+    retryWriting,
     resetProduction,
     loadProduction,
     addMessage,
