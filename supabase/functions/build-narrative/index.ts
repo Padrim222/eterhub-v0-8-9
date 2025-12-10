@@ -204,12 +204,15 @@ Responda APENAS com este JSON (sem markdown, sem texto extra):
     }
 
     // Create narrative skeleton
+    // Note: resource_format_id expects a UUID, so only pass it if it's a valid UUID
+    const isValidUUID = format_defined && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(format_defined);
+    
     const { data: skeleton, error: insertError } = await supabase
       .from("narrative_skeletons")
       .insert({
         user_id,
         research_map_id,
-        resource_format_id: format_defined || null,
+        resource_format_id: isValidUUID ? format_defined : null,
         format_defined: formatName,
         skeleton_structure: skeletonData,
         angle_suggestions: skeletonData.angle_variations || [],
