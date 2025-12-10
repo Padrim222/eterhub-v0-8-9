@@ -47,6 +47,7 @@ export const ProjectOverview = () => {
         <MetricsCardsSection 
           alinhamento={data.alinhamento}
           planejamento={data.planejamento}
+          entregas={data.entregas}
         />
         
         {/* 3. Iniciativas do Trimestre - 3 cards */}

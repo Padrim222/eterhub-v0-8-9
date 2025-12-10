@@ -75,6 +75,7 @@ export const EntregasTab = ({ data, setData, onSave, isSaving, onActivityLog }: 
       projetoId: formData.projetoId || "",
       status: formData.status || "pendente",
       prioridade: formData.prioridade || "media",
+      responsavel: formData.responsavel || "equipe",
       dataPrevista: formData.dataPrevista || "",
       dataEntrega: formData.dataEntrega || null,
       feedback: formData.feedback || "",
