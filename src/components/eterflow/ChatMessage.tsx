@@ -1,7 +1,7 @@
 import { cn } from "@/lib/utils";
 import { Bot, User, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import type { AgentMessage } from "@/hooks/useEtherflow";
+import type { AgentMessage } from "@/hooks/useEterflow";
 
 interface ChatMessageProps {
   message: AgentMessage;
@@ -20,6 +20,18 @@ export function ChatMessage({ message, onSelectTheme, onValidateNarrative, theme
   // Check if this is a narrative message with angles
   const isNarrativeMessage = message.stage === "narrative" && message.data && typeof message.data === "object";
   const narrativeData = isNarrativeMessage ? message.data as { angle_variations?: Array<{ angle: string; tone: string }> } : null;
+
+  // Format badge helper
+  const getFormatBadge = (format: string) => {
+    const lower = format.toLowerCase();
+    if (lower.includes("reel") || lower.includes("video")) {
+      return { label: "🎬 Reels", className: "bg-purple-500/20 text-purple-400" };
+    }
+    if (lower.includes("carousel") || lower.includes("carrossel")) {
+      return { label: "📚 Carrossel", className: "bg-blue-500/20 text-blue-400" };
+    }
+    return { label: "🖼️ Post", className: "bg-green-500/20 text-green-400" };
+  };
 
   return (
     <div
@@ -51,7 +63,7 @@ export function ChatMessage({ message, onSelectTheme, onValidateNarrative, theme
         className={cn(
           "max-w-[80%] rounded-2xl px-4 py-3",
           isUser && "bg-blue-500/20 text-white",
-          !isUser && !isSystem && "bg-gray-800 text-white",
+          !isUser && !isSystem && "bg-gray-800/80 text-white",
           isSystem && "bg-yellow-500/10 text-yellow-200 border border-yellow-500/20"
         )}
       >
@@ -60,24 +72,27 @@ export function ChatMessage({ message, onSelectTheme, onValidateNarrative, theme
         {/* Themes selector */}
         {isThemesMessage && themes && themes.length > 0 && (
           <div className="mt-4 space-y-2">
-            {themes.map((theme, index) => (
-              <button
-                key={index}
-                onClick={() => onSelectTheme?.(index)}
-                className="w-full text-left p-3 bg-gray-700/50 hover:bg-gray-700 rounded-lg transition-colors border border-gray-600/50 hover:border-primary/50"
-              >
-                <div className="flex items-start gap-2">
-                  <span className="text-primary font-bold">{theme.rank}.</span>
-                  <div className="flex-1">
-                    <p className="font-medium text-white text-sm">{theme.title}</p>
-                    <p className="text-xs text-white/60 mt-1">{theme.justification}</p>
-                    <span className="inline-block mt-2 px-2 py-0.5 bg-primary/20 text-primary text-xs rounded-full">
-                      {theme.suggested_format}
-                    </span>
+            {themes.map((theme, index) => {
+              const formatBadge = getFormatBadge(theme.suggested_format);
+              return (
+                <button
+                  key={index}
+                  onClick={() => onSelectTheme?.(index)}
+                  className="w-full text-left p-3 bg-gray-700/50 hover:bg-gray-700 rounded-lg transition-colors border border-gray-600/50 hover:border-primary/50"
+                >
+                  <div className="flex items-start gap-2">
+                    <span className="text-primary font-bold">{theme.rank}.</span>
+                    <div className="flex-1">
+                      <p className="font-medium text-white text-sm">{theme.title}</p>
+                      <p className="text-xs text-white/60 mt-1 line-clamp-2">{theme.justification}</p>
+                      <span className={`inline-block mt-2 px-2 py-0.5 text-xs rounded-full ${formatBadge.className}`}>
+                        {formatBadge.label}
+                      </span>
+                    </div>
                   </div>
-                </div>
-              </button>
-            ))}
+                </button>
+              );
+            })}
           </div>
         )}
 
