@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff, Check, X } from 'lucide-react';
 
 // --- HELPER COMPONENTS (ICONS) ---
 
@@ -27,6 +27,20 @@ export interface Testimonial {
   text: string;
 }
 
+export interface PasswordStrength {
+  level: 0 | 1 | 2 | 3 | 4;
+  label: string;
+  color: string;
+  textColor: string;
+}
+
+export interface PasswordRequirements {
+  minLength: boolean;
+  hasUppercase: boolean;
+  hasNumber: boolean;
+  hasSpecial: boolean;
+}
+
 interface SignInPageProps {
   title?: React.ReactNode;
   description?: React.ReactNode;
@@ -40,6 +54,9 @@ interface SignInPageProps {
   onCreateAccount?: () => void;
   isSignUp?: boolean;
   onSwitchToSignIn?: () => void;
+  passwordStrength?: PasswordStrength;
+  passwordRequirements?: PasswordRequirements;
+  onPasswordChange?: (password: string) => void;
 }
 
 // --- SUB-COMPONENTS ---
@@ -61,6 +78,44 @@ const TestimonialCard = ({ testimonial, delay }: { testimonial: Testimonial, del
   </div>
 );
 
+const PasswordStrengthIndicator = ({ strength }: { strength: PasswordStrength }) => (
+  <div className="mt-2 space-y-1">
+    <div className="flex gap-1">
+      {[1, 2, 3, 4].map((i) => (
+        <div 
+          key={i} 
+          className={`h-1.5 flex-1 rounded-full transition-all duration-300 ${
+            i <= strength.level ? strength.color : 'bg-muted'
+          }`} 
+        />
+      ))}
+    </div>
+    {strength.level > 0 && (
+      <p className={`text-xs font-medium ${strength.textColor}`}>{strength.label}</p>
+    )}
+  </div>
+);
+
+const PasswordRequirementsList = ({ requirements }: { requirements: PasswordRequirements }) => (
+  <div className="mt-3 space-y-1.5 text-xs">
+    <RequirementItem met={requirements.minLength} text="Pelo menos 6 caracteres" />
+    <RequirementItem met={requirements.hasUppercase} text="Uma letra maiúscula" />
+    <RequirementItem met={requirements.hasNumber} text="Um número" />
+    <RequirementItem met={requirements.hasSpecial} text="Um caractere especial (!@#$%)" />
+  </div>
+);
+
+const RequirementItem = ({ met, text }: { met: boolean; text: string }) => (
+  <div className="flex items-center gap-2">
+    {met ? (
+      <Check className="w-3.5 h-3.5 text-green-500" />
+    ) : (
+      <X className="w-3.5 h-3.5 text-muted-foreground" />
+    )}
+    <span className={met ? 'text-green-500' : 'text-muted-foreground'}>{text}</span>
+  </div>
+);
+
 // --- MAIN COMPONENT ---
 
 export const SignInPage: React.FC<SignInPageProps> = ({
@@ -76,6 +131,9 @@ export const SignInPage: React.FC<SignInPageProps> = ({
   onCreateAccount,
   isSignUp = false,
   onSwitchToSignIn,
+  passwordStrength,
+  passwordRequirements,
+  onPasswordChange,
 }) => {
   const [showPassword, setShowPassword] = useState(false);
 
@@ -118,6 +176,7 @@ export const SignInPage: React.FC<SignInPageProps> = ({
                       placeholder="Digite sua senha" 
                       className="w-full bg-transparent text-xs sm:text-sm p-3 sm:p-4 pr-10 sm:pr-12 rounded-2xl focus:outline-none" 
                       required
+                      onChange={(e) => onPasswordChange?.(e.target.value)}
                     />
                     <button 
                       type="button" 
@@ -133,6 +192,16 @@ export const SignInPage: React.FC<SignInPageProps> = ({
                     </button>
                   </div>
                 </GlassInputWrapper>
+                
+                {/* Password strength indicator - only show during signup */}
+                {isSignUp && passwordStrength && (
+                  <PasswordStrengthIndicator strength={passwordStrength} />
+                )}
+                
+                {/* Password requirements list - only show during signup */}
+                {isSignUp && passwordRequirements && (
+                  <PasswordRequirementsList requirements={passwordRequirements} />
+                )}
               </div>
 
               {!isSignUp && (
