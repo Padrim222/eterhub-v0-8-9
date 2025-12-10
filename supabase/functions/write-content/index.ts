@@ -1,5 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -9,6 +9,91 @@ const corsHeaders = {
 const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+
+// Helper to get or create a default resource format
+async function getOrCreateDefaultFormat(
+  supabase: SupabaseClient,
+  userId: string,
+  formatType: string,
+  playbookId: string | null
+): Promise<string> {
+  const formatName = formatType || "Reels 60s";
+  const normalizedType = formatName.toLowerCase().includes("carrossel") 
+    ? "carousel" 
+    : formatName.toLowerCase().includes("post") 
+      ? "image" 
+      : "video";
+
+  // Try to find existing format for this user
+  const { data: existing } = await supabase
+    .from("resource_formats")
+    .select("id")
+    .eq("user_id", userId)
+    .eq("format_type", normalizedType)
+    .limit(1)
+    .maybeSingle();
+
+  if (existing?.id) {
+    return existing.id;
+  }
+
+  // Need a valid playbook_id - find any active one or create placeholder
+  let validPlaybookId = playbookId;
+  
+  if (!validPlaybookId) {
+    const { data: anyPlaybook } = await supabase
+      .from("playbooks")
+      .select("id")
+      .eq("user_id", userId)
+      .limit(1)
+      .maybeSingle();
+    
+    if (anyPlaybook?.id) {
+      validPlaybookId = anyPlaybook.id;
+    } else {
+      // Create a placeholder playbook
+      const { data: newPlaybook } = await supabase
+        .from("playbooks")
+        .insert({
+          user_id: userId,
+          name: "Default Formats",
+          slug: "default-formats",
+          status: "completed",
+        })
+        .select("id")
+        .single();
+      
+      validPlaybookId = newPlaybook?.id;
+    }
+  }
+
+  if (!validPlaybookId) {
+    throw new Error("Could not create or find a valid playbook for resource format");
+  }
+
+  // Create new default format
+  const { data: newFormat, error: insertError } = await supabase
+    .from("resource_formats")
+    .insert({
+      user_id: userId,
+      playbook_id: validPlaybookId,
+      name: formatName,
+      format_type: normalizedType,
+      duration_or_slides: normalizedType === "video" ? "60s" : normalizedType === "carousel" ? "10 slides" : "1 imagem",
+      style_rules: {},
+      is_active: true,
+    })
+    .select("id")
+    .single();
+
+  if (insertError) {
+    console.error("Error creating default format:", insertError);
+    throw new Error("Failed to create default resource format");
+  }
+
+  console.log(`Created default resource_format: ${newFormat.id} for format: ${formatName}`);
+  return newFormat.id;
+}
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -54,6 +139,21 @@ serve(async (req) => {
     const skeletonStructure = skeleton.skeleton_structure;
     const themeTitle = skeletonStructure?.theme_title || skeleton.research_maps?.theme_title || "Tema";
     const angleToUse = selected_angle || skeleton.angle_suggestions?.[0]?.angle || "Jornalístico";
+    const formatType = skeleton.format_defined || skeletonStructure?.format || "Reels";
+
+    // Get or create resource_format_id
+    let resourceFormatId = skeleton.resource_format_id;
+    if (!resourceFormatId) {
+      console.log("No resource_format_id found, creating default...");
+      const playbookId = skeleton.research_maps?.playbook_id || null;
+      resourceFormatId = await getOrCreateDefaultFormat(supabase, user_id, formatType, playbookId);
+      
+      // Update the skeleton with the new resource_format_id
+      await supabase
+        .from("narrative_skeletons")
+        .update({ resource_format_id: resourceFormatId })
+        .eq("id", narrative_skeleton_id);
+    }
 
     const systemPrompt = `Você é um Agente de IA Mestre da Escrita, um copywriter e roteirista de elite. Sua habilidade é transformar esqueletos lógicos em textos vivos, pulsantes e impossíveis de serem ignorados. Você domina múltiplos estilos literários e sabe como tecer palavras para gerar emoção, clareza e ação.
 
@@ -86,7 +186,7 @@ ${JSON.stringify(skeletonStructure, null, 2)}
 Responda APENAS com este JSON (sem markdown, sem texto extra):
 {
   "theme_title": "${themeTitle}",
-  "format": "${skeletonStructure?.format || "Reels"}",
+  "format": "${formatType}",
   "full_script": {
     "hook": {
       "text": "Texto completo do gancho/abertura",
@@ -211,10 +311,10 @@ Responda APENAS com este JSON (sem markdown, sem texto extra):
       .insert({
         user_id,
         narrative_skeleton_id,
-        resource_format_id: skeleton.resource_format_id,
+        resource_format_id: resourceFormatId,
         title: contentData.theme_title || themeTitle,
         text_content: contentData.complete_text,
-        content_type: contentData.format || "Reels",
+        content_type: contentData.format || formatType,
         style_checker_score: styleScore,
         style_checker_details: contentData.style_checker,
         production_status: productionStatus,
@@ -232,7 +332,7 @@ Responda APENAS com este JSON (sem markdown, sem texto extra):
     if (insertError) {
       console.error("Error creating content:", insertError);
       return new Response(
-        JSON.stringify({ error: "Failed to save content" }),
+        JSON.stringify({ error: "Failed to save content", details: insertError.message }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
@@ -250,6 +350,8 @@ Responda APENAS com este JSON (sem markdown, sem texto extra):
         .eq("id", researchMap.playbook_id)
         .eq("user_id", user_id);
     }
+
+    console.log("Content created successfully:", newContent.id);
 
     return new Response(
       JSON.stringify({ 
