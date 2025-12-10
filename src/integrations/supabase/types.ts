@@ -328,7 +328,9 @@ export type Database = {
           is_canonical: boolean | null
           metadata: Json | null
           narrative_skeleton_id: string | null
+          production_status: string | null
           resource_format_id: string
+          style_checker_details: Json | null
           style_checker_score: number | null
           text_content: string
           title: string
@@ -342,7 +344,9 @@ export type Database = {
           is_canonical?: boolean | null
           metadata?: Json | null
           narrative_skeleton_id?: string | null
+          production_status?: string | null
           resource_format_id: string
+          style_checker_details?: Json | null
           style_checker_score?: number | null
           text_content: string
           title: string
@@ -356,7 +360,9 @@ export type Database = {
           is_canonical?: boolean | null
           metadata?: Json | null
           narrative_skeleton_id?: string | null
+          production_status?: string | null
           resource_format_id?: string
+          style_checker_details?: Json | null
           style_checker_score?: number | null
           text_content?: string
           title?: string
@@ -623,6 +629,7 @@ export type Database = {
       }
       narrative_skeletons: {
         Row: {
+          angle_selected: string | null
           angle_suggestions: Json | null
           created_at: string | null
           format_defined: string
@@ -634,6 +641,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          angle_selected?: string | null
           angle_suggestions?: Json | null
           created_at?: string | null
           format_defined: string
@@ -645,6 +653,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          angle_selected?: string | null
           angle_suggestions?: Json | null
           created_at?: string | null
           format_defined?: string
@@ -674,39 +683,65 @@ export type Database = {
       }
       playbooks: {
         Row: {
+          analysis_id: string | null
+          client_context: string | null
           created_at: string | null
+          current_stage: string | null
           description: string | null
           id: string
           is_active: boolean | null
           name: string
           position: number | null
           slug: string
+          status: string | null
+          success_patterns_input: Json | null
+          themes: Json | null
           updated_at: string | null
           user_id: string
         }
         Insert: {
+          analysis_id?: string | null
+          client_context?: string | null
           created_at?: string | null
+          current_stage?: string | null
           description?: string | null
           id?: string
           is_active?: boolean | null
           name: string
           position?: number | null
           slug: string
+          status?: string | null
+          success_patterns_input?: Json | null
+          themes?: Json | null
           updated_at?: string | null
           user_id: string
         }
         Update: {
+          analysis_id?: string | null
+          client_context?: string | null
           created_at?: string | null
+          current_stage?: string | null
           description?: string | null
           id?: string
           is_active?: boolean | null
           name?: string
           position?: number | null
           slug?: string
+          status?: string | null
+          success_patterns_input?: Json | null
+          themes?: Json | null
           updated_at?: string | null
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "playbooks_analysis_id_fkey"
+            columns: ["analysis_id"]
+            isOneToOne: false
+            referencedRelation: "content_analyses"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       research_maps: {
         Row: {
