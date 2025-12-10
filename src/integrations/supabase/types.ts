@@ -513,6 +513,7 @@ export type Database = {
           leader_title: string | null
           nome: string | null
           onboarding_completed: boolean | null
+          reportei_api_key: string | null
           updated_at: string | null
         }
         Insert: {
@@ -529,6 +530,7 @@ export type Database = {
           leader_title?: string | null
           nome?: string | null
           onboarding_completed?: boolean | null
+          reportei_api_key?: string | null
           updated_at?: string | null
         }
         Update: {
@@ -545,6 +547,7 @@ export type Database = {
           leader_title?: string | null
           nome?: string | null
           onboarding_completed?: boolean | null
+          reportei_api_key?: string | null
           updated_at?: string | null
         }
         Relationships: []

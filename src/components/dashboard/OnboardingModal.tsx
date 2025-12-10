@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Key, Instagram } from "lucide-react";
 
 interface OnboardingModalProps {
   isOpen: boolean;
@@ -15,6 +16,7 @@ interface OnboardingModalProps {
 export const OnboardingModal = ({ isOpen, onComplete }: OnboardingModalProps) => {
   const [step, setStep] = useState(1);
   const [instagramHandle, setInstagramHandle] = useState("");
+  const [reporteiApiKey, setReporteiApiKey] = useState("");
   const [contentType, setContentType] = useState("");
   const [leadSource, setLeadSource] = useState("");
   const [loading, setLoading] = useState(false);
@@ -29,8 +31,17 @@ export const OnboardingModal = ({ isOpen, onComplete }: OnboardingModalProps) =>
       });
       return;
     }
+
+    if (step === 2 && !reporteiApiKey.trim()) {
+      toast({
+        title: "Atenção",
+        description: "Por favor, preencha a chave API da Reportei",
+        variant: "destructive"
+      });
+      return;
+    }
     
-    if (step < 3) {
+    if (step < 4) {
       setStep(step + 1);
     } else {
       handleComplete();
@@ -56,13 +67,13 @@ export const OnboardingModal = ({ isOpen, onComplete }: OnboardingModalProps) =>
       }
 
       // 3. USAR UPSERT ao invés de UPDATE (garante que salva mesmo se não existir)
-      // Salva o @ como nome do líder também
       const { error } = await supabase
         .from('users')
         .upsert({ 
           id: user.id,
           instagram_username: cleanHandle,
           nome: cleanHandle,
+          reportei_api_key: reporteiApiKey.trim(),
           onboarding_completed: true,
         }, {
           onConflict: 'id'
@@ -97,20 +108,25 @@ export const OnboardingModal = ({ isOpen, onComplete }: OnboardingModalProps) =>
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold">
             {step === 1 && "Bem-vindo ao IMOV!"}
-            {step === 2 && "Tipo de Conteúdo"}
-            {step === 3 && "Geração de Leads"}
+            {step === 2 && "Integração Reportei"}
+            {step === 3 && "Tipo de Conteúdo"}
+            {step === 4 && "Geração de Leads"}
           </DialogTitle>
           <DialogDescription>
             {step === 1 && "Para começar, precisamos do @ do seu Instagram"}
-            {step === 2 && "Que tipo de conteúdo você produz?"}
-            {step === 3 && "Onde você gera seus leads?"}
+            {step === 2 && "Cole a chave da sua conta Reportei"}
+            {step === 3 && "Que tipo de conteúdo você produz?"}
+            {step === 4 && "Onde você gera seus leads?"}
           </DialogDescription>
         </DialogHeader>
         
         <div className="space-y-4 mt-4">
           {step === 1 && (
             <div>
-              <Label htmlFor="instagram">@ do Instagram</Label>
+              <Label htmlFor="instagram" className="flex items-center gap-2">
+                <Instagram className="h-4 w-4" />
+                @ do Instagram
+              </Label>
               <Input
                 id="instagram"
                 type="text"
@@ -124,6 +140,36 @@ export const OnboardingModal = ({ isOpen, onComplete }: OnboardingModalProps) =>
           )}
 
           {step === 2 && (
+            <div className="space-y-3">
+              <Label htmlFor="reportei-key" className="flex items-center gap-2">
+                <Key className="h-4 w-4" />
+                Chave API Reportei
+              </Label>
+              <Input
+                id="reportei-key"
+                type="text"
+                placeholder="Cole sua chave aqui (ex: HEWC39Iu0ImogbkVoB8ExThpB0HOdRYmFKHBcdo7)"
+                value={reporteiApiKey}
+                onChange={(e) => setReporteiApiKey(e.target.value)}
+                required
+                className="mt-2 font-mono text-sm"
+              />
+              <p className="text-xs text-muted-foreground">
+                Encontre sua chave em{" "}
+                <a 
+                  href="https://app.reportei.com" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-primary underline"
+                >
+                  app.reportei.com
+                </a>
+                {" "}→ Dashboard → Copie o código da URL de compartilhamento
+              </p>
+            </div>
+          )}
+
+          {step === 3 && (
             <div>
               <Label htmlFor="contentType">Tipo de Conteúdo</Label>
               <Select value={contentType} onValueChange={setContentType}>
@@ -141,7 +187,7 @@ export const OnboardingModal = ({ isOpen, onComplete }: OnboardingModalProps) =>
             </div>
           )}
 
-          {step === 3 && (
+          {step === 4 && (
             <div>
               <Label htmlFor="leadSource">Onde gera leads?</Label>
               <Select value={leadSource} onValueChange={setLeadSource}>
@@ -173,9 +219,9 @@ export const OnboardingModal = ({ isOpen, onComplete }: OnboardingModalProps) =>
             <Button 
               onClick={handleNext} 
               className="flex-1" 
-              disabled={loading || (step === 1 && !instagramHandle.trim())}
+              disabled={loading || (step === 1 && !instagramHandle.trim()) || (step === 2 && !reporteiApiKey.trim())}
             >
-              {loading ? "Salvando..." : step === 3 ? "Finalizar" : "Próximo"}
+              {loading ? "Salvando..." : step === 4 ? "Finalizar" : "Próximo"}
             </Button>
           </div>
 
@@ -183,6 +229,7 @@ export const OnboardingModal = ({ isOpen, onComplete }: OnboardingModalProps) =>
             <div className={`h-2 w-2 rounded-full ${step >= 1 ? 'bg-primary' : 'bg-muted'}`} />
             <div className={`h-2 w-2 rounded-full ${step >= 2 ? 'bg-primary' : 'bg-muted'}`} />
             <div className={`h-2 w-2 rounded-full ${step >= 3 ? 'bg-primary' : 'bg-muted'}`} />
+            <div className={`h-2 w-2 rounded-full ${step >= 4 ? 'bg-primary' : 'bg-muted'}`} />
           </div>
         </div>
       </DialogContent>

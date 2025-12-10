@@ -2,3 +2,6 @@ project_id = "kzozelpatwzdrmtnsnte"
 
 [functions.receive-pipedrive-leads]
 verify_jwt = false
+
+[functions.fetch-reportei-data]
+verify_jwt = true
