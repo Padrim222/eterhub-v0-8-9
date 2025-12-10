@@ -74,6 +74,7 @@ const App = () => (
             
             {/* Eterflow */}
             <Route path="/eterflow" element={<Eterflow />} />
+            <Route path="/etherflow" element={<Navigate to="/eterflow" replace />} />
             
             {/* Tribes */}
             <Route path="/tribes" element={<Tribes />} />
