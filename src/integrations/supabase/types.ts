@@ -210,6 +210,59 @@ export type Database = {
           },
         ]
       }
+      content_metrics: {
+        Row: {
+          attribution_data: Json | null
+          channel: string
+          content_id: string | null
+          created_at: string | null
+          external_post_id: string
+          id: string
+          leads_generated: number | null
+          new_followers: number | null
+          platform_data_json: Json
+          success_score: number | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          attribution_data?: Json | null
+          channel: string
+          content_id?: string | null
+          created_at?: string | null
+          external_post_id: string
+          id?: string
+          leads_generated?: number | null
+          new_followers?: number | null
+          platform_data_json?: Json
+          success_score?: number | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          attribution_data?: Json | null
+          channel?: string
+          content_id?: string | null
+          created_at?: string | null
+          external_post_id?: string
+          id?: string
+          leads_generated?: number | null
+          new_followers?: number | null
+          platform_data_json?: Json
+          success_score?: number | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "content_metrics_content_id_fkey"
+            columns: ["content_id"]
+            isOneToOne: false
+            referencedRelation: "contents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       contents: {
         Row: {
           content_type: string
