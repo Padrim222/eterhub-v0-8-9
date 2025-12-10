@@ -361,7 +361,7 @@ export function useEtherflow() {
         content_id: null,
         current_stage: playbook.current_stage as ProductionStage || "analysis",
         status: playbook.status as ProductionStatus || "pending",
-        themes: (playbook.themes as Theme[]) || [],
+        themes: (Array.isArray(playbook.themes) ? playbook.themes : []) as unknown as Theme[],
         selected_theme_index: null,
       });
     } catch (error) {
