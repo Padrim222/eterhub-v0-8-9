@@ -1,10 +1,11 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Instagram, Download, Loader2, User, Mail } from "lucide-react";
+import { Instagram, Download, Loader2, User, LogOut } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Progress } from "@/components/ui/progress";
@@ -22,8 +23,34 @@ export const ProfileModal = ({ isOpen, onClose, userProfile, onProfileUpdate }: 
   const [instagramUsername, setInstagramUsername] = useState(userProfile?.instagram_username || "");
   const [isSaving, setIsSaving] = useState(false);
   const [isImporting, setIsImporting] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [progress, setProgress] = useState(0);
   const { toast } = useToast();
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    setIsLoggingOut(true);
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+      
+      toast({
+        title: "Até logo!",
+        description: "Você saiu da sua conta com sucesso"
+      });
+      
+      onClose();
+      navigate("/auth");
+    } catch (error: any) {
+      toast({
+        title: "Erro ao sair",
+        description: error.message,
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoggingOut(false);
+    }
+  };
 
   const handleSaveProfile = async () => {
     setIsSaving(true);
@@ -235,6 +262,28 @@ export const ProfileModal = ({ isOpen, onClose, userProfile, onProfileUpdate }: 
                 </>
               ) : (
                 "Salvar"
+              )}
+            </Button>
+          </div>
+
+          {/* Logout Section */}
+          <div className="border-t border-border pt-4">
+            <Button
+              onClick={handleLogout}
+              disabled={isLoggingOut}
+              variant="destructive"
+              className="w-full rounded-full"
+            >
+              {isLoggingOut ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Saindo...
+                </>
+              ) : (
+                <>
+                  <LogOut className="w-4 h-4 mr-2" />
+                  Sair da conta
+                </>
               )}
             </Button>
           </div>
