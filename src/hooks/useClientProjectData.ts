@@ -78,6 +78,7 @@ export interface Entrega {
   nome: string;
   descricao: string;
   status: "pendente" | "em_revisao" | "aprovado" | "rejeitado";
+  prioridade: "baixa" | "media" | "alta";
   dataPrevista: string;
   dataEntrega: string | null;
   feedback: string;
