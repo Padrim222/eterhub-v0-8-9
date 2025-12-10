@@ -55,7 +55,7 @@ export const useSprintTasks = (sprintId: string | null) => {
       }
 
       const { data, error } = await supabase
-        .from('sprint_tasks')
+        .from('sprint_tasks' as any)
         .select('*')
         .eq('user_id', session.user.id)
         .eq('sprint_id', sprintId)
@@ -63,7 +63,7 @@ export const useSprintTasks = (sprintId: string | null) => {
 
       if (error) throw error;
 
-      const fetchedTasks = data || [];
+      const fetchedTasks = (data || []) as unknown as SprintTask[];
       setTasks(fetchedTasks);
 
       // Calculate stats
@@ -93,7 +93,7 @@ export const useSprintTasks = (sprintId: string | null) => {
       if (!session) return;
 
       const { error } = await supabase
-        .from('sprint_tasks')
+        .from('sprint_tasks' as any)
         .insert([{
           user_id: session.user.id,
           sprint_id: sprintId,
@@ -122,7 +122,7 @@ export const useSprintTasks = (sprintId: string | null) => {
   const updateTaskStatus = async (taskId: string, status: SprintTask['status']) => {
     try {
       const { error } = await supabase
-        .from('sprint_tasks')
+        .from('sprint_tasks' as any)
         .update({ status, updated_at: new Date().toISOString() })
         .eq('id', taskId);
 
@@ -142,7 +142,7 @@ export const useSprintTasks = (sprintId: string | null) => {
   const deleteTask = async (taskId: string) => {
     try {
       const { error } = await supabase
-        .from('sprint_tasks')
+        .from('sprint_tasks' as any)
         .delete()
         .eq('id', taskId);
 

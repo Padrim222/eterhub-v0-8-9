@@ -1,1 +1,4 @@
 project_id = "kzozelpatwzdrmtnsnte"
+
+[functions.receive-pipedrive-leads]
+verify_jwt = false
