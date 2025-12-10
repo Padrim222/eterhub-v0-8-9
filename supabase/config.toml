@@ -14,3 +14,15 @@ verify_jwt = true
 
 [functions.analyze-metrics]
 verify_jwt = false
+
+[functions.generate-themes]
+verify_jwt = false
+
+[functions.deep-research]
+verify_jwt = false
+
+[functions.build-narrative]
+verify_jwt = false
+
+[functions.write-content]
+verify_jwt = false
