@@ -10,7 +10,7 @@ import Index from "./pages/Index";
 import Home from "./pages/Home";
 import CentralCliente from "./pages/CentralCliente";
 import Educacao from "./pages/Educacao";
-import Etherflow from "./pages/Etherflow";
+import Eterflow from "./pages/Eterflow";
 import Tribes from "./pages/Tribes";
 import Imovi from "./pages/Imovi";
 import Conteudo from "./pages/Conteudo";
@@ -72,8 +72,8 @@ const App = () => (
             {/* Educação */}
             <Route path="/educacao" element={<Educacao />} />
             
-            {/* Etherflow */}
-            <Route path="/etherflow" element={<Etherflow />} />
+            {/* Eterflow */}
+            <Route path="/eterflow" element={<Eterflow />} />
             
             {/* Tribes */}
             <Route path="/tribes" element={<Tribes />} />
