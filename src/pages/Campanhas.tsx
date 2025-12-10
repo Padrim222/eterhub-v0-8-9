@@ -1,15 +1,33 @@
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Plus, Filter, TrendingUp } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Plus, Filter, TrendingUp, Loader2 } from "lucide-react";
 import { useCampaignsData, PeriodFilter } from "@/hooks/useCampaignsData";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
 import { Skeleton } from "@/components/ui/skeleton";
+import { toast } from "sonner";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+
+const CAMPAIGN_COLORS = ["#ef4444", "#22c55e", "#f59e0b", "#3b82f6", "#8b5cf6", "#ec4899"];
 
 const Campanhas = () => {
   const [periodFilter, setPeriodFilter] = useState<PeriodFilter>("month");
   const [selectedCampaigns, setSelectedCampaigns] = useState<Set<string>>(new Set());
   const { campaigns, averageLine, isLoading, addCampaign } = useCampaignsData(periodFilter);
+  
+  // Dialog state
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isAdding, setIsAdding] = useState(false);
+  const [campaignName, setCampaignName] = useState("");
+  const [campaignColor, setCampaignColor] = useState(CAMPAIGN_COLORS[0]);
 
   const toggleCampaign = (campaignId: string) => {
     const newSelected = new Set(selectedCampaigns);
@@ -22,9 +40,23 @@ const Campanhas = () => {
   };
 
   const handleAddCampaign = async () => {
-    const colors = ["#ef4444", "#22c55e", "#f59e0b", "#3b82f6", "#8b5cf6", "#ec4899"];
-    const randomColor = colors[Math.floor(Math.random() * colors.length)];
-    await addCampaign(`Campanha ${campaigns.length + 1}`, randomColor);
+    if (!campaignName.trim()) {
+      toast.error("Nome da campanha é obrigatório");
+      return;
+    }
+    
+    try {
+      setIsAdding(true);
+      await addCampaign(campaignName, campaignColor);
+      toast.success("Campanha criada com sucesso!");
+      setIsDialogOpen(false);
+      setCampaignName("");
+      setCampaignColor(CAMPAIGN_COLORS[Math.floor(Math.random() * CAMPAIGN_COLORS.length)]);
+    } catch (error: any) {
+      toast.error(error.message || "Erro ao criar campanha");
+    } finally {
+      setIsAdding(false);
+    }
   };
 
   // Merge all data points for the chart
@@ -78,10 +110,47 @@ const Campanhas = () => {
           <div className="flex items-center gap-3">
             <h1 className="text-3xl font-bold text-white">Campanhas</h1>
           </div>
-          <Button className="bg-primary hover:bg-primary/90" onClick={handleAddCampaign}>
-            <Plus className="h-4 w-4 mr-2" />
-            Adicionar Campanha
-          </Button>
+        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+          <DialogTrigger asChild>
+            <Button className="bg-primary hover:bg-primary/90">
+              <Plus className="h-4 w-4 mr-2" />
+              Adicionar Campanha
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="bg-gray-900 border-gray-700">
+            <DialogHeader>
+              <DialogTitle className="text-white">Nova Campanha</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4 pt-4">
+              <div className="space-y-2">
+                <Label className="text-white">Nome da Campanha</Label>
+                <Input
+                  value={campaignName}
+                  onChange={(e) => setCampaignName(e.target.value)}
+                  placeholder="Ex: Black Friday 2025"
+                  className="bg-gray-800 border-gray-700 text-white"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label className="text-white">Cor</Label>
+                <div className="flex gap-2">
+                  {CAMPAIGN_COLORS.map((color) => (
+                    <button
+                      key={color}
+                      onClick={() => setCampaignColor(color)}
+                      className={`w-8 h-8 rounded-full transition-transform ${campaignColor === color ? 'ring-2 ring-white ring-offset-2 ring-offset-gray-900 scale-110' : ''}`}
+                      style={{ backgroundColor: color }}
+                    />
+                  ))}
+                </div>
+              </div>
+              <Button onClick={handleAddCampaign} className="w-full" disabled={isAdding}>
+                {isAdding && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                Criar Campanha
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
         </div>
 
         {/* Empty State Card */}
@@ -94,10 +163,47 @@ const Campanhas = () => {
             <p className="text-white/60 max-w-md">
               Crie sua primeira campanha para começar a acompanhar o desempenho de leads e conversões.
             </p>
-            <Button className="bg-primary hover:bg-primary/90 mt-4" onClick={handleAddCampaign}>
-              <Plus className="h-4 w-4 mr-2" />
-              Criar Primeira Campanha
-            </Button>
+            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+              <DialogTrigger asChild>
+                <Button className="bg-primary hover:bg-primary/90 mt-4">
+                  <Plus className="h-4 w-4 mr-2" />
+                  Criar Primeira Campanha
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="bg-gray-900 border-gray-700">
+                <DialogHeader>
+                  <DialogTitle className="text-white">Nova Campanha</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4 pt-4">
+                  <div className="space-y-2">
+                    <Label className="text-white">Nome da Campanha</Label>
+                    <Input
+                      value={campaignName}
+                      onChange={(e) => setCampaignName(e.target.value)}
+                      placeholder="Ex: Black Friday 2025"
+                      className="bg-gray-800 border-gray-700 text-white"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-white">Cor</Label>
+                    <div className="flex gap-2">
+                      {CAMPAIGN_COLORS.map((color) => (
+                        <button
+                          key={color}
+                          onClick={() => setCampaignColor(color)}
+                          className={`w-8 h-8 rounded-full transition-transform ${campaignColor === color ? 'ring-2 ring-white ring-offset-2 ring-offset-gray-900 scale-110' : ''}`}
+                          style={{ backgroundColor: color }}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                  <Button onClick={handleAddCampaign} className="w-full" disabled={isAdding}>
+                    {isAdding && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                    Criar Campanha
+                  </Button>
+                </div>
+              </DialogContent>
+            </Dialog>
           </div>
         </Card>
       </div>
@@ -111,10 +217,47 @@ const Campanhas = () => {
         <div className="flex items-center gap-3">
           <h1 className="text-3xl font-bold text-white">Campanhas</h1>
         </div>
-        <Button className="bg-primary hover:bg-primary/90" onClick={handleAddCampaign}>
-          <Plus className="h-4 w-4 mr-2" />
-          Adicionar Campanha
-        </Button>
+        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+          <DialogTrigger asChild>
+            <Button className="bg-primary hover:bg-primary/90">
+              <Plus className="h-4 w-4 mr-2" />
+              Adicionar Campanha
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="bg-gray-900 border-gray-700">
+            <DialogHeader>
+              <DialogTitle className="text-white">Nova Campanha</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4 pt-4">
+              <div className="space-y-2">
+                <Label className="text-white">Nome da Campanha</Label>
+                <Input
+                  value={campaignName}
+                  onChange={(e) => setCampaignName(e.target.value)}
+                  placeholder="Ex: Black Friday 2025"
+                  className="bg-gray-800 border-gray-700 text-white"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label className="text-white">Cor</Label>
+                <div className="flex gap-2">
+                  {CAMPAIGN_COLORS.map((color) => (
+                    <button
+                      key={color}
+                      onClick={() => setCampaignColor(color)}
+                      className={`w-8 h-8 rounded-full transition-transform ${campaignColor === color ? 'ring-2 ring-white ring-offset-2 ring-offset-gray-900 scale-110' : ''}`}
+                      style={{ backgroundColor: color }}
+                    />
+                  ))}
+                </div>
+              </div>
+              <Button onClick={handleAddCampaign} className="w-full" disabled={isAdding}>
+                {isAdding && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                Criar Campanha
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
 
       {/* Campaign Tabs and Filters */}

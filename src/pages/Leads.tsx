@@ -1,32 +1,112 @@
 import { useState, useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Plus, Upload, Download, Bell, Users } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Plus, Upload, Download, Bell, Users, Loader2 } from "lucide-react";
 import { LeadsMetrics } from "@/components/leads/LeadsMetrics";
 import { ICPColumn } from "@/components/leads/ICPColumn";
-import { PipedriveIntegrationCard } from "@/components/leads/PipedriveIntegrationCard";
 import { useLeadsData } from "@/hooks/useLeadsData";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const Leads = () => {
   const { icps, leads, metrics, isLoading, refetch } = useLeadsData();
   const [notificationCount] = useState(0);
   const { toast } = useToast();
+  
+  // Lead dialog state
+  const [isLeadDialogOpen, setIsLeadDialogOpen] = useState(false);
+  const [isAddingLead, setIsAddingLead] = useState(false);
+  const [leadFormData, setLeadFormData] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    source_channel: "",
+    icp_id: "",
+  });
 
-  // Calculate Pipedrive sync stats
-  const pipedriveStats = useMemo(() => {
-    const pipedriveLeads = leads.filter(l => (l as any).pipedrive_person_id);
-    const lastSync = pipedriveLeads
-      .map(l => (l as any).pipedrive_last_sync)
-      .filter(Boolean)
-      .sort()
-      .pop();
-    return {
-      totalSynced: pipedriveLeads.length,
-      lastSyncAt: lastSync || null,
-    };
-  }, [leads]);
+  const handleAddLead = async () => {
+    if (!leadFormData.name.trim()) {
+      toast({ title: "Erro", description: "Nome é obrigatório", variant: "destructive" });
+      return;
+    }
+
+    try {
+      setIsAddingLead(true);
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        toast({ title: "Erro", description: "Você precisa estar logado", variant: "destructive" });
+        return;
+      }
+
+      const { error } = await (supabase as any)
+        .from("leads")
+        .insert([{
+          user_id: session.user.id,
+          name: leadFormData.name,
+          email: leadFormData.email || null,
+          phone: leadFormData.phone || null,
+          source_channel: leadFormData.source_channel || null,
+          icp_id: leadFormData.icp_id || null,
+          position: leads.length,
+        }]);
+
+      if (error) throw error;
+
+      toast({ title: "Sucesso", description: "Lead criado com sucesso" });
+      setIsLeadDialogOpen(false);
+      setLeadFormData({ name: "", email: "", phone: "", source_channel: "", icp_id: "" });
+      refetch();
+    } catch (error: any) {
+      toast({ title: "Erro", description: error.message, variant: "destructive" });
+    } finally {
+      setIsAddingLead(false);
+    }
+  };
+
+  const handleDeleteICP = async (icpId: string) => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        toast({ title: "Erro", description: "Você precisa estar logado", variant: "destructive" });
+        return;
+      }
+
+      // First, remove icp_id from leads associated with this ICP
+      await (supabase as any)
+        .from("leads")
+        .update({ icp_id: null })
+        .eq("icp_id", icpId);
+
+      // Then delete the ICP
+      const { error } = await (supabase as any)
+        .from("icps")
+        .delete()
+        .eq("id", icpId);
+
+      if (error) throw error;
+
+      toast({ title: "Sucesso", description: "ICP excluído com sucesso" });
+      refetch();
+    } catch (error: any) {
+      toast({ title: "Erro", description: error.message, variant: "destructive" });
+    }
+  };
 
   const handleAddICP = async () => {
     try {
@@ -157,10 +237,81 @@ const Leads = () => {
             <Plus className="w-4 h-4 mr-2" />
             Adicionar ICP
           </Button>
-          <Button size="sm">
-            <Plus className="w-4 h-4 mr-2" />
-            Adicionar Lead
-          </Button>
+          <Dialog open={isLeadDialogOpen} onOpenChange={setIsLeadDialogOpen}>
+            <DialogTrigger asChild>
+              <Button size="sm">
+                <Plus className="w-4 h-4 mr-2" />
+                Adicionar Lead
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="bg-gray-900 border-gray-700">
+              <DialogHeader>
+                <DialogTitle className="text-white">Novo Lead</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4 pt-4">
+                <div className="space-y-2">
+                  <Label className="text-white">Nome *</Label>
+                  <Input
+                    value={leadFormData.name}
+                    onChange={(e) => setLeadFormData({ ...leadFormData, name: e.target.value })}
+                    placeholder="Nome do lead"
+                    className="bg-gray-800 border-gray-700 text-white"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-white">Email</Label>
+                  <Input
+                    value={leadFormData.email}
+                    onChange={(e) => setLeadFormData({ ...leadFormData, email: e.target.value })}
+                    placeholder="email@exemplo.com"
+                    className="bg-gray-800 border-gray-700 text-white"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-white">Telefone</Label>
+                  <Input
+                    value={leadFormData.phone}
+                    onChange={(e) => setLeadFormData({ ...leadFormData, phone: e.target.value })}
+                    placeholder="(11) 99999-9999"
+                    className="bg-gray-800 border-gray-700 text-white"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-white">Canal de Origem</Label>
+                  <Input
+                    value={leadFormData.source_channel}
+                    onChange={(e) => setLeadFormData({ ...leadFormData, source_channel: e.target.value })}
+                    placeholder="Instagram, LinkedIn, etc."
+                    className="bg-gray-800 border-gray-700 text-white"
+                  />
+                </div>
+                {icps.length > 0 && (
+                  <div className="space-y-2">
+                    <Label className="text-white">ICP</Label>
+                    <Select
+                      value={leadFormData.icp_id}
+                      onValueChange={(value) => setLeadFormData({ ...leadFormData, icp_id: value })}
+                    >
+                      <SelectTrigger className="bg-gray-800 border-gray-700 text-white">
+                        <SelectValue placeholder="Selecione um ICP" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-gray-800 border-gray-700">
+                        {icps.map((icp) => (
+                          <SelectItem key={icp.id} value={icp.id} className="text-white">
+                            {icp.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
+                <Button onClick={handleAddLead} className="w-full" disabled={isAddingLead}>
+                  {isAddingLead && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                  Criar Lead
+                </Button>
+              </div>
+            </DialogContent>
+          </Dialog>
         </div>
       </div>
 
@@ -171,19 +322,9 @@ const Leads = () => {
             key={icp.id}
             icp={icp}
             leads={leads.filter((lead) => lead.icp_id === icp.id)}
+            onDelete={() => handleDeleteICP(icp.id)}
           />
         ))}
-      </div>
-
-      {/* Pipedrive Integration */}
-      <div className="mt-8">
-        <h2 className="text-xl font-bold text-white mb-4">Integrações</h2>
-        <div className="max-w-xl">
-          <PipedriveIntegrationCard 
-            lastSyncAt={pipedriveStats.lastSyncAt}
-            totalSynced={pipedriveStats.totalSynced}
-          />
-        </div>
       </div>
     </div>
   );
