@@ -10,6 +10,18 @@ const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 
+// Helper to normalize format type to valid enum value
+function normalizeFormatType(formatInput: string): string {
+  const lower = formatInput.toLowerCase();
+  // Valid values: 'reels', 'carrossel', 'stories', 'post_estatico', 'live', 'outros'
+  if (lower.includes("reel") || lower.includes("video")) return "reels";
+  if (lower.includes("carrossel") || lower.includes("carousel")) return "carrossel";
+  if (lower.includes("stories") || lower.includes("story")) return "stories";
+  if (lower.includes("post") || lower.includes("image") || lower.includes("static")) return "post_estatico";
+  if (lower.includes("live")) return "live";
+  return "outros";
+}
+
 // Helper to get or create a default resource format
 async function getOrCreateDefaultFormat(
   supabase: SupabaseClient,
@@ -18,11 +30,9 @@ async function getOrCreateDefaultFormat(
   playbookId: string | null
 ): Promise<string> {
   const formatName = formatType || "Reels 60s";
-  const normalizedType = formatName.toLowerCase().includes("carrossel") 
-    ? "carousel" 
-    : formatName.toLowerCase().includes("post") 
-      ? "image" 
-      : "video";
+  const normalizedType = normalizeFormatType(formatName);
+
+  console.log(`Looking for format: ${formatName} -> normalized to: ${normalizedType}`);
 
   // Try to find existing format for this user
   const { data: existing } = await supabase
@@ -34,6 +44,7 @@ async function getOrCreateDefaultFormat(
     .maybeSingle();
 
   if (existing?.id) {
+    console.log(`Found existing format: ${existing.id}`);
     return existing.id;
   }
 
@@ -52,16 +63,21 @@ async function getOrCreateDefaultFormat(
       validPlaybookId = anyPlaybook.id;
     } else {
       // Create a placeholder playbook
-      const { data: newPlaybook } = await supabase
+      const { data: newPlaybook, error: playbookError } = await supabase
         .from("playbooks")
         .insert({
           user_id: userId,
           name: "Default Formats",
-          slug: "default-formats",
+          slug: `default-formats-${Date.now()}`,
           status: "completed",
         })
         .select("id")
         .single();
+      
+      if (playbookError) {
+        console.error("Error creating playbook:", playbookError);
+        throw new Error("Failed to create default playbook");
+      }
       
       validPlaybookId = newPlaybook?.id;
     }
@@ -71,15 +87,15 @@ async function getOrCreateDefaultFormat(
     throw new Error("Could not create or find a valid playbook for resource format");
   }
 
-  // Create new default format
+  // Create new default format with valid enum value
   const { data: newFormat, error: insertError } = await supabase
     .from("resource_formats")
     .insert({
       user_id: userId,
       playbook_id: validPlaybookId,
       name: formatName,
-      format_type: normalizedType,
-      duration_or_slides: normalizedType === "video" ? "60s" : normalizedType === "carousel" ? "10 slides" : "1 imagem",
+      format_type: normalizedType, // Must be one of: reels, carrossel, stories, post_estatico, live, outros
+      duration_or_slides: normalizedType === "reels" ? "60s" : normalizedType === "carrossel" ? "10 slides" : "1 imagem",
       style_rules: {},
       is_active: true,
     })
@@ -88,10 +104,10 @@ async function getOrCreateDefaultFormat(
 
   if (insertError) {
     console.error("Error creating default format:", insertError);
-    throw new Error("Failed to create default resource format");
+    throw new Error(`Failed to create default resource format: ${insertError.message}`);
   }
 
-  console.log(`Created default resource_format: ${newFormat.id} for format: ${formatName}`);
+  console.log(`Created default resource_format: ${newFormat.id} for format: ${formatName} (type: ${normalizedType})`);
   return newFormat.id;
 }
 
