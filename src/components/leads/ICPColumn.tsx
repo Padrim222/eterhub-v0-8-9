@@ -38,9 +38,10 @@ interface ICPColumnProps {
   icp: ICP;
   leads: Lead[];
   onDelete?: () => void;
+  onDeleteLead?: (leadId: string) => void;
 }
 
-export const ICPColumn = ({ icp, leads, onDelete }: ICPColumnProps) => {
+export const ICPColumn = ({ icp, leads, onDelete, onDeleteLead }: ICPColumnProps) => {
   return (
     <Card className="bg-gray-900/30 border-gray-800">
       <CardHeader>
@@ -85,7 +86,7 @@ export const ICPColumn = ({ icp, leads, onDelete }: ICPColumnProps) => {
             Nenhum lead neste ICP
           </p>
         ) : (
-          leads.map((lead) => <LeadCard key={lead.id} lead={lead} color={icp.color} />)
+          leads.map((lead) => <LeadCard key={lead.id} lead={lead} color={icp.color} onDelete={onDeleteLead} />)
         )}
       </CardContent>
     </Card>

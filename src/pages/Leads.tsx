@@ -137,6 +137,22 @@ const Leads = () => {
     }
   };
 
+  const handleDeleteLead = async (leadId: string) => {
+    try {
+      const { error } = await (supabase as any)
+        .from("leads")
+        .delete()
+        .eq("id", leadId);
+
+      if (error) throw error;
+
+      toast({ title: "Sucesso", description: "Lead excluído com sucesso" });
+      refetch();
+    } catch (error: any) {
+      toast({ title: "Erro", description: error.message, variant: "destructive" });
+    }
+  };
+
   // Empty state when no ICPs exist
   if (!isLoading && icps.length === 0) {
     return (
@@ -323,6 +339,7 @@ const Leads = () => {
             icp={icp}
             leads={leads.filter((lead) => lead.icp_id === icp.id)}
             onDelete={() => handleDeleteICP(icp.id)}
+            onDeleteLead={handleDeleteLead}
           />
         ))}
       </div>
