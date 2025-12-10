@@ -1,8 +1,20 @@
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ChevronDown, ChevronUp, Mail, Phone, TrendingUp, Target, Award } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { ChevronDown, ChevronUp, Mail, Phone, TrendingUp, Target, Award, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 interface Lead {
   id: string;
@@ -20,10 +32,15 @@ interface Lead {
 interface LeadCardProps {
   lead: Lead;
   color: string;
+  onDelete?: (leadId: string) => void;
 }
 
-export const LeadCard = ({ lead, color }: LeadCardProps) => {
+export const LeadCard = ({ lead, color, onDelete }: LeadCardProps) => {
   const [isExpanded, setIsExpanded] = useState(false);
+
+  const handleDelete = (e: React.MouseEvent) => {
+    e.stopPropagation();
+  };
 
   return (
     <Card
@@ -47,6 +64,39 @@ export const LeadCard = ({ lead, color }: LeadCardProps) => {
               <Badge variant="default" className="text-xs">
                 Qualificado
               </Badge>
+            )}
+            {onDelete && (
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    className="h-6 w-6 text-white/60 hover:text-destructive"
+                    onClick={handleDelete}
+                  >
+                    <Trash2 className="w-3 h-3" />
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent className="bg-gray-900 border-gray-700" onClick={(e) => e.stopPropagation()}>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle className="text-white">Excluir Lead</AlertDialogTitle>
+                    <AlertDialogDescription className="text-white/60">
+                      Tem certeza que deseja excluir o lead "{lead.name}"? Esta ação não pode ser desfeita.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel className="bg-gray-800 text-white border-gray-700 hover:bg-gray-700">
+                      Cancelar
+                    </AlertDialogCancel>
+                    <AlertDialogAction 
+                      onClick={() => onDelete(lead.id)} 
+                      className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                    >
+                      Excluir
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
             )}
             {isExpanded ? (
               <ChevronUp className="w-4 h-4 text-white" />

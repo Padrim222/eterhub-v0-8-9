@@ -1,4 +1,5 @@
 import { ReactNode, useState } from "react";
+import { Link } from "react-router-dom";
 
 import { AppNavigation } from "./AppNavigation";
 import { ProfileModal } from "./ProfileModal";
@@ -26,7 +27,9 @@ export const PageLayout = ({ children, title, showTitle = true, headerActions }:
         <header className="border-b border-gray-800 sticky top-0 z-50 bg-black/95 backdrop-blur-sm">
           <div className="px-8 py-4">
             <div className="flex items-center justify-between mb-6">
-              <img src={eterLogo} alt="ETER" className="h-10 w-auto" />
+              <Link to="/home">
+                <img src={eterLogo} alt="ETER" className="h-10 w-auto cursor-pointer hover:opacity-80 transition-opacity" />
+              </Link>
               <Skeleton className="h-8 w-96" />
               <Skeleton className="h-10 w-10 rounded-full" />
             </div>
@@ -45,7 +48,9 @@ export const PageLayout = ({ children, title, showTitle = true, headerActions }:
       <header className="border-b border-gray-800 sticky top-0 z-50 bg-black/95 backdrop-blur-sm">
         <div className="px-8 py-4">
           <div className="flex items-center justify-between mb-6">
-            <img src={eterLogo} alt="ETER" className="h-10 w-auto" />
+            <Link to="/home">
+              <img src={eterLogo} alt="ETER" className="h-10 w-auto cursor-pointer hover:opacity-80 transition-opacity" />
+            </Link>
             <AppNavigation />
             <div className="flex items-center gap-3">
               <Button variant="ghost" size="icon" className="rounded-full border border-gray-800 hover:bg-gray-900">
