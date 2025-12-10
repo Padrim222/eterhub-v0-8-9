@@ -2,21 +2,31 @@ import { Card } from "@/components/ui/card";
 import { Bell, TrendingUp, Menu } from "lucide-react";
 
 interface IMOVICardProps {
-  imoviHistory?: Array<{ month: string; value: number; highlighted?: boolean }>;
+  imoviHistory?: Array<{ month: string; value: number; highlighted?: boolean; label?: string }>;
   currentImovi?: number;
 }
 
-export const IMOVICard = ({ imoviHistory, currentImovi = 64 }: IMOVICardProps) => {
-  const months = [
-    { month: "Mai", value: 45, label: "Início" },
-    { month: "Jun", value: 52, label: "10" },
-    { month: "Jul", value: 48, label: "20" },
-    { month: "Ago", value: 57, label: "31" },
-    { month: "Set", value: 64, highlighted: true },
-    { month: "Out", value: 0 },
-    { month: "Nov", value: 0 },
-    { month: "Dez", value: 0 },
-  ];
+export const IMOVICard = ({ imoviHistory, currentImovi = 0 }: IMOVICardProps) => {
+  // Use provided history or generate empty months
+  const getDefaultMonths = () => {
+    const monthNames = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
+    const now = new Date();
+    const currentMonth = now.getMonth();
+    
+    // Show last 8 months including current
+    const months = [];
+    for (let i = 7; i >= 0; i--) {
+      const monthIndex = (currentMonth - i + 12) % 12;
+      months.push({
+        month: monthNames[monthIndex],
+        value: 0,
+        highlighted: i === 0
+      });
+    }
+    return months;
+  };
+
+  const months = imoviHistory && imoviHistory.length > 0 ? imoviHistory : getDefaultMonths();
 
   const maxValue = Math.max(...months.map(m => m.value));
 

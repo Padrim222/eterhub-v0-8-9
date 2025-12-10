@@ -5,3 +5,6 @@ verify_jwt = false
 
 [functions.fetch-reportei-data]
 verify_jwt = true
+
+[functions.fetch-pipedrive-data]
+verify_jwt = true
