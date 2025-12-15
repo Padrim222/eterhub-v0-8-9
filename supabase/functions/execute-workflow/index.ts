@@ -1,6 +1,12 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.7.1";
 
+import { generatePerformancePrompt } from "./agents/agent-1-observer.ts";
+import { generateIdeationPrompt } from "./agents/agent-2-ideation.ts";
+import { generateResearchPrompt } from "./agents/agent-3-research.ts";
+import { generateArchitectPrompt } from "./agents/agent-4-architect.ts";
+import { generateWriterPrompt } from "./agents/agent-5-writer.ts";
+
 const corsHeaders = {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
@@ -88,37 +94,117 @@ serve(async (req) => {
                 executionContext[node.id] = node.data.prompt;
                 logs.push({ timestamp: new Date(), message: `Prompt processed: "${node.data.prompt?.substring(0, 20)}..."` });
             } else if (node.type === 'agent') {
-                const inputData = Object.values(executionContext).pop(); // Simple: take last output
+                const inputData = Object.values(executionContext).pop() || "No input";
 
-                let systemPrompt = node.data.systemPrompt || 'You are a helpful assistant.';
+                let systemPrompt = "You are a helpful assistant.";
                 const agentRole = node.data.agentRole || 'generic';
+                let contextData = node.data.contextData || "";
 
-                // SPECIAL LOGIC: Personalizer Agent
-                if (agentRole === 'personalizer' && brandIdentity) {
-                    logs.push({ timestamp: new Date(), message: `Applying Brand Identity: ${brandIdentity.name}` });
-                    const identityContext = `
-                  \n\n--- BRAND IDENTITY (MANUAL DO MOVIMENTO) ---
-                  Name: ${brandIdentity.name}
-                  Tone of Voice: ${brandIdentity.tone_of_voice || 'Neutral'}
-                  Key Terms: ${brandIdentity.key_terms?.join(', ') || 'None'}
-                  Beliefs: ${brandIdentity.beliefs || 'None'}
-                  Avoid Terms: ${brandIdentity.avoid_terms?.join(', ') || 'None'}
-                  --------------------------------------------
-                  `;
-                    systemPrompt += identityContext;
+                // --- AGENT ROUTING ---
+                switch (agentRole) {
+                    case 'observer': // Agent 1
+                        logs.push({ timestamp: new Date(), message: `[Observer] Starting Performance Analysis...` });
+                        systemPrompt = generatePerformancePrompt(inputData);
+                        break;
+
+                    case 'strategist': // Agent 2 (Ideation)
+                        logs.push({ timestamp: new Date(), message: `[Strategist] Starting Ideation & Trends...` });
+                        systemPrompt = generateIdeationPrompt(inputData, contextData);
+                        break;
+
+                    case 'researcher': // Agent 3
+                        logs.push({ timestamp: new Date(), message: `[Researcher] Starting Deep Research...` });
+                        systemPrompt = generateResearchPrompt(inputData);
+                        break;
+
+                    case 'architect': // Agent 4
+                        logs.push({ timestamp: new Date(), message: `[Architect] Structuring Narrative...` });
+                        // Simple parsing if contextData is JSON, otherwise pass as is
+                        let contentMap = contextData;
+                        let format = "Generic";
+                        try {
+                            const parsed = JSON.parse(contextData);
+                            if (parsed.contentMap) contentMap = parsed.contentMap;
+                            if (parsed.format) format = parsed.format;
+                        } catch (e) { }
+                        systemPrompt = generateArchitectPrompt(inputData, contentMap, format);
+                        break;
+
+                    case 'copywriter': // Agent 5 (Writer)
+                    case 'personalizer':
+                        logs.push({ timestamp: new Date(), message: `[Writer] Drafting Final Content...` });
+                        let scriptSkeleton = inputData;
+                        let toneGuide = "Neutral";
+                        if (brandIdentity) {
+                            toneGuide = `Name: ${brandIdentity.name}\nTone: ${brandIdentity.tone_of_voice}\nKey Terms: ${brandIdentity.key_terms?.join(', ')}`;
+                        }
+                        systemPrompt = generateWriterPrompt(inputData, scriptSkeleton, toneGuide);
+                        break;
+
+                    default:
+                        systemPrompt = `You are a helpful assistant. Role: ${agentRole}. Task: ${inputData}`;
                 }
 
-                // Mock AI Call
-                const mockResponse = `[${node.data.model || 'AI'}] Response to: "${inputData}"\nBased on system prompt: "${systemPrompt.substring(0, 30)}..."`;
 
-                executionContext[node.id] = mockResponse;
-                logs.push({ timestamp: new Date(), message: `Agent generated response.` });
+                // Real AI Call
+                let finalOutput = "";
+                const openAiKey = Deno.env.get('OPENAI_API_KEY');
+                const baseUrl = Deno.env.get('OPENAI_BASE_URL') || "https://api.openai.com/v1";
+                const model = Deno.env.get('OPENAI_MODEL') || "gpt-4o-mini";
 
-                // Add random delay to simulate AI processing
-                await new Promise(r => setTimeout(r, 1000));
+                if (openAiKey) {
+                    try {
+                        logs.push({ timestamp: new Date(), message: `[${agentRole}] Calling AI Model... (${model})` });
+
+                        const response = await fetch(`${baseUrl}/chat/completions`, {
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "application/json",
+                                "Authorization": `Bearer ${openAiKey}`,
+                                "HTTP-Referer": "https://eterhub.app",
+                                "X-Title": "EterHub Agent"
+                            },
+                            body: JSON.stringify({
+                                model: model,
+                                messages: [
+                                    { role: "system", content: systemPrompt },
+                                    { role: "user", content: inputData || "Proceed." }
+                                ],
+                                temperature: 0.7
+                            })
+                        });
+
+                        if (!response.ok) {
+                            const errText = await response.text();
+                            throw new Error(`AI Provider API error: ${errText}`);
+                        }
+
+                        const data = await response.json();
+                        finalOutput = data.choices[0].message.content;
+
+                        logs.push({ timestamp: new Date(), message: `[${agentRole}] AI Response received.` });
+                    } catch (aiError: any) {
+                        logs.push({ timestamp: new Date(), message: `ERROR calling AI: ${aiError.message}. Falling back to mock.` });
+                        finalOutput = `[Error: ${aiError.message}] \n\n (Mock Fallback) \n` +
+                            `### ${agentRole.toUpperCase()} OUTPUT\n` +
+                            `(Simulated content based on input...)`;
+                    }
+                } else {
+                    logs.push({ timestamp: new Date(), message: `WARNING: OPENAI_API_KEY not set. Using simulation.` });
+                    finalOutput = `[Simulation] Agent ${agentRole} processed inputs.`;
+                }
+
+                // Store output for next node
+                executionContext[node.id] = finalOutput;
+
+                // Add variable delay based on complexity (only for mock feeling or rate limit safety)
+                if (!openAiKey) {
+                    const delay = agentRole === 'researcher' ? 2000 : 1000;
+                    await new Promise(r => setTimeout(r, delay));
+                }
             } else if (node.type === 'output') {
                 const finalResult = Object.values(executionContext).pop();
-                logs.push({ timestamp: new Date(), message: `FINAL RESULT: ${finalResult}` });
+                logs.push({ timestamp: new Date(), message: `FINAL RESULT: ${finalResult} ` });
 
                 // Update the Execution Record with success
                 await supabase
@@ -152,3 +238,4 @@ serve(async (req) => {
             status: 500,
         });
     }
+});

@@ -5,6 +5,7 @@ import { ProjectOverview } from "@/components/consultoria/ProjectOverview";
 import { ProjetosTab } from "@/components/consultoria/ProjetosTab";
 import { EntregasTab } from "@/components/consultoria/EntregasTab";
 import { HistoricoTab } from "@/components/consultoria/HistoricoTab";
+import { IdentityConfig } from "@/components/eterflow/IdentityConfig";
 import { Loader2 } from "lucide-react";
 import { useClientProjectData, ClientProjectData } from "@/hooks/useClientProjectData";
 import { useClientActivities } from "@/hooks/useClientActivities";
@@ -55,28 +56,34 @@ const CentralCliente = () => {
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-8">
-          <TabsList className="bg-transparent border-b border-border rounded-none h-auto p-0 w-full justify-end">
-            <TabsTrigger 
+          <TabsList className="bg-transparent border-b border-border rounded-none h-auto p-0 w-full justify-start flex-wrap">
+            <TabsTrigger
               value="visao-geral"
-              className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary px-6 py-3"
+              className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary px-4 md:px-6 py-3"
             >
               Visão Geral
             </TabsTrigger>
-            <TabsTrigger 
+            <TabsTrigger
+              value="manual"
+              className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary px-4 md:px-6 py-3"
+            >
+              Manual do Movimento
+            </TabsTrigger>
+            <TabsTrigger
               value="projetos"
-              className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary px-6 py-3"
+              className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary px-4 md:px-6 py-3"
             >
               Projetos
             </TabsTrigger>
-            <TabsTrigger 
+            <TabsTrigger
               value="entregas"
-              className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary px-6 py-3"
+              className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary px-4 md:px-6 py-3"
             >
               Entregas
             </TabsTrigger>
-            <TabsTrigger 
+            <TabsTrigger
               value="historico"
-              className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary px-6 py-3"
+              className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary px-4 md:px-6 py-3"
             >
               Histórico
             </TabsTrigger>
@@ -86,21 +93,25 @@ const CentralCliente = () => {
             <ProjectOverview />
           </TabsContent>
 
+          <TabsContent value="manual" className="mt-6">
+            <IdentityConfig />
+          </TabsContent>
+
           <TabsContent value="projetos" className="mt-6">
-            <ProjetosTab 
-              data={data} 
-              setData={setData} 
-              onSave={handleSave} 
+            <ProjetosTab
+              data={data}
+              setData={setData}
+              onSave={handleSave}
               isSaving={isSaving}
               onActivityLog={handleActivityLog}
             />
           </TabsContent>
 
           <TabsContent value="entregas" className="mt-6">
-            <EntregasTab 
-              data={data} 
-              setData={setData} 
-              onSave={handleSave} 
+            <EntregasTab
+              data={data}
+              setData={setData}
+              onSave={handleSave}
               isSaving={isSaving}
               onActivityLog={handleActivityLog}
             />

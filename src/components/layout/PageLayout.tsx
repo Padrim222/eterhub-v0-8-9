@@ -25,7 +25,7 @@ export const PageLayout = ({ children, title, showTitle = true, headerActions }:
     return (
       <div className="min-h-screen bg-black text-white">
         <header className="border-b border-gray-800 sticky top-0 z-50 bg-black/95 backdrop-blur-sm">
-          <div className="px-8 py-4">
+          <div className="px-4 md:px-8 py-3 md:py-4">
             <div className="flex items-center justify-between mb-6">
               <Link to="/home">
                 <img src={eterLogo} alt="ETER" className="h-10 w-auto cursor-pointer hover:opacity-80 transition-opacity" />
@@ -59,7 +59,7 @@ export const PageLayout = ({ children, title, showTitle = true, headerActions }:
               <Button variant="ghost" size="icon" className="rounded-full border border-gray-800 hover:bg-gray-900">
                 <Bell className="w-5 h-5" />
               </Button>
-              <Avatar 
+              <Avatar
                 className="border-2 border-gray-800 cursor-pointer hover:border-primary/50 transition-colors"
                 onClick={() => setIsProfileModalOpen(true)}
               >
@@ -71,7 +71,7 @@ export const PageLayout = ({ children, title, showTitle = true, headerActions }:
         </div>
       </header>
 
-      <main className="p-8">
+      <main className="p-4 md:p-8">
         {showTitle && title && (
           <div className="max-w-7xl mx-auto mb-8 flex items-center justify-between">
             <h1 className="text-3xl font-bold">{title}</h1>

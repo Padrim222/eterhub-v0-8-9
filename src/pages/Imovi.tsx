@@ -15,6 +15,7 @@ import { LeaderBanner } from "@/components/dashboard/LeaderBanner";
 import { InstagramImportCard } from "@/components/dashboard/InstagramImportCard";
 import { useDashboardData } from "@/hooks/useDashboardData";
 import { useLeadsData } from "@/hooks/useLeadsData";
+import { useSalesData } from "@/hooks/useSalesData";
 import { ChannelView } from "@/components/canais/ChannelView";
 import { LeadsView } from "@/components/dashboard/LeadsView";
 import { CampanhasView } from "@/components/dashboard/CampanhasView";
@@ -51,16 +52,17 @@ const Imovi = () => {
   // Check if user has Instagram data
   const hasInstagramData = totalPosts > 0 || (userProfile?.instagram_posts_count ?? 0) > 0;
 
+  const { metrics: salesMetrics, isLoading: salesLoading } = useSalesData();
+
   // Calculate metrics from real data
   const mqlPercentage = leadsMetrics.qualificationRate || 0;
   const totalLeads = leadsMetrics.totalLeads || 0;
   const totalQualified = leadsMetrics.totalQualified || 0;
 
-  // Conversion rate based on qualified leads that converted (TODO: needs sales data)
-  const conversionRate = 0;
-
-  // Sales number (TODO: needs sales table)
-  const totalSales = 0;
+  // Conversion rate: (Sales / Qualified Leads) * 100
+  // Avoid division by zero
+  const totalSales = salesMetrics.salesCount;
+  const conversionRate = totalQualified > 0 ? (totalSales / totalQualified) * 100 : 0;
 
   // Qualification rate
   const qualificationRate = leadsMetrics.qualificationRate || 0;

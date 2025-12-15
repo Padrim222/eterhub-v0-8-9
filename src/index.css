@@ -8,114 +8,97 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    /* Premium Dark Theme Variables */
-    --background: 240 10% 3.9%;
-    --foreground: 0 0% 98%;
+    /* "Neon Noir" Premium Dark Theme Variables */
 
-    --card: 240 10% 5%;
-    --card-foreground: 0 0% 98%;
+    /* Backgrounds: Deep OLED Black */
+    --background: 240 10% 2%;
+    /* #050505 */
+    --foreground: 0 0% 100%;
+    /* #FFFFFF */
 
-    --card-dark: 240 10% 4%;
-    --card-dark-foreground: 0 0% 98%;
+    /* Cards: Glassmorphic Layers */
+    --card: 240 10% 4%;
+    /* #0A0A0A */
+    --card-foreground: 0 0% 100%;
 
-    --card-darker: 240 10% 2.5%;
+    --popover: 240 10% 3%;
+    --popover-foreground: 0 0% 100%;
 
-    --popover: 240 10% 3.9%;
-    --popover-foreground: 0 0% 98%;
-
-    /* Neon Green Primary */
+    /* Primary: Electric Mint (The Pulse) */
     --primary: 142 70% 50%;
+    /* #22C55E treated as #00FF94 feel */
     --primary-foreground: 144 100% 5%;
 
-    --secondary: 240 3.7% 15.9%;
-    --secondary-foreground: 0 0% 98%;
+    /* Secondary: Electric Blue */
+    --secondary: 217 91% 60%;
+    --secondary-foreground: 222 47% 11%;
 
-    --muted: 240 3.7% 15.9%;
-    --muted-foreground: 240 5% 64.9%;
+    /* Muted: Metallic Zinc */
+    --muted: 240 4% 16%;
+    --muted-foreground: 240 5% 65%;
 
-    --accent: 142 70% 50%;
-    --accent-foreground: 144 100% 5%;
+    --accent: 240 4% 16%;
+    --accent-foreground: 0 0% 100%;
 
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
+    --destructive: 0 84% 60%;
+    /* Cinematic Red */
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 240 3.7% 15.9%;
-    --input: 240 3.7% 15.9%;
+    /* Borders: Subtle Glass Edges */
+    --border: 240 5% 15%;
+    /* Very subtle */
+    --input: 240 5% 15%;
     --ring: 142 70% 50%;
+    /* Match primary for focus */
 
-    --radius: 1rem;
+    --radius: 0.75rem;
+    /* 12px for modern feel */
 
     /* Sidebar specific */
-    --sidebar-background: 240 10% 3.9%;
-    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-background: 240 10% 2%;
+    --sidebar-foreground: 240 5% 96%;
     --sidebar-primary: 142 70% 50%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-accent: 240 4% 16%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 240 5% 15%;
     --sidebar-ring: 142 70% 50%;
 
     /* Charts (Neon Palette) */
     --chart-1: 142 70% 50%;
-    /* Neon Green */
-    --chart-2: 262 80% 50%;
+    /* Green */
+    --chart-2: 262 80% 60%;
     /* Purple */
-    --chart-3: 199 89% 48%;
+    --chart-3: 199 89% 60%;
     /* Blue */
-    --chart-4: 47 95% 49%;
+    --chart-4: 47 95% 60%;
     /* Yellow */
-    --chart-5: 340 75% 55%;
+    --chart-5: 340 75% 60%;
     /* Pink */
   }
 
   .dark {
-    --background: 240 10% 3.9%;
-    --foreground: 0 0% 98%;
-
-    --card: 240 10% 5%;
-    --card-foreground: 0 0% 98%;
-
-    --card-dark: 240 10% 4%;
-    --card-dark-foreground: 0 0% 98%;
-
-    --card-darker: 240 10% 2.5%;
-
-    --popover: 240 10% 3.9%;
-    --popover-foreground: 0 0% 98%;
-
+    /* Dark mode is the DEFAULT/ONLY mode for "Neon Noir", 
+       but we keep the class for shadcn compatibility */
+    --background: 240 10% 2%;
+    --foreground: 0 0% 100%;
+    --card: 240 10% 4%;
+    --card-foreground: 0 0% 100%;
+    --popover: 240 10% 3%;
+    --popover-foreground: 0 0% 100%;
     --primary: 142 70% 50%;
     --primary-foreground: 144 100% 5%;
-
-    --secondary: 240 3.7% 15.9%;
-    --secondary-foreground: 0 0% 98%;
-
-    --muted: 240 3.7% 15.9%;
-    --muted-foreground: 240 5% 64.9%;
-
-    --accent: 142 70% 50%;
-    --accent-foreground: 144 100% 5%;
-
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
-
-    --border: 240 3.7% 15.9%;
-    --input: 240 3.7% 15.9%;
+    --secondary: 217 91% 60%;
+    --secondary-foreground: 222 47% 11%;
+    --muted: 240 4% 16%;
+    --muted-foreground: 240 5% 65%;
+    --accent: 240 4% 16%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 240 5% 15%;
+    --input: 240 5% 15%;
     --ring: 142 70% 50%;
-
-    --sidebar-background: 240 10% 3.9%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 142 70% 50%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 142 70% 50%;
-
-    --chart-1: 142 70% 50%;
-    --chart-2: 262 80% 50%;
-    --chart-3: 199 89% 48%;
-    --chart-4: 47 95% 49%;
-    --chart-5: 340 75% 55%;
   }
 }
 
@@ -126,6 +109,52 @@ All colors MUST be HSL.
 
   body {
     @apply bg-background text-foreground;
+    /* Smooth anti-aliased font rendering */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    /* Subtle noise texture for depth (optional, keeping clean for now) */
+    background-image: radial-gradient(circle at 50% 0%, rgba(34, 197, 94, 0.05), transparent 40%);
+    background-attachment: fixed;
+  }
+
+  /* Modern Scrollbar */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #333;
+    border-radius: 4px;
+    transition: background 0.2s;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: #555;
+  }
+}
+
+@layer utilities {
+
+  /* Glassmorphism Utilities */
+  .glass-panel {
+    @apply bg-black/40 backdrop-blur-xl border border-white/10 shadow-2xl;
+  }
+
+  .glass-card {
+    @apply bg-zinc-900/40 backdrop-blur-md border border-white/5 transition-all duration-300 hover:border-white/10 hover:bg-zinc-900/60;
+  }
+
+  .neon-glow {
+    @apply shadow-[0_0_15px_rgba(34, 197, 94, 0.3)] border-primary/50;
+  }
+
+  .text-glow {
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
   }
 }
 

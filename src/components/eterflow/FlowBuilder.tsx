@@ -1,25 +1,26 @@
-import { useState, useCallback, useMemo, useEffect } from 'react';
-import { ReactFlow, Controls, Background, useNodesState, useEdgesState, addEdge, Connection, Edge, Node, OnNodesChange, applyNodeChanges, ReactFlowProvider } from '@xyflow/react';
+import { useState, useCallback, useMemo, useEffect, useRef } from 'react';
+import { ReactFlow, Controls, Background, useNodesState, useEdgesState, addEdge, Connection, Edge, Node, OnNodesChange, applyNodeChanges, ReactFlowProvider, BackgroundVariant } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import { AgentNode } from './nodes/AgentNode';
 import { TriggerNode } from './nodes/TriggerNode';
 import { PromptNode } from './nodes/PromptNode';
 import { Card } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { Save, FolderOpen, Play, Loader2, Terminal, Sparkles } from "lucide-react";
+import { Save, FolderOpen, Play, Loader2, Terminal, Sparkles, BookOpen, Check, Edit3, RefreshCw, X, Eye, Pencil, ArrowRight, Zap, Clock, Copy, CheckCircle2 } from "lucide-react";
 import { useFlowPersistence } from '@/hooks/useFlowPersistence';
 import { useFlowExecution } from '@/hooks/useFlowExecution';
 import { useToast } from "@/hooks/use-toast";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { NodeProperties } from './NodeProperties';
-
 import { OutputNode } from './nodes/OutputNode';
+import { eterflowTemplate } from "@/lib/templates";
+import { Link } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { IdentityConfig } from './IdentityConfig';
-import { viralEngineTemplate } from "@/lib/templates";
 
 const initialNodes: Node[] = [
     { id: '1', type: 'trigger', position: { x: 50, y: 100 }, data: { label: 'Start' } },
@@ -33,6 +34,251 @@ const initialEdges = [
     { id: 'e3-4', source: '3', target: '4', animated: true, style: { stroke: '#fff' } }
 ];
 
+// Enhanced Touchpoint Modal with optimized UX
+function TouchpointModal({
+    isOpen,
+    onClose,
+    nodeData,
+    output,
+    onApprove,
+    onRegenerate,
+    isRegenerating,
+    stageNumber,
+    totalStages
+}: {
+    isOpen: boolean;
+    onClose: () => void;
+    nodeData: any;
+    output: string;
+    onApprove: (editedOutput: string) => void;
+    onRegenerate: () => void;
+    isRegenerating: boolean;
+    stageNumber?: number;
+    totalStages?: number;
+}) {
+    const [editedOutput, setEditedOutput] = useState(output);
+    const [activeTab, setActiveTab] = useState<'preview' | 'edit'>('preview');
+    const [copied, setCopied] = useState(false);
+    const { toast } = useToast();
+
+    useEffect(() => {
+        setEditedOutput(output);
+        setActiveTab('preview');
+    }, [output]);
+
+    if (!isOpen) return null;
+
+    const handleCopy = () => {
+        navigator.clipboard.writeText(editedOutput);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+    };
+
+    const handleQuickApprove = () => {
+        onApprove(editedOutput);
+        toast({
+            title: "✅ Aprovado!",
+            description: "Continuando para o próximo agente...",
+        });
+    };
+
+    // Simple markdown-like rendering for preview
+    const renderFormattedOutput = (text: string) => {
+        return text.split('\n').map((line, i) => {
+            // Headers
+            if (line.startsWith('# ')) {
+                return <h1 key={i} className="text-2xl font-bold text-white mt-6 mb-3">{line.replace('# ', '')}</h1>;
+            }
+            if (line.startsWith('## ')) {
+                return <h2 key={i} className="text-xl font-bold text-white/90 mt-5 mb-2 border-b border-white/10 pb-2">{line.replace('## ', '')}</h2>;
+            }
+            if (line.startsWith('### ')) {
+                return <h3 key={i} className="text-lg font-semibold text-white/80 mt-4 mb-2">{line.replace('### ', '')}</h3>;
+            }
+            // Bold text
+            if (line.includes('**')) {
+                const parts = line.split(/\*\*(.*?)\*\*/g);
+                return (
+                    <p key={i} className="text-gray-300 my-1">
+                        {parts.map((part, j) => j % 2 === 1 ? <strong key={j} className="text-white font-semibold">{part}</strong> : part)}
+                    </p>
+                );
+            }
+            // List items
+            if (line.startsWith('- ') || line.startsWith('* ')) {
+                return <li key={i} className="text-gray-300 ml-4 my-1 list-disc">{line.replace(/^[-*] /, '')}</li>;
+            }
+            // Numbered items
+            if (/^\d+\. /.test(line)) {
+                return <li key={i} className="text-gray-300 ml-4 my-1 list-decimal">{line.replace(/^\d+\. /, '')}</li>;
+            }
+            // Table rows (simple)
+            if (line.startsWith('|')) {
+                const cells = line.split('|').filter(c => c.trim());
+                if (cells.every(c => c.includes('---'))) return null;
+                return (
+                    <div key={i} className="flex gap-2 py-1 border-b border-white/5 text-sm">
+                        {cells.map((cell, j) => (
+                            <span key={j} className={`flex-1 ${j === 0 ? 'text-white/60' : 'text-white'}`}>
+                                {cell.trim()}
+                            </span>
+                        ))}
+                    </div>
+                );
+            }
+            // Empty lines
+            if (!line.trim()) return <div key={i} className="h-2" />;
+            // Regular paragraphs
+            return <p key={i} className="text-gray-300 my-1">{line}</p>;
+        });
+    };
+
+    const roleColors: Record<string, string> = {
+        strategist: 'from-yellow-500 to-orange-500',
+        architect: 'from-orange-500 to-red-500',
+        copywriter: 'from-pink-500 to-rose-500',
+        default: 'from-purple-500 to-pink-500'
+    };
+
+    const gradientColor = roleColors[nodeData?.agentRole] || roleColors.default;
+
+    return (
+        <Dialog open={isOpen} onOpenChange={onClose}>
+            <DialogContent className="max-w-5xl max-h-[95vh] p-0 bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 border-white/10 backdrop-blur-xl overflow-hidden">
+                {/* Header with gradient accent */}
+                <div className={`bg-gradient-to-r ${gradientColor} p-[1px]`}>
+                    <div className="bg-slate-950 px-6 py-4">
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-4">
+                                <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${gradientColor} flex items-center justify-center shadow-lg`}>
+                                    <Zap className="w-6 h-6 text-white" />
+                                </div>
+                                <div>
+                                    <div className="flex items-center gap-3">
+                                        <h2 className="text-xl font-bold text-white">{nodeData?.label || 'Agent Output'}</h2>
+                                        <Badge className={`bg-gradient-to-r ${gradientColor} border-0 text-white`}>
+                                            Touchpoint {stageNumber || ''}
+                                        </Badge>
+                                    </div>
+                                    <div className="flex items-center gap-3 mt-1 text-sm text-gray-400">
+                                        <span className="flex items-center gap-1">
+                                            <Clock className="w-3.5 h-3.5" />
+                                            {nodeData?.llm || 'OpenRouter'}
+                                        </span>
+                                        {stageNumber && totalStages && (
+                                            <span>• Etapa {stageNumber} de {totalStages}</span>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Quick actions */}
+                            <div className="flex items-center gap-2">
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={handleCopy}
+                                    className="border-white/10 hover:bg-white/5"
+                                >
+                                    {copied ? <CheckCircle2 className="w-4 h-4 text-green-400" /> : <Copy className="w-4 h-4" />}
+                                </Button>
+                                <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={onClose}
+                                    className="hover:bg-white/5"
+                                >
+                                    <X className="w-4 h-4" />
+                                </Button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Tabs for Preview/Edit */}
+                <div className="px-6 pt-4">
+                    <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'preview' | 'edit')}>
+                        <div className="flex items-center justify-between mb-4">
+                            <TabsList className="bg-black/40 border border-white/5">
+                                <TabsTrigger value="preview" className="data-[state=active]:bg-white/10 gap-2">
+                                    <Eye className="w-4 h-4" />
+                                    Preview
+                                </TabsTrigger>
+                                <TabsTrigger value="edit" className="data-[state=active]:bg-white/10 gap-2">
+                                    <Pencil className="w-4 h-4" />
+                                    Editar
+                                </TabsTrigger>
+                            </TabsList>
+
+                            {/* Regenerate button */}
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={onRegenerate}
+                                disabled={isRegenerating}
+                                className="border-white/10 hover:bg-white/5"
+                            >
+                                {isRegenerating ? (
+                                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                ) : (
+                                    <RefreshCw className="w-4 h-4 mr-2" />
+                                )}
+                                Regenerar com IA
+                            </Button>
+                        </div>
+
+                        <TabsContent value="preview" className="mt-0">
+                            <ScrollArea className="h-[55vh] pr-4">
+                                <div className="bg-black/30 rounded-xl p-6 border border-white/5">
+                                    {renderFormattedOutput(editedOutput)}
+                                </div>
+                            </ScrollArea>
+                        </TabsContent>
+
+                        <TabsContent value="edit" className="mt-0">
+                            <ScrollArea className="h-[55vh]">
+                                <Textarea
+                                    value={editedOutput}
+                                    onChange={(e) => setEditedOutput(e.target.value)}
+                                    className="min-h-[50vh] bg-black/30 border-white/5 text-white font-mono text-sm resize-none rounded-xl"
+                                    placeholder="Edite o output do agente..."
+                                />
+                            </ScrollArea>
+                        </TabsContent>
+                    </Tabs>
+                </div>
+
+                {/* Footer with prominent approve button */}
+                <div className={`bg-gradient-to-r ${gradientColor} p-[1px] mt-4`}>
+                    <div className="bg-slate-950 px-6 py-4 flex items-center justify-between">
+                        <p className="text-sm text-gray-400">
+                            Revise o conteúdo e clique em <strong className="text-white">Aprovar</strong> para continuar
+                        </p>
+
+                        <div className="flex items-center gap-3">
+                            <Button
+                                variant="ghost"
+                                onClick={onClose}
+                                className="text-gray-400 hover:text-white hover:bg-white/5"
+                            >
+                                Fechar
+                            </Button>
+                            <Button
+                                onClick={handleQuickApprove}
+                                className={`bg-gradient-to-r ${gradientColor} hover:opacity-90 text-white px-6 shadow-lg transition-all hover:scale-105`}
+                            >
+                                <Check className="w-4 h-4 mr-2" />
+                                Aprovar e Continuar
+                                <ArrowRight className="w-4 h-4 ml-2" />
+                            </Button>
+                        </div>
+                    </div>
+                </div>
+            </DialogContent>
+        </Dialog>
+    );
+}
+
 export function FlowBuilder() {
     const [nodes, setNodes] = useNodesState(initialNodes);
     const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>(initialEdges);
@@ -44,7 +290,20 @@ export function FlowBuilder() {
     const { runWorkflow, isExecuting, executionLogs, executionStatus } = useFlowExecution();
     const { toast } = useToast();
 
-    // Effect to update output node when execution completes
+    // Flora-style execution state
+    const [isRunningPipeline, setIsRunningPipeline] = useState(false);
+    const [currentExecutingNode, setCurrentExecutingNode] = useState<string | null>(null);
+    const [touchpointModal, setTouchpointModal] = useState<{
+        isOpen: boolean;
+        nodeId: string | null;
+        output: string;
+        stageNumber: number;
+    }>({ isOpen: false, nodeId: null, output: '', stageNumber: 0 });
+    const [isRegenerating, setIsRegenerating] = useState(false);
+
+    // Ref to store touchpoint approval callback
+    const touchpointResolveRef = useRef<((output: string) => void) | null>(null);
+
     useEffect(() => {
         if (executionStatus === 'completed') {
             const finalLog = executionLogs.find(log => log.message.startsWith('FINAL RESULT:'));
@@ -93,13 +352,278 @@ export function FlowBuilder() {
         );
     };
 
+    // Update node status
+    const updateNodeStatus = (nodeId: string, status: string, output?: string) => {
+        setNodes((nds) =>
+            nds.map((n) => {
+                if (n.id === nodeId) {
+                    return {
+                        ...n,
+                        data: {
+                            ...n.data,
+                            status,
+                            output: output ?? n.data.output
+                        }
+                    };
+                }
+                return n;
+            })
+        );
+    };
+
+    // Run single agent with OpenRouter (direct call - no Edge Function needed)
+    const runAgentNode = async (node: Node, context: string): Promise<string> => {
+        // Try to get API key from env, fallback to hardcoded if not loaded (for immediate testing)
+        const OPENROUTER_API_KEY = import.meta.env.VITE_OPENROUTER_API_KEY || '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';
+
+        try {
+            const { data: { user } } = await supabase.auth.getUser();
+
+            // Get brand identity
+            let brandIdentity = null;
+            if (user) {
+                const { data } = await supabase
+                    .from('brand_identities')
+                    .select('*')
+                    .eq('user_id', user.id)
+                    .limit(1)
+                    .maybeSingle();
+                brandIdentity = data;
+            }
+
+            const role = node.data.agentRole as string || 'observer';
+            const brandName = brandIdentity?.name || 'Cliente';
+            const brandAudience = brandIdentity?.audience || 'Público geral';
+            const brandMessage = brandIdentity?.message || 'Mensagem central';
+            const brandTone = brandIdentity?.tone_of_voice || 'Profissional e envolvente';
+
+            // Agent-specific prompts aligned with Epistemology Doc
+            const prompts: Record<string, string> = {
+                'observer': `Você é o AGENTE 1: OBSERVER (Analista Científico).
+SUA MISSÃO: Analisar dados reais e extrair padrões validados, não opiniões.
+
+CLIENTE: ${brandName} | PÚBLICO: ${brandAudience}
+CONTEXTO: ${context || 'Dados de performance e contexto do cliente.'}
+
+TAREFA - GERAR RELATÓRIO COM:
+1. TOP 10 PADRÕES DE SUCESSO: Identifique o que funciona (formato, gancho, tema).
+2. ANÁLISE DE GATILHOS (Baseado em Berger & Milkman): Quais dos 10 gatilhos (Emoção, Moeda Social, Utilidade, etc.) estão presentes?
+3. RECOMENDAÇÕES CIENTÍFICAS: Diretrizes baseadas em evidências para os próximos agentes.
+
+Saída em Markdown estruturado.`,
+
+                'strategist': `Você é o AGENTE 2: STRATEGIST (Ideação Viral).
+SUA MISSÃO: Formular teses de conteúdo com alto potencial de viralização (Hegemonia Narrativa).
+
+CLIENTE: ${brandName} | MENSAGEM: ${brandMessage}
+ANÁLISE DO OBSERVER: ${context}
+
+TAREFA - CRIAR 10 TEMAS VIRAIS:
+Para cada tema, defina:
+- Título Provocador (Curiosity Gap)
+- Gatilho Principal (ex: Awe, Anger, Utility)
+- Score de Potencial Viral (0-10) baseada na fórmula: (Emoção x 0.25) + (Moeda Social x 0.2) + ...
+- Justificativa do Score
+
+Saída em Markdown estruturado.`,
+
+                'researcher': `Você é o AGENTE 3: RESEARCHER (Pesquisa Profunda).
+SUA MISSÃO: Validar a tese com dados e criar um "Mise en place" estratégico.
+
+TEMA APROVADO: ${context}
+
+TAREFA - MAPA DE CONTEÚDO RICO:
+1. 3 Estatísticas/Dados de Impacto (com fontes citadas dentro do possível)
+2. 2 Casos de Sucesso ou Histórias Análogas
+3. Elementos de Autoridade (Citações, Estudos)
+4. Objeções do Público e como anulá-las
+5. Ganchos Visuais Sugeridos
+
+Saída em Markdown estruturado.`,
+
+                'architect': `Você é o AGENTE 4: ARCHITECT (Engenharia de Atenção).
+SUA MISSÃO: Estruturar a narrativa para retenção máxima (AIDA + Picos Emocionais).
+
+INSUMOS: ${context}
+FORMATO: Carrossel (8-10 slides) ou Roteiro de Vídeo Curto.
+
+TAREFA - ESQUELETO DO ROTEIRO:
+- Estrutura Slide a Slide / Cena a Cena
+- Indicar o OBJETIVO DE CADA SLIDE (Atenção, Identificação, Solução, etc.)
+- Mapear a OSCILAÇÃO EMOCIONAL (onde gerar tensão, onde gerar alívio)
+- Garantir Fluidez Cognitiva
+
+Saída em Markdown com tabela.`,
+
+                'copywriter': `Você é o AGENTE 5: WRITER (Redação Final e Refinamento).
+SUA MISSÃO: Transformar a estrutura em texto final, aplicando o Tom de Voz (Style Checker).
+
+TOM DE VOZ: ${brandTone}
+ESTRUTURA APROVADA: ${context}
+
+TAREFA - REDAÇÃO FINAL:
+1. Escreva o texto final para cada slide/cena.
+2. Use palavras de poder e gatilhos mentais.
+3. Garanta legibilidade (frases curtas, ritmo).
+4. No final, dê uma nota (0-10) para: Clareza, Impacto Emocional e Call to Action.
+
+Saída em Markdown. Use negrito para ênfase.`
+            };
+
+            const systemPrompt = prompts[role] || prompts['observer'];
+            console.log(`[${role}] Calling OpenRouter...`);
+
+            const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
+                    'HTTP-Referer': 'https://eterhub.app',
+                    'X-Title': 'EterHub'
+                },
+                body: JSON.stringify({
+                    model: 'openai/gpt-4o-mini',
+                    messages: [
+                        { role: 'system', content: systemPrompt },
+                        { role: 'user', content: 'Execute a tarefa com precisão. Responda em Português.' }
+                    ],
+                    temperature: 0.7,
+                    max_tokens: 4096
+                })
+            });
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(`OpenRouter: ${response.status} - ${errorText}`);
+            }
+
+            const data = await response.json();
+            return data.choices?.[0]?.message?.content || 'Sem output';
+
+        } catch (error: any) {
+            console.error('[runAgentNode] Error:', error);
+            return `[Erro] ${node.data.label}\n\n${error.message}`;
+        }
+    };
+
+    // Get agent nodes sorted by position
+    const getAgentNodes = () => {
+        return nodes
+            .filter(n => n.type === 'agent')
+            .sort((a, b) => a.position.x - b.position.x);
+    };
+
+    // Flora-style pipeline execution
+    const runFloraStylePipeline = async () => {
+        setIsRunningPipeline(true);
+
+        const agentNodes = getAgentNodes();
+        const touchpointNodes = agentNodes.filter(n => n.data.isTouchpoint);
+
+        // Reset all nodes
+        setNodes(nds => nds.map(n => ({
+            ...n,
+            data: { ...n.data, status: 'pending', output: undefined }
+        })));
+
+        let context = '';
+        let touchpointIndex = 0;
+
+        for (let i = 0; i < agentNodes.length; i++) {
+            const agentNode = agentNodes[i];
+            setCurrentExecutingNode(agentNode.id);
+            updateNodeStatus(agentNode.id, 'running');
+
+            toast({
+                title: `🔄 Processando ${agentNode.data.label}...`,
+                description: `Usando ${agentNode.data.llm || 'OpenRouter'}`,
+            });
+
+            // Run agent
+            const output = await runAgentNode(agentNode, context);
+
+            // Check if touchpoint
+            if (agentNode.data.isTouchpoint) {
+                touchpointIndex++;
+                updateNodeStatus(agentNode.id, 'editing', output);
+
+                // Open touchpoint modal and wait for approval
+                await new Promise<void>((resolve) => {
+                    setTouchpointModal({
+                        isOpen: true,
+                        nodeId: agentNode.id,
+                        output: output,
+                        stageNumber: touchpointIndex
+                    });
+
+                    // Store the resolve callback in ref
+                    touchpointResolveRef.current = (approvedOutput: string) => {
+                        context = approvedOutput;
+                        updateNodeStatus(agentNode.id, 'approved', approvedOutput);
+                        touchpointResolveRef.current = null;
+                        resolve();
+                    };
+                });
+            } else {
+                updateNodeStatus(agentNode.id, 'completed', output);
+                context = output;
+            }
+        }
+
+        // Update output node
+        setNodes(nds => nds.map(n => {
+            if (n.type === 'output') {
+                return { ...n, data: { ...n.data, output: context } };
+            }
+            return n;
+        }));
+
+        setIsRunningPipeline(false);
+        setCurrentExecutingNode(null);
+
+        toast({
+            title: "🎉 Pipeline Concluída!",
+            description: "Seu conteúdo está pronto para publicação.",
+        });
+    };
+
+    const handleTouchpointApprove = (editedOutput: string) => {
+        if (touchpointResolveRef.current) {
+            touchpointResolveRef.current(editedOutput);
+        }
+        setTouchpointModal({ isOpen: false, nodeId: null, output: '', stageNumber: 0 });
+    };
+
+    const handleTouchpointRegenerate = async () => {
+        if (!touchpointModal.nodeId) return;
+
+        setIsRegenerating(true);
+
+        const node = nodes.find(n => n.id === touchpointModal.nodeId);
+        if (node) {
+            const previousNode = nodes
+                .filter(n => n.type === 'agent' && n.position.x < node.position.x)
+                .sort((a, b) => b.position.x - a.position.x)[0];
+
+            const context = (previousNode?.data?.output as string) || '';
+            const newOutput = await runAgentNode(node, context);
+
+            setTouchpointModal(prev => ({ ...prev, output: newOutput }));
+            updateNodeStatus(node.id, 'editing', newOutput);
+
+            toast({
+                title: "🔄 Regenerado!",
+                description: "Novo output gerado pela IA.",
+            });
+        }
+
+        setIsRegenerating(false);
+    };
+
     const handleSave = async () => {
         if (!flowName) return;
         const saved = await saveWorkflow(flowName, nodes, edges, currentWorkflowId || undefined);
         if (saved && !currentWorkflowId) {
-            // In a real app we would get the ID back from saveWorkflow, skipping for now
-            // Assuming successful save means we can proceed or reloading to get ID
-            // For this demo, let's try to reload immediately to get the ID if it was a new save
             const workflows = await loadWorkflows();
             if (workflows && workflows.length > 0) {
                 setCurrentWorkflowId(workflows[0].id);
@@ -123,117 +647,140 @@ export function FlowBuilder() {
         }
     };
 
-    const handleRun = async () => {
-        if (!currentWorkflowId) {
-            toast({ title: "Salvar primeiro", description: "Por favor, salve o fluxo antes de executar.", variant: "destructive" });
-            return;
-        }
-        await runWorkflow(currentWorkflowId);
+    const handleLoadTemplate = () => {
+        setNodes(eterflowTemplate.nodes);
+        setEdges(eterflowTemplate.edges);
+        setFlowName("Eterflow Template");
+        toast({ title: "✨ Template Carregado", description: "5 agentes prontos para execução." });
     };
 
-    const handleLoadTemplate = () => {
-        setNodes(viralEngineTemplate.nodes);
-        setEdges(viralEngineTemplate.edges);
-        setFlowName("Viral Engine V1");
-        toast({ title: "Template Loaded", description: "Viral Engine workflow loaded." });
-    };
+    const currentNode = touchpointModal.nodeId ? nodes.find(n => n.id === touchpointModal.nodeId) : null;
+    const agentNodes = getAgentNodes();
+    const touchpointNodes = agentNodes.filter(n => n.data.isTouchpoint);
 
     return (
-        <div className="flex flex-col gap-4 w-full h-[80vh]">
-            <Tabs defaultValue="builder" className="w-full h-full flex flex-col">
-                <div className="flex items-center justify-between bg-card p-2 rounded-lg border border-border mb-2">
-                    <TabsList>
-                        <TabsTrigger value="builder">Flow Builder</TabsTrigger>
-                        <TabsTrigger value="identity">Identidade (Manual)</TabsTrigger>
-                    </TabsList>
-
-                    <div className="flex items-center gap-2">
-                        {/* Only show these controls on builder tab ideally, but keeping simple for now */}
-                        <Input
-                            value={flowName}
-                            onChange={(e) => setFlowName(e.target.value)}
-                            className="w-48 h-8 bg-background"
-                            placeholder="Nome do Fluxo"
-                        />
-                        <Button size="sm" variant="outline" onClick={handleLoadTemplate} disabled={isSaving || isExecuting} className="mr-2 border-green-500/50 text-green-400 hover:bg-green-500/10">
-                            <Sparkles className="w-4 h-4 mr-2" />
-                            Viral Template
-                        </Button>
-                        <Button size="sm" variant="outline" onClick={handleLoad} disabled={isSaving || isExecuting}>
-                            <FolderOpen className="w-4 h-4 mr-2" />
-                            Load
-                        </Button>
-                        <Button size="sm" onClick={handleSave} disabled={isSaving || isExecuting}>
-                            <Save className="w-4 h-4 mr-2" />
-                            {isSaving ? 'Saving...' : 'Save'}
-                        </Button>
-                        <Button size="sm" variant="secondary" className="ml-2" onClick={handleRun} disabled={isExecuting}>
-                            {isExecuting ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Play className="w-4 h-4 mr-2" />}
-                            {isExecuting ? 'Running...' : 'Run'}
-                        </Button>
-                    </div>
+        <div className="flex flex-col gap-3 w-full h-full">
+            {/* Action Bar */}
+            <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-3 bg-black/60 backdrop-blur-xl p-3 md:p-2 rounded-2xl border border-white/5 shadow-2xl">
+                <div className="flex flex-wrap items-center gap-2 md:gap-3 w-full md:w-auto">
+                    <Input
+                        value={flowName}
+                        onChange={(e) => setFlowName(e.target.value)}
+                        className="w-full md:w-48 h-9 bg-black/50 border-white/10 rounded-xl"
+                        placeholder="Nome do Fluxo"
+                    />
+                    <div className="hidden md:block h-6 w-[1px] bg-white/10 mx-1"></div>
+                    <Button size="sm" variant="outline" onClick={handleLoadTemplate} disabled={isSaving || isRunningPipeline} className="border-green-500/30 text-green-400 hover:bg-green-500/10 hover:border-green-500/50 shadow-[0_0_15px_rgba(34,197,94,0.15)] rounded-xl">
+                        <Sparkles className="w-4 h-4 mr-2" />
+                        Template
+                    </Button>
+                    <Button size="sm" variant="outline" onClick={handleLoad} disabled={isSaving || isRunningPipeline} className="rounded-xl">
+                        <FolderOpen className="w-4 h-4 mr-2" />
+                        Carregar
+                    </Button>
+                    <Button size="sm" onClick={handleSave} disabled={isSaving || isRunningPipeline} className="rounded-xl">
+                        <Save className="w-4 h-4 mr-2" />
+                        {isSaving ? 'Salvando...' : 'Salvar'}
+                    </Button>
+                    <Button
+                        size="sm"
+                        className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white border-0 shadow-[0_0_20px_rgba(168,85,247,0.3)] rounded-xl"
+                        onClick={runFloraStylePipeline}
+                        disabled={isRunningPipeline}
+                    >
+                        {isRunningPipeline ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Play className="w-4 h-4 mr-2" />}
+                        {isRunningPipeline ? 'Executando...' : 'Executar Pipeline'}
+                    </Button>
                 </div>
 
-                <TabsContent value="builder" className="flex-1 flex gap-4 overflow-hidden mt-0">
-                    <div className="relative flex-1 border border-gray-800 rounded-lg bg-black/50 backdrop-blur-sm overflow-hidden">
-                        <ReactFlowProvider>
-                            <ReactFlow
-                                nodes={nodes}
-                                edges={edges}
-                                onNodesChange={onNodesChange}
-                                onEdgesChange={onEdgesChange}
-                                onConnect={onConnect}
-                                nodeTypes={nodeTypes}
-                                onNodeClick={onNodeClick}
-                                onPaneClick={onPaneClick}
-                                colorMode="dark"
-                                fitView
-                            >
-                                <Controls />
-                                <Background />
-                            </ReactFlow>
-                        </ReactFlowProvider>
+                <Link to="/central-cliente" className="flex items-center gap-2 text-sm text-gray-400 hover:text-primary transition-colors">
+                    <BookOpen className="w-4 h-4" />
+                    <span className="hidden md:inline">Manual do Movimento</span>
+                </Link>
+            </div>
 
-                        {selectedNode && (
-                            <NodeProperties
-                                selectedNode={selectedNode}
-                                updateNodeData={updateNodeData}
-                            />
-                        )}
+            {/* Flow Canvas */}
+            <div className="flex flex-col md:flex-row gap-3 flex-1 overflow-hidden">
+                <div className="relative flex-1 border border-white/5 rounded-2xl bg-gradient-to-br from-slate-950 via-purple-950/20 to-slate-950 backdrop-blur-sm overflow-hidden shadow-2xl min-h-[50vh]">
+                    {/* Ambient glow */}
+                    <div className="absolute inset-0 pointer-events-none">
+                        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-purple-500/5 rounded-full blur-3xl"></div>
+                        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-pink-500/5 rounded-full blur-3xl"></div>
                     </div>
 
-                    {/* Execution Logs Panel (Existing code) */}
-                    {
-                        executionLogs.length > 0 && (
-                            <Card className="w-80 bg-black/90 border-l border-gray-800 flex flex-col">
-                                <div className="p-3 border-b border-gray-800 flex items-center gap-2">
-                                    <Terminal className="w-4 h-4 text-primary" />
-                                    <span className="font-mono text-xs font-bold text-primary">Execution Logs</span>
-                                </div>
-                                <ScrollArea className="flex-1 p-3">
-                                    <div className="space-y-2 font-mono text-xs">
-                                        {executionLogs.map((log, i) => (
-                                            <div key={i} className="flex flex-col gap-1">
-                                                <span className="text-gray-500 text-[10px]">{new Date(log.timestamp).toLocaleTimeString()}</span>
-                                                <span className={log.message.includes('Error') ? 'text-red-400' : 'text-green-400'}>
-                                                    {">"} {log.message}
-                                                </span>
-                                            </div>
-                                        ))}
-                                        {isExecuting && (
-                                            <div className="animate-pulse text-gray-500 text-[10px]">Processing...</div>
-                                        )}
-                                    </div>
-                                </ScrollArea>
-                            </Card>
-                        )
-                    }
-                </TabsContent >
+                    <ReactFlowProvider>
+                        <ReactFlow
+                            nodes={nodes}
+                            edges={edges}
+                            onNodesChange={onNodesChange}
+                            onEdgesChange={onEdgesChange}
+                            onConnect={onConnect}
+                            nodeTypes={nodeTypes}
+                            onNodeClick={onNodeClick}
+                            onPaneClick={onPaneClick}
+                            colorMode="dark"
+                            fitView
+                            defaultEdgeOptions={{
+                                type: 'smoothstep',
+                                animated: true,
+                                style: { stroke: 'rgba(255,255,255,0.3)', strokeWidth: 2 }
+                            }}
+                        >
+                            <Controls className="!bg-black/50 !border-white/10 !rounded-xl" />
+                            <Background variant={BackgroundVariant.Dots} gap={20} size={1} color="rgba(255,255,255,0.05)" />
+                        </ReactFlow>
+                    </ReactFlowProvider>
 
-                <TabsContent value="identity" className="flex-1 mt-0 overflow-hidden">
-                    <IdentityConfig />
-                </TabsContent>
-            </Tabs >
-        </div >
+                    {selectedNode && (
+                        <NodeProperties
+                            selectedNode={selectedNode}
+                            updateNodeData={updateNodeData}
+                            onClose={() => setSelectedNodeId(null)}
+                        />
+                    )}
+                </div>
+
+                {/* Execution Logs Panel */}
+                {(executionLogs.length > 0 || isRunningPipeline) && (
+                    <Card className="w-full md:w-80 max-h-48 md:max-h-none bg-black/80 border border-white/5 flex flex-col rounded-2xl backdrop-blur-xl">
+                        <div className="p-3 border-b border-white/5 flex items-center gap-2">
+                            <Terminal className="w-4 h-4 text-primary" />
+                            <span className="font-mono text-xs font-bold text-primary">Pipeline Status</span>
+                        </div>
+                        <ScrollArea className="flex-1 p-3">
+                            <div className="space-y-2 font-mono text-xs">
+                                {executionLogs.map((log, i) => (
+                                    <div key={i} className="flex flex-col gap-1">
+                                        <span className="text-gray-500 text-[11px]">{new Date(log.timestamp).toLocaleTimeString()}</span>
+                                        <span className={log.message.includes('Error') ? 'text-red-400' : 'text-green-400'}>
+                                            {">"} {log.message}
+                                        </span>
+                                    </div>
+                                ))}
+                                {isRunningPipeline && (
+                                    <div className="animate-pulse text-purple-400 text-[11px] flex items-center gap-2">
+                                        <Loader2 className="w-3 h-3 animate-spin" />
+                                        {currentExecutingNode ? `Processando ${nodes.find(n => n.id === currentExecutingNode)?.data.label}...` : 'Iniciando...'}
+                                    </div>
+                                )}
+                            </div>
+                        </ScrollArea>
+                    </Card>
+                )}
+            </div>
+
+            {/* Enhanced Touchpoint Modal */}
+            <TouchpointModal
+                isOpen={touchpointModal.isOpen}
+                onClose={() => setTouchpointModal({ isOpen: false, nodeId: null, output: '', stageNumber: 0 })}
+                nodeData={currentNode?.data}
+                output={touchpointModal.output}
+                onApprove={handleTouchpointApprove}
+                onRegenerate={handleTouchpointRegenerate}
+                isRegenerating={isRegenerating}
+                stageNumber={touchpointModal.stageNumber}
+                totalStages={touchpointNodes.length}
+            />
+        </div>
     );
 }

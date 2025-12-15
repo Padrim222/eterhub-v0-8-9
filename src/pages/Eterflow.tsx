@@ -4,8 +4,8 @@ import eterLogo from "@/assets/eter-logo.png";
 
 const Eterflow = () => {
   return (
-    <PageLayout title="Eterflow Network">
-      <div className="relative min-h-screen flex flex-col gap-6">
+    <PageLayout showTitle={false}>
+      <div className="relative flex flex-col gap-4 -mx-4 md:-mx-8 -mt-4 md:-mt-8">
         {/* Logo Eter Hub Background */}
         <div className="fixed inset-0 flex items-center justify-center pointer-events-none z-0">
           <img
@@ -15,18 +15,15 @@ const Eterflow = () => {
           />
         </div>
 
-        <div className="relative z-10 flex flex-col h-full">
-          <div className="mb-6 flex justify-between items-center">
+        <div className="relative z-10 flex flex-col h-full px-4 md:px-8 pt-4 md:pt-6">
+          <div className="mb-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
             <div>
-              <h2 className="text-xl font-semibold text-white">Fluxos de IA</h2>
-              <p className="text-white/60">Construa agentes e automações arrastando e soltando nós.</p>
+              <h1 className="text-2xl md:text-3xl font-bold text-white">Eterflow</h1>
+              <p className="text-white/60 text-sm md:text-base">Construa fluxos de IA arrastando e soltando agentes.</p>
             </div>
-            <button className="bg-primary hover:bg-primary/90 text-black font-semibold py-2 px-4 rounded-lg transition-colors">
-              Novo Fluxo
-            </button>
           </div>
 
-          <div className="flex-1 min-h-[700px]">
+          <div className="flex-1 min-h-[calc(100vh-180px)]">
             <FlowBuilder />
           </div>
         </div>

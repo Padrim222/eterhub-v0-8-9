@@ -1,74 +1,89 @@
 import { Node, Edge } from '@xyflow/react';
 
-export const viralEngineTemplate = {
+export const eterflowTemplate = {
     nodes: [
         {
             id: '1',
             type: 'trigger',
             position: { x: 50, y: 300 },
-            data: { label: 'Start Flow' },
+            data: { label: 'Start' },
         },
         {
             id: '2',
-            type: 'agent',
-            position: { x: 250, y: 300 },
+            type: 'prompt',
+            position: { x: 220, y: 300 },
             data: {
-                label: 'Agent 1: Observer',
-                agentRole: 'observer',
-                model: 'gpt-4o',
-                systemPrompt: 'You are The Scientist. Analyze the input data to identify psychological triggers (Emotional Arousal, Social Currency...) and algorithmic patterns.'
+                label: 'Fonte de Dados',
+                prompt: 'Métricas do Instagram serão carregadas automaticamente.',
+                dataSource: 'instagram',
+                postFormat: 'any'
             },
         },
         {
             id: '3',
             type: 'agent',
-            position: { x: 500, y: 300 },
+            position: { x: 450, y: 300 },
             data: {
-                label: 'Agent 2: Strategist',
-                agentRole: 'strategist',
-                model: 'gpt-4o',
-                systemPrompt: 'You are The Strategist. Formulate viral theses based on the patterns provided, intersecting Market, Audience, and Objective.'
+                label: '1. Observer',
+                agentRole: 'observer',
+                agentDescription: 'Analisa dados de performance e identifica os Top 10 padrões de sucesso.',
+                llm: 'Claude 3 Haiku',
+                isTouchpoint: false
             },
         },
         {
             id: '4',
             type: 'agent',
-            position: { x: 750, y: 300 },
+            position: { x: 680, y: 300 },
             data: {
-                label: 'Agent 3: Researcher',
-                agentRole: 'researcher',
-                model: 'gpt-4o',
-                systemPrompt: 'You are The Researcher. Find articulated evidence (stats, cases, studies) that prove the point of the selected thesis.'
+                label: '2. Strategist',
+                agentRole: 'strategist',
+                agentDescription: 'Gera 10 ideias de temas virais com base nos padrões e tendências.',
+                llm: 'Gemini 2.0 Flash',
+                isTouchpoint: true  // TOUCHPOINT: Aprovar temas
             },
         },
         {
             id: '5',
             type: 'agent',
-            position: { x: 1000, y: 300 },
+            position: { x: 910, y: 300 },
             data: {
-                label: 'Agent 4: Architect',
-                agentRole: 'architect',
-                model: 'gpt-4o',
-                systemPrompt: 'You are The Architect. Structure the script following the 80/20 rule (80% proven pattern, 20% innovation).'
+                label: '3. Researcher',
+                agentRole: 'researcher',
+                agentDescription: 'Pesquisa dados, cases, estatísticas e insumos para cada tema.',
+                llm: 'Perplexity Sonar',
+                isTouchpoint: false
             },
         },
         {
             id: '6',
             type: 'agent',
-            position: { x: 1250, y: 300 },
+            position: { x: 1140, y: 300 },
             data: {
-                label: 'Agent 5: Personalizer',
-                agentRole: 'personalizer',
-                model: 'gpt-4o',
-                // System prompt will be appended with Identity in the backend
-                systemPrompt: 'You are The Voice. Rewrite the script applying the Brand Identity (Tone, Slang, Values).'
+                label: '4. Architect',
+                agentRole: 'architect',
+                agentDescription: 'Estrutura o roteiro seguindo a lógica AIDA.',
+                llm: 'Claude 3.5 Sonnet',
+                isTouchpoint: true  // TOUCHPOINT: Aprovar estrutura
             },
         },
         {
             id: '7',
+            type: 'agent',
+            position: { x: 1370, y: 300 },
+            data: {
+                label: '5. Copywriter',
+                agentRole: 'copywriter',
+                agentDescription: 'Escreve o texto final humanizado, no tom de voz da marca.',
+                llm: 'Gemini 2.0 Flash',
+                isTouchpoint: true  // TOUCHPOINT: Aprovar texto final
+            },
+        },
+        {
+            id: '8',
             type: 'output',
-            position: { x: 1500, y: 300 },
-            data: { label: 'Final Content' },
+            position: { x: 1600, y: 300 },
+            data: { label: 'Roteiro Final' },
         },
     ] as Node[],
     edges: [
@@ -78,5 +93,6 @@ export const viralEngineTemplate = {
         { id: 'e4-5', source: '4', target: '5', animated: true },
         { id: 'e5-6', source: '5', target: '6', animated: true },
         { id: 'e6-7', source: '6', target: '7', animated: true },
+        { id: 'e7-8', source: '7', target: '8', animated: true },
     ] as Edge[],
 };
