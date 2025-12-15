@@ -40,9 +40,9 @@ export function useAdminProjects() {
   const loadProjects = async () => {
     setIsLoading(true);
     try {
-      // Get all project data
-      const { data: projectData, error: projectsError } = await supabase
-        .from("client_project_data")
+      // Get all project data - using type assertion for tables not in types.ts
+      const { data: projectData, error: projectsError } = await (supabase
+        .from("client_project_data" as any) as any)
         .select("user_id, projetos, entregas");
 
       if (projectsError) throw projectsError;
@@ -58,7 +58,7 @@ export function useAdminProjects() {
       const allProjects: Project[] = [];
       const allEntregas: Entrega[] = [];
 
-      projectData?.forEach(pd => {
+      (projectData || []).forEach((pd: any) => {
         const user = usersData?.find(u => u.id === pd.user_id);
         
         if (Array.isArray(pd.projetos)) {

@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import type { Json } from '@/integrations/supabase/types';
 
 export interface Activity {
   id: string;
@@ -26,8 +25,9 @@ export const useClientActivities = () => {
         return;
       }
 
-      const { data, error } = await supabase
-        .from('client_activities')
+      // Using type assertion for tables not in types.ts
+      const { data, error } = await (supabase
+        .from('client_activities' as any) as any)
         .select('*')
         .eq('user_id', session.user.id)
         .order('data', { ascending: false })
@@ -35,14 +35,14 @@ export const useClientActivities = () => {
 
       if (error) throw error;
 
-      setActivities(data?.map(item => ({
+      setActivities((data || []).map((item: any) => ({
         id: item.id,
         tipo: item.tipo as Activity['tipo'],
         titulo: item.titulo,
         descricao: item.descricao,
         data: item.data,
         metadata: (item.metadata as Record<string, unknown>) || {},
-      })) || []);
+      })));
     } catch (error) {
       console.error('Erro ao carregar atividades:', error);
       toast.error('Erro ao carregar histórico');
@@ -60,15 +60,16 @@ export const useClientActivities = () => {
         return false;
       }
 
-      const { error } = await supabase
-        .from('client_activities')
+      // Using type assertion for tables not in types.ts
+      const { error } = await (supabase
+        .from('client_activities' as any) as any)
         .insert([{
           user_id: session.user.id,
           tipo: activity.tipo,
           titulo: activity.titulo,
           descricao: activity.descricao,
           data: activity.data,
-          metadata: activity.metadata as unknown as Json,
+          metadata: activity.metadata,
         }]);
 
       if (error) throw error;
@@ -99,8 +100,7 @@ export const useClientActivities = () => {
             table: 'client_activities',
             filter: `user_id=eq.${session.user.id}`,
           },
-          (payload) => {
-
+          () => {
             // Reload activities on any change
             loadActivities();
           }

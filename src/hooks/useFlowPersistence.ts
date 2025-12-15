@@ -23,14 +23,16 @@ export const useFlowPersistence = () => {
 
             let error;
             if (workflowId) {
-                const { error: updateError } = await supabase
-                    .from('workflows')
+                // Using type assertion for tables not in types.ts
+                const { error: updateError } = await (supabase
+                    .from('workflows' as any) as any)
                     .update(payload)
                     .eq('id', workflowId);
                 error = updateError;
             } else {
-                const { error: insertError } = await supabase
-                    .from('workflows')
+                // Using type assertion for tables not in types.ts
+                const { error: insertError } = await (supabase
+                    .from('workflows' as any) as any)
                     .insert([payload]);
                 error = insertError;
             }
@@ -61,14 +63,15 @@ export const useFlowPersistence = () => {
             const { data: { user } } = await supabase.auth.getUser();
             if (!user) throw new Error('User not authenticated');
 
-            const { data, error } = await supabase
-                .from('workflows')
+            // Using type assertion for tables not in types.ts
+            const { data, error } = await (supabase
+                .from('workflows' as any) as any)
                 .select('*')
                 .eq('user_id', user.id)
                 .order('updated_at', { ascending: false });
 
             if (error) throw error;
-            return data;
+            return data || [];
         } catch (error: any) {
             console.error('Error loading workflows:', error);
             toast({
