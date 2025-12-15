@@ -30,7 +30,7 @@ interface LeadsMetrics {
   qualificationRate: number;
 }
 
-// Dados removidos - usando dados reais do banco
+
 
 export const useLeadsData = () => {
   const [icps, setIcps] = useState<ICP[]>([]);
@@ -51,7 +51,7 @@ export const useLeadsData = () => {
     try {
       setIsLoading(true);
       const { data: { session } } = await supabase.auth.getSession();
-      
+
       if (!session) {
         setIsLoading(false);
         return;
@@ -79,7 +79,7 @@ export const useLeadsData = () => {
         console.error("Erro ao carregar Leads:", leadsError);
       } else if (leadsData) {
         setLeads(leadsData as unknown as Lead[]);
-        
+
         // Calcular métricas
         const totalLeads = leadsData?.length || 0;
         const totalQualified = leadsData?.filter((l: any) => l.is_qualified).length || 0;

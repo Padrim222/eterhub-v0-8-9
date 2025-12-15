@@ -18,11 +18,11 @@ import {
 
 const CAMPAIGN_COLORS = ["#ef4444", "#22c55e", "#f59e0b", "#3b82f6", "#8b5cf6", "#ec4899"];
 
-const Campanhas = () => {
+export const CampanhasView = () => {
   const [periodFilter, setPeriodFilter] = useState<PeriodFilter>("month");
   const [selectedCampaigns, setSelectedCampaigns] = useState<Set<string>>(new Set());
   const { campaigns, averageLine, isLoading, addCampaign } = useCampaignsData(periodFilter);
-  
+
   // Dialog state
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isAdding, setIsAdding] = useState(false);
@@ -44,7 +44,7 @@ const Campanhas = () => {
       toast.error("Nome da campanha é obrigatório");
       return;
     }
-    
+
     try {
       setIsAdding(true);
       await addCampaign(campaignName, campaignColor);
@@ -83,13 +83,13 @@ const Campanhas = () => {
       dateMap.get(point.date)!['average'] = point.average;
     });
 
-    return Array.from(dateMap.values()).sort((a, b) => 
+    return Array.from(dateMap.values()).sort((a, b) =>
       a.date.localeCompare(b.date)
     );
   };
 
-  const activeCampaigns = selectedCampaigns.size === 0 
-    ? campaigns 
+  const activeCampaigns = selectedCampaigns.size === 0
+    ? campaigns
     : campaigns.filter(c => selectedCampaigns.has(c.id));
 
   if (isLoading) {
@@ -110,47 +110,47 @@ const Campanhas = () => {
           <div className="flex items-center gap-3">
             <h1 className="text-3xl font-bold text-white">Campanhas</h1>
           </div>
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogTrigger asChild>
-            <Button className="bg-primary hover:bg-primary/90">
-              <Plus className="h-4 w-4 mr-2" />
-              Adicionar Campanha
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="bg-gray-900 border-gray-700">
-            <DialogHeader>
-              <DialogTitle className="text-white">Nova Campanha</DialogTitle>
-            </DialogHeader>
-            <div className="space-y-4 pt-4">
-              <div className="space-y-2">
-                <Label className="text-white">Nome da Campanha</Label>
-                <Input
-                  value={campaignName}
-                  onChange={(e) => setCampaignName(e.target.value)}
-                  placeholder="Ex: Black Friday 2025"
-                  className="bg-gray-800 border-gray-700 text-white"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label className="text-white">Cor</Label>
-                <div className="flex gap-2">
-                  {CAMPAIGN_COLORS.map((color) => (
-                    <button
-                      key={color}
-                      onClick={() => setCampaignColor(color)}
-                      className={`w-8 h-8 rounded-full transition-transform ${campaignColor === color ? 'ring-2 ring-white ring-offset-2 ring-offset-gray-900 scale-110' : ''}`}
-                      style={{ backgroundColor: color }}
-                    />
-                  ))}
-                </div>
-              </div>
-              <Button onClick={handleAddCampaign} className="w-full" disabled={isAdding}>
-                {isAdding && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-                Criar Campanha
+          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+            <DialogTrigger asChild>
+              <Button className="bg-primary hover:bg-primary/90">
+                <Plus className="h-4 w-4 mr-2" />
+                Adicionar Campanha
               </Button>
-            </div>
-          </DialogContent>
-        </Dialog>
+            </DialogTrigger>
+            <DialogContent className="bg-gray-900 border-gray-700">
+              <DialogHeader>
+                <DialogTitle className="text-white">Nova Campanha</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4 pt-4">
+                <div className="space-y-2">
+                  <Label className="text-white">Nome da Campanha</Label>
+                  <Input
+                    value={campaignName}
+                    onChange={(e) => setCampaignName(e.target.value)}
+                    placeholder="Ex: Black Friday 2025"
+                    className="bg-gray-800 border-gray-700 text-white"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-white">Cor</Label>
+                  <div className="flex gap-2">
+                    {CAMPAIGN_COLORS.map((color) => (
+                      <button
+                        key={color}
+                        onClick={() => setCampaignColor(color)}
+                        className={`w-8 h-8 rounded-full transition-transform ${campaignColor === color ? 'ring-2 ring-white ring-offset-2 ring-offset-gray-900 scale-110' : ''}`}
+                        style={{ backgroundColor: color }}
+                      />
+                    ))}
+                  </div>
+                </div>
+                <Button onClick={handleAddCampaign} className="w-full" disabled={isAdding}>
+                  {isAdding && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                  Criar Campanha
+                </Button>
+              </div>
+            </DialogContent>
+          </Dialog>
         </div>
 
         {/* Empty State Card */}
@@ -269,12 +269,12 @@ const Campanhas = () => {
               variant={selectedCampaigns.has(campaign.id) || selectedCampaigns.size === 0 ? "default" : "outline"}
               className="rounded-lg"
               style={{
-                backgroundColor: (selectedCampaigns.has(campaign.id) || selectedCampaigns.size === 0) 
-                  ? campaign.color 
+                backgroundColor: (selectedCampaigns.has(campaign.id) || selectedCampaigns.size === 0)
+                  ? campaign.color
                   : 'transparent',
                 borderColor: campaign.color,
-                color: (selectedCampaigns.has(campaign.id) || selectedCampaigns.size === 0) 
-                  ? '#fff' 
+                color: (selectedCampaigns.has(campaign.id) || selectedCampaigns.size === 0)
+                  ? '#fff'
                   : campaign.color
               }}
               onClick={() => toggleCampaign(campaign.id)}
@@ -333,24 +333,24 @@ const Campanhas = () => {
         <ResponsiveContainer width="100%" height={400}>
           <LineChart data={mergedData()}>
             <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
-            <XAxis 
-              dataKey="date" 
+            <XAxis
+              dataKey="date"
               stroke="rgba(255,255,255,0.5)"
               style={{ fontSize: '12px' }}
             />
-            <YAxis 
+            <YAxis
               stroke="rgba(255,255,255,0.5)"
               style={{ fontSize: '12px' }}
             />
-            <Tooltip 
-              contentStyle={{ 
-                backgroundColor: '#000', 
+            <Tooltip
+              contentStyle={{
+                backgroundColor: '#000',
                 border: '1px solid rgba(255,255,255,0.2)',
                 borderRadius: '8px'
               }}
             />
             <Legend />
-            
+
             {/* Campaign Lines */}
             {activeCampaigns.map(campaign => (
               <Line
@@ -364,7 +364,7 @@ const Campanhas = () => {
                 activeDot={{ r: 5 }}
               />
             ))}
-            
+
             {/* Average Line - thicker and more opaque */}
             <Line
               type="monotone"
@@ -384,8 +384,8 @@ const Campanhas = () => {
             const totalLeads = campaign.data.reduce((sum, point) => sum + point.leads, 0);
             return (
               <div key={campaign.id} className="flex items-center gap-3">
-                <div 
-                  className="w-3 h-3 rounded-full" 
+                <div
+                  className="w-3 h-3 rounded-full"
                   style={{ backgroundColor: campaign.color }}
                 />
                 <div>
@@ -401,4 +401,4 @@ const Campanhas = () => {
   );
 };
 
-export default Campanhas;
+export default CampanhasView;

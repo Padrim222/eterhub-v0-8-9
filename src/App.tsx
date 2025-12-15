@@ -15,7 +15,7 @@ import Tribes from "./pages/Tribes";
 import Imovi from "./pages/Imovi";
 import Conteudo from "./pages/Conteudo";
 import Auth from "./pages/Auth";
-import Leads from "./pages/Leads";
+
 import NotFound from "./pages/NotFound";
 import Configuracoes from "./pages/Configuracoes";
 import Integracoes from "./pages/Integracoes";
@@ -23,9 +23,9 @@ import Admin from "./pages/Admin";
 
 const queryClient = new QueryClient();
 
-function ErrorFallback({ error, resetErrorBoundary }: { 
-  error: Error; 
-  resetErrorBoundary: () => void 
+function ErrorFallback({ error, resetErrorBoundary }: {
+  error: Error;
+  resetErrorBoundary: () => void
 }) {
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-background">
@@ -34,7 +34,7 @@ function ErrorFallback({ error, resetErrorBoundary }: {
         <AlertDescription>
           <h3 className="font-semibold text-lg mb-2">Algo deu errado</h3>
           <p className="text-sm mb-4">{error.message}</p>
-          <button 
+          <button
             onClick={resetErrorBoundary}
             className="px-4 py-2 bg-background text-destructive rounded-md hover:bg-muted transition-colors border border-destructive"
           >
@@ -47,7 +47,7 @@ function ErrorFallback({ error, resetErrorBoundary }: {
 }
 
 const App = () => (
-  <ErrorBoundary 
+  <ErrorBoundary
     FallbackComponent={ErrorFallback}
     onReset={() => window.location.href = '/'}
   >
@@ -59,41 +59,41 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/auth" element={<Auth />} />
-            
+
             {/* Home - mostra IMOV diretamente */}
             <Route path="/home" element={<Home />} />
-            
+
             {/* Redirect /imov para /home */}
             <Route path="/imov" element={<Navigate to="/home" replace />} />
-            
+
             {/* Central do Cliente */}
             <Route path="/central-cliente" element={<CentralCliente />} />
-            
+
             {/* Educação */}
             <Route path="/educacao" element={<Educacao />} />
-            
+
             {/* Eterflow */}
             <Route path="/eterflow" element={<Eterflow />} />
             <Route path="/etherflow" element={<Navigate to="/eterflow" replace />} />
-            
+
             {/* Tribes */}
             <Route path="/tribes" element={<Tribes />} />
-            
+
             {/* Conteúdo */}
             <Route path="/conteudo" element={<Conteudo />} />
-            
+
             {/* Configurações */}
             <Route path="/configuracoes" element={<Configuracoes />} />
-            
+
             {/* Integrações */}
             <Route path="/integracoes" element={<Integracoes />} />
-            
+
             {/* Admin */}
             <Route path="/admin" element={<Admin />} />
-            
+
             {/* Legacy redirects */}
             <Route path="/dashboard" element={<Navigate to="/home" replace />} />
-            
+
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

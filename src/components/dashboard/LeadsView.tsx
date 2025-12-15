@@ -24,11 +24,11 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-const Leads = () => {
+export const LeadsView = () => {
   const { icps, leads, metrics, isLoading, refetch } = useLeadsData();
   const [notificationCount] = useState(0);
   const { toast } = useToast();
-  
+
   // Lead dialog state
   const [isLeadDialogOpen, setIsLeadDialogOpen] = useState(false);
   const [isAddingLead, setIsAddingLead] = useState(false);
@@ -64,6 +64,7 @@ const Leads = () => {
           source_channel: leadFormData.source_channel || null,
           icp_id: leadFormData.icp_id || null,
           position: leads.length,
+
         }]);
 
       if (error) throw error;
@@ -121,11 +122,11 @@ const Leads = () => {
 
       const { error } = await (supabase as any)
         .from("icps")
-        .insert([{ 
-          user_id: session.user.id, 
-          name: `ICP ${icps.length + 1}`, 
+        .insert([{
+          user_id: session.user.id,
+          name: `ICP ${icps.length + 1}`,
           color: randomColor,
-          position: icps.length 
+          position: icps.length
         }]);
 
       if (error) throw error;
@@ -347,4 +348,5 @@ const Leads = () => {
   );
 };
 
-export default Leads;
+
+export default LeadsView;

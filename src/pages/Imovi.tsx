@@ -16,8 +16,8 @@ import { InstagramImportCard } from "@/components/dashboard/InstagramImportCard"
 import { useDashboardData } from "@/hooks/useDashboardData";
 import { useLeadsData } from "@/hooks/useLeadsData";
 import { ChannelView } from "@/components/canais/ChannelView";
-import Leads from "./Leads";
-import Campanhas from "./Campanhas";
+import { LeadsView } from "@/components/dashboard/LeadsView";
+import { CampanhasView } from "@/components/dashboard/CampanhasView";
 
 const Imovi = () => {
   const [showOnboarding, setShowOnboarding] = useState(false);
@@ -33,7 +33,7 @@ const Imovi = () => {
         .eq('id', user.id)
         .maybeSingle();
       setUserProfile(profile);
-      
+
       if (profile && !(profile as any).onboarding_completed) {
         setShowOnboarding(true);
       }
@@ -47,7 +47,7 @@ const Imovi = () => {
   const data = useDashboardData();
   const { metrics: leadsMetrics, isLoading: leadsLoading } = useLeadsData();
   const { isLoading, error, totalPosts } = data;
-  
+
   // Check if user has Instagram data
   const hasInstagramData = totalPosts > 0 || (userProfile?.instagram_posts_count ?? 0) > 0;
 
@@ -55,13 +55,13 @@ const Imovi = () => {
   const mqlPercentage = leadsMetrics.qualificationRate || 0;
   const totalLeads = leadsMetrics.totalLeads || 0;
   const totalQualified = leadsMetrics.totalQualified || 0;
-  
-  // Conversion rate based on qualified leads that converted (placeholder - needs sales data)
-  const conversionRate = totalLeads > 0 ? (totalQualified / totalLeads) * 100 * 0.5 : 0;
-  
-  // Sales number (placeholder - needs sales table)
-  const totalSales = Math.floor(totalQualified * 0.3);
-  
+
+  // Conversion rate based on qualified leads that converted (TODO: needs sales data)
+  const conversionRate = 0;
+
+  // Sales number (TODO: needs sales table)
+  const totalSales = 0;
+
   // Qualification rate
   const qualificationRate = leadsMetrics.qualificationRate || 0;
 
@@ -74,26 +74,26 @@ const Imovi = () => {
 
         <Tabs value={activeFilter} onValueChange={setActiveFilter} className="mb-8">
           <TabsList className="bg-transparent border-b border-border rounded-none h-auto p-0 w-full justify-start">
-            <TabsTrigger 
-              value="geral" 
+            <TabsTrigger
+              value="geral"
               className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary px-6 py-3"
             >
               Geral
             </TabsTrigger>
-            <TabsTrigger 
-              value="canais" 
+            <TabsTrigger
+              value="canais"
               className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary px-6 py-3"
             >
               Canais
             </TabsTrigger>
-            <TabsTrigger 
-              value="leads" 
+            <TabsTrigger
+              value="leads"
               className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary px-6 py-3"
             >
               Leads
             </TabsTrigger>
-            <TabsTrigger 
-              value="campanhas" 
+            <TabsTrigger
+              value="campanhas"
               className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary px-6 py-3"
             >
               Campanhas
@@ -119,38 +119,38 @@ const Imovi = () => {
               <div className="space-y-4 md:space-y-6">
                 {/* Show Instagram Import Card if no data */}
                 {!hasInstagramData && (
-                  <InstagramImportCard 
-                    userProfile={userProfile} 
-                    onProfileUpdate={loadUserProfile} 
+                  <InstagramImportCard
+                    userProfile={userProfile}
+                    onProfileUpdate={loadUserProfile}
                   />
                 )}
-                
+
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 md:gap-6">
-                  <MQLCard 
+                  <MQLCard
                     mqlPercentage={mqlPercentage}
                     previousPercentage={0}
                   />
-                  <LeadsQuantityCard 
+                  <LeadsQuantityCard
                     totalLeads={totalLeads}
                     previousLeads={0}
                   />
-                  <ConversionRateCard 
+                  <ConversionRateCard
                     conversionRate={conversionRate}
                     previousRate={0}
                   />
-                  <SalesNumberCard 
+                  <SalesNumberCard
                     totalSales={totalSales}
                     previousSales={0}
                   />
-                  <QualificationRateCard 
+                  <QualificationRateCard
                     qualificationRate={qualificationRate}
                     previousRate={0}
                   />
                 </div>
 
                 <div className="grid grid-cols-1">
-                  <IMOVICard 
-                    imoviHistory={data.imoviHistory} 
+                  <IMOVICard
+                    imoviHistory={data.imoviHistory}
                     currentImovi={data.currentImovi}
                     growthPercent={data.growthPercent}
                     leadsPercent={data.leadsPercent}
@@ -163,22 +163,22 @@ const Imovi = () => {
                 </div>
 
                 <div className="grid grid-cols-1">
-                  <LeaderBanner 
+                  <LeaderBanner
                     userProfile={userProfile}
                     onEdit={loadUserProfile}
                   />
                 </div>
               </div>
             ) : activeFilter === "leads" ? (
-              <Leads />
+              <LeadsView />
             ) : activeFilter === "campanhas" ? (
-              <Campanhas />
+              <CampanhasView />
             ) : null}
           </>
         )}
 
-        <OnboardingModal 
-          isOpen={showOnboarding} 
+        <OnboardingModal
+          isOpen={showOnboarding}
           onComplete={() => setShowOnboarding(false)}
         />
       </div>

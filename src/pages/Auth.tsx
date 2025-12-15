@@ -7,16 +7,16 @@ import eterLogo from "@/assets/eter-logo.png";
 
 const calculatePasswordStrength = (password: string): PasswordStrength => {
   if (!password) return { level: 0, label: '', color: 'bg-muted', textColor: 'text-muted-foreground' };
-  
+
   const hasMinLength = password.length >= 6;
   const hasGoodLength = password.length >= 8;
   const hasUppercase = /[A-Z]/.test(password);
   const hasLowercase = /[a-z]/.test(password);
   const hasNumbers = /[0-9]/.test(password);
   const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(password);
-  
+
   const score = [hasMinLength, hasGoodLength, hasUppercase && hasLowercase, hasNumbers, hasSpecial].filter(Boolean).length;
-  
+
   if (score <= 1) return { level: 1, label: 'Muito fraca', color: 'bg-red-500', textColor: 'text-red-500' };
   if (score === 2) return { level: 2, label: 'Fraca', color: 'bg-orange-500', textColor: 'text-orange-500' };
   if (score === 3) return { level: 3, label: 'Média', color: 'bg-yellow-500', textColor: 'text-yellow-500' };
@@ -52,7 +52,7 @@ const Auth = () => {
 
     // Listen for auth state changes (email confirmation, etc)
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      console.log('Auth event:', event);
+
       if (event === 'SIGNED_IN' && session) {
         toast({
           title: "Login realizado!",
@@ -101,7 +101,7 @@ const Auth = () => {
     } catch (error: any) {
       console.error("Login error:", error);
       let errorMessage = "Falha ao fazer login. Tente novamente.";
-      
+
       if (error.message?.includes("Invalid login credentials")) {
         errorMessage = "Email ou senha incorretos. Verifique suas credenciais.";
       } else if (error.message?.includes("Email not confirmed")) {
@@ -109,7 +109,7 @@ const Auth = () => {
       } else if (error.message?.includes("User not found")) {
         errorMessage = "Conta não encontrada. Verifique o email ou crie uma nova conta.";
       }
-      
+
       toast({
         title: "Erro ao fazer login",
         description: errorMessage,
@@ -204,7 +204,7 @@ const Auth = () => {
           }
         }
       });
-      
+
       if (error) throw error;
 
       // Check if email confirmation is disabled (auto-confirm)
@@ -235,7 +235,7 @@ const Auth = () => {
     } catch (error: any) {
       console.error("Signup error:", error);
       let errorMessage = "Falha ao criar conta. Tente novamente.";
-      
+
       if (error.message?.includes("User already registered")) {
         errorMessage = "Este email já está cadastrado. Tente fazer login ou use outro email.";
       } else if (error.message?.includes("Password should be at least")) {
@@ -247,7 +247,7 @@ const Auth = () => {
       } else if (error.message) {
         errorMessage = error.message;
       }
-      
+
       toast({
         title: "Erro ao criar conta",
         description: errorMessage,
@@ -270,21 +270,21 @@ const Auth = () => {
 
   return (
     <div className="bg-background text-foreground">
-      <SignInPage 
-        logoSrc={eterLogo} 
+      <SignInPage
+        logoSrc={eterLogo}
         title={
           <span className="font-semibold text-foreground tracking-tight">
             {isSignUp ? "Criar Conta no" : "Bem-vindo ao"} <span className="text-primary">Seu Movimento.</span>
           </span>
-        } 
-        description={isSignUp ? "Crie sua conta e comece a ter insights poderosos do seu Instagram" : "Acesse sua conta e tenha insights poderosos do seu Instagram"} 
-        heroImageSrc="https://www.instagram.com/p/DOUffdoEfYF/embed" 
-        onSignIn={isSignUp ? handleSignUp : handleSignIn} 
-        onGoogleSignIn={handleGoogleSignIn} 
-        onFacebookSignIn={handleFacebookSignIn} 
-        onResetPassword={handleResetPassword} 
-        onCreateAccount={handleCreateAccount} 
-        isSignUp={isSignUp} 
+        }
+        description={isSignUp ? "Crie sua conta e comece a ter insights poderosos do seu Instagram" : "Acesse sua conta e tenha insights poderosos do seu Instagram"}
+        heroImageSrc="https://www.instagram.com/p/DOUffdoEfYF/embed"
+        onSignIn={isSignUp ? handleSignUp : handleSignIn}
+        onGoogleSignIn={handleGoogleSignIn}
+        onFacebookSignIn={handleFacebookSignIn}
+        onResetPassword={handleResetPassword}
+        onCreateAccount={handleCreateAccount}
+        isSignUp={isSignUp}
         onSwitchToSignIn={handleSwitchToSignIn}
         passwordStrength={passwordStrength}
         passwordRequirements={passwordRequirements}

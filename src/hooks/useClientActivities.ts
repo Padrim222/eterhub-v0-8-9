@@ -20,7 +20,7 @@ export const useClientActivities = () => {
     try {
       setIsLoading(true);
       const { data: { session } } = await supabase.auth.getSession();
-      
+
       if (!session) {
         setIsLoading(false);
         return;
@@ -54,7 +54,7 @@ export const useClientActivities = () => {
   const addActivity = async (activity: Omit<Activity, 'id'>) => {
     try {
       const { data: { session } } = await supabase.auth.getSession();
-      
+
       if (!session) {
         toast.error('Sessão não encontrada');
         return false;
@@ -100,7 +100,7 @@ export const useClientActivities = () => {
             filter: `user_id=eq.${session.user.id}`,
           },
           (payload) => {
-            console.log('Realtime activity update:', payload);
+
             // Reload activities on any change
             loadActivities();
           }
