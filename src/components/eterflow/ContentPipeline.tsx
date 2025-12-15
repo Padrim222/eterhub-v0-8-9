@@ -118,8 +118,8 @@ export function ContentPipeline({ workflowId, brandIdentity }: ContentPipelinePr
             // Get brand identity if available
             let brandIdentityData = null;
             if (user) {
-                const { data } = await supabase
-                    .from('brand_identities')
+                const { data } = await (supabase
+                    .from('brand_identities' as any) as any)
                     .select('*')
                     .eq('user_id', user.id)
                     .limit(1)

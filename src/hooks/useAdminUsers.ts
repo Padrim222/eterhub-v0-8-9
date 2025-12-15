@@ -31,9 +31,9 @@ export function useAdminUsers() {
 
       if (usersError) throw usersError;
 
-      // Get all roles
-      const { data: rolesData, error: rolesError } = await supabase
-        .from("user_roles")
+      // Get all roles - using type assertion for tables not in types.ts
+      const { data: rolesData, error: rolesError } = await (supabase
+        .from("user_roles" as any) as any)
         .select("user_id, role");
 
       if (rolesError) throw rolesError;
@@ -41,12 +41,13 @@ export function useAdminUsers() {
       // Merge users with their roles
       const usersWithRoles = (usersData || []).map(user => ({
         ...user,
+        updated_at: user.updated_at || user.created_at,
         roles: (rolesData || [])
-          .filter(r => r.user_id === user.id)
-          .map(r => r.role)
+          .filter((r: any) => r.user_id === user.id)
+          .map((r: any) => r.role)
       }));
 
-      setUsers(usersWithRoles);
+      setUsers(usersWithRoles as User[]);
     } catch (error) {
       console.error("Error loading users:", error);
       toast.error("Erro ao carregar usuários");
@@ -98,8 +99,8 @@ export function useAdminUsers() {
     try {
       if (hasAdminRole) {
         // Remove admin role
-        const { error } = await supabase
-          .from("user_roles")
+        const { error } = await (supabase
+          .from("user_roles" as any) as any)
           .delete()
           .eq("user_id", userId)
           .eq("role", "admin");
@@ -108,8 +109,8 @@ export function useAdminUsers() {
         toast.success("Permissão de admin removida");
       } else {
         // Add admin role
-        const { error } = await supabase
-          .from("user_roles")
+        const { error } = await (supabase
+          .from("user_roles" as any) as any)
           .insert({ user_id: userId, role: "admin" });
 
         if (error) throw error;

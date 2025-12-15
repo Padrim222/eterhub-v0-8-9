@@ -382,8 +382,8 @@ export function FlowBuilder() {
             // Get brand identity
             let brandIdentity = null;
             if (user) {
-                const { data } = await supabase
-                    .from('brand_identities')
+                const { data } = await (supabase
+                    .from('brand_identities' as any) as any)
                     .select('*')
                     .eq('user_id', user.id)
                     .limit(1)
