@@ -6,8 +6,16 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useEffect, useState } from "react";
-import { Loader2, Save, Key, Webhook, RefreshCw, CheckCircle, XCircle, Instagram } from "lucide-react";
+import { Loader2, Save, Key, Webhook, RefreshCw, CheckCircle, XCircle, Instagram, Users } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { ReporteiPDFUploader } from "@/components/dashboard/ReporteiPDFUploader";
+
+interface ReporteiClient {
+  id: number;
+  name: string;
+  logo?: string;
+}
 
 export default function Configuracoes() {
   const { toast } = useToast();
@@ -16,10 +24,13 @@ export default function Configuracoes() {
   const [isSaving, setIsSaving] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
   const [syncStatus, setSyncStatus] = useState<'idle' | 'success' | 'error'>('idle');
-  
+
   const [reporteiApiKey, setReporteiApiKey] = useState("");
   const [instagramUsername, setInstagramUsername] = useState("");
-  
+  const [reporteiClients, setReporteiClients] = useState<ReporteiClient[]>([]);
+  const [selectedClientId, setSelectedClientId] = useState<string>("");
+  const [isLoadingClients, setIsLoadingClients] = useState(false);
+
   const [settings, setSettings] = useState({
     n8n_reportei_webhook: "",
     n8n_pipedrive_webhook: "",
@@ -30,13 +41,18 @@ export default function Configuracoes() {
     if (userProfile) {
       setReporteiApiKey(userProfile.reportei_api_key || "");
       setInstagramUsername(userProfile.instagram_username || "");
+      // Load client_id if exists (cast to any for dynamic column)
+      const profile = userProfile as any;
+      if (profile.reportei_client_id) {
+        setSelectedClientId(profile.reportei_client_id);
+      }
     }
     loadSettings();
   }, [userProfile]);
 
   const loadSettings = async () => {
     if (!userProfile?.id) return;
-    
+
     setIsLoading(true);
     try {
       const { data, error }: any = await (supabase as any)
@@ -58,6 +74,62 @@ export default function Configuracoes() {
       console.error("Error loading settings:", error);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const loadReporteiClients = async () => {
+    if (!reporteiApiKey.trim()) return;
+
+    setIsLoadingClients(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) throw new Error('Sessão expirada');
+
+      const { data, error } = await supabase.functions.invoke('fetch-reportei-data', {
+        headers: { Authorization: `Bearer ${session.access_token}` },
+        body: { action: 'list_clients' }
+      });
+
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+
+      if (data?.clients) {
+        setReporteiClients(data.clients);
+        toast({
+          title: "Clientes carregados",
+          description: `${data.clients.length} cliente(s) encontrado(s) na Reportei.`,
+        });
+      }
+    } catch (error: any) {
+      console.error("Error loading Reportei clients:", error);
+      toast({
+        title: "Erro ao carregar clientes",
+        description: error.message || "Verifique sua chave API.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoadingClients(false);
+    }
+  };
+
+  const handleSelectClient = async (clientId: string) => {
+    setSelectedClientId(clientId);
+
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
+
+      await supabase.functions.invoke('fetch-reportei-data', {
+        headers: { Authorization: `Bearer ${session.access_token}` },
+        body: { action: 'set_client', client_id: clientId }
+      });
+
+      toast({
+        title: "Cliente selecionado",
+        description: "Cliente Reportei configurado com sucesso.",
+      });
+    } catch (error) {
+      console.error("Error setting client:", error);
     }
   };
 
@@ -109,7 +181,7 @@ export default function Configuracoes() {
 
     try {
       const { data: { session } } = await supabase.auth.getSession();
-      
+
       if (!session) {
         throw new Error('Sessão expirada');
       }
@@ -183,12 +255,16 @@ export default function Configuracoes() {
   return (
     <PageLayout title="Configurações" showTitle>
       <div className="max-w-4xl mx-auto space-y-6">
+
+        {/* Nova Área de Upload PDF */}
+        <ReporteiPDFUploader />
+
         {/* Reportei Integration Card */}
         <Card>
           <CardHeader>
             <div className="flex items-center gap-2">
               <Key className="h-5 w-5 text-primary" />
-              <CardTitle>Integração Reportei</CardTitle>
+              <CardTitle>Integração via API (Opcional)</CardTitle>
             </div>
             <CardDescription>
               Configure sua chave API da Reportei para sincronizar métricas do Instagram
@@ -221,19 +297,71 @@ export default function Configuracoes() {
                 />
               </div>
             </div>
-            
+
             <p className="text-xs text-muted-foreground">
               Encontre sua chave em{" "}
-              <a 
-                href="https://app.reportei.com" 
-                target="_blank" 
+              <a
+                href="https://app.reportei.com"
+                target="_blank"
                 rel="noopener noreferrer"
                 className="text-primary underline"
               >
                 app.reportei.com
               </a>
-              {" "}→ Dashboard → Copie o código da URL de compartilhamento
+              {" "}→ Configurações → API
             </p>
+
+            {/* Client Selector */}
+            {reporteiApiKey.trim() && (
+              <div className="p-4 bg-muted/50 rounded-lg space-y-3 border border-border">
+                <div className="flex items-center gap-2">
+                  <Users className="h-4 w-4 text-primary" />
+                  <Label>Projeto/Cliente Reportei</Label>
+                </div>
+
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={loadReporteiClients}
+                    disabled={isLoadingClients}
+                  >
+                    {isLoadingClients ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Carregando...
+                      </>
+                    ) : (
+                      <>
+                        <RefreshCw className="mr-2 h-4 w-4" />
+                        Carregar Clientes
+                      </>
+                    )}
+                  </Button>
+
+                  {reporteiClients.length > 0 && (
+                    <Select value={selectedClientId} onValueChange={handleSelectClient}>
+                      <SelectTrigger className="flex-1">
+                        <SelectValue placeholder="Selecione um cliente..." />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {reporteiClients.map((client) => (
+                          <SelectItem key={client.id} value={String(client.id)}>
+                            {client.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
+                </div>
+
+                {selectedClientId && (
+                  <p className="text-xs text-green-500">
+                    ✓ Cliente configurado: ID {selectedClientId}
+                  </p>
+                )}
+              </div>
+            )}
 
             <div className="flex flex-wrap gap-2">
               <Button onClick={handleSaveReportei} disabled={isSaving}>
@@ -249,10 +377,10 @@ export default function Configuracoes() {
                   </>
                 )}
               </Button>
-              
-              <Button 
-                variant="outline" 
-                onClick={handleSyncReportei} 
+
+              <Button
+                variant="outline"
+                onClick={handleSyncReportei}
                 disabled={isSyncing || !reporteiApiKey.trim()}
               >
                 {isSyncing ? (

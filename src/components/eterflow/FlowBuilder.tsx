@@ -371,139 +371,153 @@ export function FlowBuilder() {
         );
     };
 
-    // Run single agent with OpenRouter (direct call - no Edge Function needed)
+    // Run single agent via Edge Function (with fallback to direct call)
     const runAgentNode = async (node: Node, context: string): Promise<string> => {
-        // Try to get API key from env, fallback to hardcoded if not loaded (for immediate testing)
-        const OPENROUTER_API_KEY = import.meta.env.VITE_OPENROUTER_API_KEY || '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';
-
         try {
             const { data: { user } } = await supabase.auth.getUser();
-
-            // Get brand identity
-            let brandIdentity = null;
-            if (user) {
-                const { data } = await supabase
-                    .from('brand_identities')
-                    .select('*')
-                    .eq('user_id', user.id)
-                    .limit(1)
-                    .maybeSingle();
-                brandIdentity = data;
-            }
-
             const role = node.data.agentRole as string || 'observer';
-            const brandName = brandIdentity?.name || 'Cliente';
-            const brandAudience = brandIdentity?.audience || 'Público geral';
-            const brandMessage = brandIdentity?.message || 'Mensagem central';
-            const brandTone = brandIdentity?.tone_of_voice || 'Profissional e envolvente';
 
-            // Agent-specific prompts aligned with Epistemology Doc
-            const prompts: Record<string, string> = {
-                'observer': `Você é o AGENTE 1: OBSERVER (Analista Científico).
-SUA MISSÃO: Analisar dados reais e extrair padrões validados, não opiniões.
+            console.log(`[${role}] Trying Edge Function run-agent...`);
 
-CLIENTE: ${brandName} | PÚBLICO: ${brandAudience}
-CONTEXTO: ${context || 'Dados de performance e contexto do cliente.'}
+            // Try Edge Function first
+            try {
+                const { data, error } = await supabase.functions.invoke('run-agent', {
+                    body: { role, context, user_id: user?.id }
+                });
 
-TAREFA - GERAR RELATÓRIO COM:
-1. TOP 10 PADRÕES DE SUCESSO: Identifique o que funciona (formato, gancho, tema).
-2. ANÁLISE DE GATILHOS (Baseado em Berger & Milkman): Quais dos 10 gatilhos (Emoção, Moeda Social, Utilidade, etc.) estão presentes?
-3. RECOMENDAÇÕES CIENTÍFICAS: Diretrizes baseadas em evidências para os próximos agentes.
+                if (error) throw error;
+                if (!data?.success) throw new Error(data?.error || 'Invalid response');
 
-Saída em Markdown estruturado.`,
+                console.log(`[${role}] Edge Function success.`);
+                return data.output || 'Sem output';
+            } catch (edgeFnError: any) {
+                console.warn(`[${role}] Edge Function failed, using direct call:`, edgeFnError.message);
 
-                'strategist': `Você é o AGENTE 2: STRATEGIST (Ideação Viral).
-SUA MISSÃO: Formular teses de conteúdo com alto potencial de viralização (Hegemonia Narrativa).
-
-CLIENTE: ${brandName} | MENSAGEM: ${brandMessage}
-ANÁLISE DO OBSERVER: ${context}
-
-TAREFA - CRIAR 10 TEMAS VIRAIS:
-Para cada tema, defina:
-- Título Provocador (Curiosity Gap)
-- Gatilho Principal (ex: Awe, Anger, Utility)
-- Score de Potencial Viral (0-10) baseada na fórmula: (Emoção x 0.25) + (Moeda Social x 0.2) + ...
-- Justificativa do Score
-
-Saída em Markdown estruturado.`,
-
-                'researcher': `Você é o AGENTE 3: RESEARCHER (Pesquisa Profunda).
-SUA MISSÃO: Validar a tese com dados e criar um "Mise en place" estratégico.
-
-TEMA APROVADO: ${context}
-
-TAREFA - MAPA DE CONTEÚDO RICO:
-1. 3 Estatísticas/Dados de Impacto (com fontes citadas dentro do possível)
-2. 2 Casos de Sucesso ou Histórias Análogas
-3. Elementos de Autoridade (Citações, Estudos)
-4. Objeções do Público e como anulá-las
-5. Ganchos Visuais Sugeridos
-
-Saída em Markdown estruturado.`,
-
-                'architect': `Você é o AGENTE 4: ARCHITECT (Engenharia de Atenção).
-SUA MISSÃO: Estruturar a narrativa para retenção máxima (AIDA + Picos Emocionais).
-
-INSUMOS: ${context}
-FORMATO: Carrossel (8-10 slides) ou Roteiro de Vídeo Curto.
-
-TAREFA - ESQUELETO DO ROTEIRO:
-- Estrutura Slide a Slide / Cena a Cena
-- Indicar o OBJETIVO DE CADA SLIDE (Atenção, Identificação, Solução, etc.)
-- Mapear a OSCILAÇÃO EMOCIONAL (onde gerar tensão, onde gerar alívio)
-- Garantir Fluidez Cognitiva
-
-Saída em Markdown com tabela.`,
-
-                'copywriter': `Você é o AGENTE 5: WRITER (Redação Final e Refinamento).
-SUA MISSÃO: Transformar a estrutura em texto final, aplicando o Tom de Voz (Style Checker).
-
-TOM DE VOZ: ${brandTone}
-ESTRUTURA APROVADA: ${context}
-
-TAREFA - REDAÇÃO FINAL:
-1. Escreva o texto final para cada slide/cena.
-2. Use palavras de poder e gatilhos mentais.
-3. Garanta legibilidade (frases curtas, ritmo).
-4. No final, dê uma nota (0-10) para: Clareza, Impacto Emocional e Call to Action.
-
-Saída em Markdown. Use negrito para ênfase.`
-            };
-
-            const systemPrompt = prompts[role] || prompts['observer'];
-            console.log(`[${role}] Calling OpenRouter...`);
-
-            const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
-                    'HTTP-Referer': 'https://eterhub.app',
-                    'X-Title': 'EterHub'
-                },
-                body: JSON.stringify({
-                    model: 'openai/gpt-4o-mini',
-                    messages: [
-                        { role: 'system', content: systemPrompt },
-                        { role: 'user', content: 'Execute a tarefa com precisão. Responda em Português.' }
-                    ],
-                    temperature: 0.7,
-                    max_tokens: 4096
-                })
-            });
-
-            if (!response.ok) {
-                const errorText = await response.text();
-                throw new Error(`OpenRouter: ${response.status} - ${errorText}`);
+                // Fallback to direct OpenRouter call
+                return await runAgentDirectly(node, context, user?.id);
             }
-
-            const data = await response.json();
-            return data.choices?.[0]?.message?.content || 'Sem output';
 
         } catch (error: any) {
             console.error('[runAgentNode] Error:', error);
             return `[Erro] ${node.data.label}\n\n${error.message}`;
         }
+    };
+
+    // Direct call to OpenRouter (fallback when Edge Function not available)
+    const runAgentDirectly = async (node: Node, context: string, userId?: string): Promise<string> => {
+        const OPENROUTER_API_KEY = import.meta.env.VITE_OPENROUTER_API_KEY;
+
+        if (!OPENROUTER_API_KEY) {
+            return `[Configuração Necessária]\n\nPara usar os agentes, configure:\n\n**Opção 1 (Recomendada):** Deploy da Edge Function\n- Execute: npx supabase functions deploy run-agent\n- Configure OPENROUTER_API_KEY nos secrets\n\n**Opção 2 (Desenvolvimento):** Adicionar no .env\n- VITE_OPENROUTER_API_KEY=sua_chave`;
+        }
+
+        // Get brand identity
+        let brandIdentity = null;
+        if (userId) {
+            const { data } = await supabase
+                .from('brand_identities')
+                .select('*')
+                .eq('user_id', userId)
+                .limit(1)
+                .maybeSingle();
+            brandIdentity = data;
+        }
+
+        const role = node.data.agentRole as string || 'observer';
+        const brandName = brandIdentity?.name || 'Cliente';
+        const brandAudience = brandIdentity?.audience || 'Público geral';
+        const brandMessage = brandIdentity?.message || 'Mensagem central';
+        const brandTone = brandIdentity?.tone_of_voice || 'Profissional e envolvente';
+
+        const prompts: Record<string, string> = {
+            'observer': `Você é o AGENTE 1: OBSERVER (Analista Científico).
+SUA MISSÃO: Analisar dados reais e extrair padrões validados.
+
+CLIENTE: ${brandName} | PÚBLICO: ${brandAudience}
+CONTEXTO: ${context || 'Dados de performance serão analisados.'}
+
+TAREFA:
+1. TOP 10 PADRÕES DE SUCESSO (formato, gancho, tema)
+2. ANÁLISE DE GATILHOS PSICOLÓGICOS (Berger & Milkman)
+3. RECOMENDAÇÕES CIENTÍFICAS
+
+Saída em Markdown estruturado.`,
+
+            'strategist': `Você é o AGENTE 2: STRATEGIST (Ideação Viral).
+
+CLIENTE: ${brandName} | MENSAGEM: ${brandMessage}
+ANÁLISE DO OBSERVER: ${context}
+
+TAREFA - CRIAR 10 TEMAS VIRAIS:
+| # | Título | Gatilho | Score (0-10) | Justificativa |
+|---|--------|---------|--------------|---------------|
+
+Sa\u00edda em Markdown com tabela.`,
+
+            'researcher': `Você é o AGENTE 3: RESEARCHER (Pesquisa Profunda).
+
+TEMA APROVADO: ${context}
+
+TAREFA - MAPA DE CONTEÚDO:
+1. 3 Estatísticas/Dados
+2. 2 Cases de Sucesso
+3. Elementos de Autoridade
+4. Objeções e Respostas
+5. Ganchos Visuais
+
+Saída em Markdown estruturado.`,
+
+            'architect': `Você é o AGENTE 4: ARCHITECT (Engenharia de Atenção).
+
+INSUMOS: ${context}
+
+TAREFA - ESTRUTURA NARRATIVA (AIDA):
+| Slide | Objetivo | Texto | Emoção | Tempo |
+|-------|----------|-------|--------|-------|
+
+Saída em Markdown com tabela.`,
+
+            'copywriter': `Você é o AGENTE 5: WRITER (Redação Final).
+
+TOM DE VOZ: ${brandTone}
+ESTRUTURA: ${context}
+
+TAREFA:
+1. Texto final por slide/cena
+2. Palavras de poder e gatilhos
+3. Auto-avaliação (Clareza, Impacto, CTA)
+
+Saída em Markdown com **negritos**.`
+        };
+
+        const systemPrompt = prompts[role] || prompts['observer'];
+        console.log(`[${role}] Direct call to OpenRouter...`);
+
+        const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
+                'HTTP-Referer': 'https://eterhub.app',
+                'X-Title': 'EterHub'
+            },
+            body: JSON.stringify({
+                model: 'openai/gpt-4o-mini',
+                messages: [
+                    { role: 'system', content: systemPrompt },
+                    { role: 'user', content: 'Execute a tarefa. Responda em Português.' }
+                ],
+                temperature: 0.7,
+                max_tokens: 4096
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error(`OpenRouter: ${response.status} - ${await response.text()}`);
+        }
+
+        const data = await response.json();
+        return data.choices?.[0]?.message?.content || 'Sem output';
     };
 
     // Get agent nodes sorted by position

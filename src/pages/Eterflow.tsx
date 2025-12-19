@@ -1,5 +1,5 @@
 import { PageLayout } from "@/components/layout/PageLayout";
-import { FlowBuilder } from "@/components/eterflow/FlowBuilder";
+import SocialMediaPipeline from "@/components/pipeline/SocialMediaPipeline";
 import eterLogo from "@/assets/eter-logo.png";
 
 const Eterflow = () => {
@@ -18,13 +18,13 @@ const Eterflow = () => {
         <div className="relative z-10 flex flex-col h-full px-4 md:px-8 pt-4 md:pt-6">
           <div className="mb-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
             <div>
-              <h1 className="text-2xl md:text-3xl font-bold text-white">Eterflow</h1>
-              <p className="text-white/60 text-sm md:text-base">Construa fluxos de IA arrastando e soltando agentes.</p>
+              <h1 className="text-2xl md:text-3xl font-bold text-white">Eterflow Pipeline</h1>
+              <p className="text-white/60 text-sm md:text-base">Geração de Conteúdo Viral - De Ponta a Ponta</p>
             </div>
           </div>
 
           <div className="flex-1 min-h-[calc(100vh-180px)]">
-            <FlowBuilder />
+            <SocialMediaPipeline />
           </div>
         </div>
       </div>

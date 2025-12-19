@@ -6,34 +6,51 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-interface ReporteiPost {
+// Reportei API v1
+const REPORTEI_API_BASE = 'https://app.reportei.com/api/v1';
+
+interface ReporteiClient {
+  id: number;
+  name: string;
+  logo?: string;
+  timezone?: string;
+}
+
+interface ReporteiReport {
+  id: number;
+  title: string;
+  start_date: string;
+  end_date: string;
+  external_url?: string;
+}
+
+interface InstagramMetrics {
+  followers?: number;
+  following?: number;
+  posts_count?: number;
+  reach?: number;
+  impressions?: number;
+  engagement_rate?: number;
+}
+
+interface InstagramPost {
   id?: string;
-  type?: string;
-  media_type?: string;
-  caption?: string;
   permalink?: string;
   thumbnail_url?: string;
   media_url?: string;
+  caption?: string;
+  media_type?: string;
   timestamp?: string;
   like_count?: number;
   comments_count?: number;
-  saved_count?: number;
-  shares_count?: number;
-  plays?: number;
+  saved?: number;
+  shares?: number;
   reach?: number;
   impressions?: number;
-  engagement?: number;
-}
-
-interface ReporteiProfile {
-  followers_count?: number;
-  follows_count?: number;
-  media_count?: number;
-  username?: string;
+  plays?: number;
 }
 
 serve(async (req) => {
-  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
@@ -41,27 +58,23 @@ serve(async (req) => {
   try {
     console.log('=== fetch-reportei-data: Starting ===');
 
-    // Get authorization header
+    // Auth
     const authHeader = req.headers.get('Authorization');
     if (!authHeader) {
-      console.error('Missing Authorization header');
       return new Response(JSON.stringify({ error: 'Missing authorization header' }), {
         status: 401,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
 
-    // Create Supabase client
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    // Verify JWT and get user
     const token = authHeader.replace('Bearer ', '');
     const { data: { user }, error: authError } = await supabase.auth.getUser(token);
 
     if (authError || !user) {
-      console.error('Auth error:', authError);
       return new Response(JSON.stringify({ error: 'Invalid token' }), {
         status: 401,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -70,15 +83,14 @@ serve(async (req) => {
 
     console.log('Authenticated user:', user.id);
 
-    // Get user's Reportei API key and Instagram username
+    // Get user's Reportei API key
     const { data: userData, error: userError } = await supabase
       .from('users')
-      .select('reportei_api_key, instagram_username')
+      .select('reportei_api_key, reportei_client_id, instagram_username')
       .eq('id', user.id)
       .single();
 
     if (userError || !userData) {
-      console.error('Error fetching user data:', userError);
       return new Response(JSON.stringify({ error: 'User not found' }), {
         status: 404,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -86,138 +98,218 @@ serve(async (req) => {
     }
 
     if (!userData.reportei_api_key) {
-      console.error('User has no Reportei API key configured');
-      return new Response(JSON.stringify({ error: 'Reportei API key not configured. Please add your key in Settings.' }), {
+      return new Response(JSON.stringify({
+        error: 'Reportei API key not configured. Please add your key in Settings.',
+        action: 'configure_api_key'
+      }), {
         status: 400,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
 
-    console.log('Fetching data for Instagram:', userData.instagram_username);
+    const apiKey = userData.reportei_api_key;
+    const headers = {
+      'Authorization': `Bearer ${apiKey}`,
+      'Accept': 'application/json',
+    };
 
-    // The Reportei API key is actually a dashboard share URL token
-    // Format: https://app.reportei.com/dashboard/{API_KEY}
-    // We need to call Reportei's internal API or parse the dashboard data
-    
-    // For now, we'll use the Reportei public dashboard API
-    // The key provided is the dashboard share token
-    const reporteiKey = userData.reportei_api_key;
-    
-    // Try to fetch dashboard data from Reportei
-    // Reportei exposes data through their share dashboard endpoint
-    const dashboardUrl = `https://app.reportei.com/api/dashboard/${reporteiKey}`;
-    
-    console.log('Calling Reportei API...');
-    
-    const reporteiResponse = await fetch(dashboardUrl, {
-      method: 'GET',
-      headers: {
-        'Accept': 'application/json',
-        'User-Agent': 'ETER-Integration/1.0',
-      },
-    });
+    // Parse request body for options
+    let action = 'sync';
+    let clientId = userData.reportei_client_id;
 
-    if (!reporteiResponse.ok) {
-      // Try alternative endpoint format
-      const altUrl = `https://app.reportei.com/dashboard/${reporteiKey}/data`;
-      console.log('Primary endpoint failed, trying alternative:', altUrl);
-      
-      const altResponse = await fetch(altUrl, {
-        method: 'GET',
-        headers: {
-          'Accept': 'application/json',
-          'User-Agent': 'ETER-Integration/1.0',
-        },
-      });
+    try {
+      const body = await req.json();
+      action = body.action || 'sync';
+      if (body.client_id) clientId = body.client_id;
+    } catch {
+      // No body, use defaults
+    }
 
-      if (!altResponse.ok) {
-        console.error('Reportei API error:', reporteiResponse.status, await reporteiResponse.text());
-        return new Response(JSON.stringify({ 
-          error: 'Failed to fetch data from Reportei. Please verify your API key.',
-          status: reporteiResponse.status 
+    // ACTION: List clients (for setup)
+    if (action === 'list_clients') {
+      console.log('Fetching Reportei clients...');
+
+      const response = await fetch(`${REPORTEI_API_BASE}/clients`, { headers });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Reportei API error:', response.status, errorText);
+        return new Response(JSON.stringify({
+          error: 'Failed to fetch clients from Reportei',
+          status: response.status
         }), {
           status: 502,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
       }
+
+      const data = await response.json();
+      const clients: ReporteiClient[] = data.data || [];
+
+      console.log(`Found ${clients.length} clients`);
+
+      return new Response(JSON.stringify({
+        success: true,
+        clients: clients.map(c => ({ id: c.id, name: c.name, logo: c.logo }))
+      }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
     }
 
-    let reporteiData;
-    try {
-      reporteiData = await reporteiResponse.json();
-      console.log('Reportei data received:', JSON.stringify(reporteiData).substring(0, 500));
-    } catch (e) {
-      console.error('Failed to parse Reportei response:', e);
-      return new Response(JSON.stringify({ 
-        error: 'Invalid response from Reportei API',
+    // ACTION: Set client ID
+    if (action === 'set_client') {
+      if (!clientId) {
+        return new Response(JSON.stringify({ error: 'client_id required' }), {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
+      await supabase
+        .from('users')
+        .update({ reportei_client_id: String(clientId) })
+        .eq('id', user.id);
+
+      return new Response(JSON.stringify({ success: true, client_id: clientId }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    // ACTION: Sync data (default)
+    if (!clientId) {
+      // Auto-select first client if not set
+      const clientsResponse = await fetch(`${REPORTEI_API_BASE}/clients`, { headers });
+      if (clientsResponse.ok) {
+        const clientsData = await clientsResponse.json();
+        if (clientsData.data && clientsData.data.length > 0) {
+          clientId = String(clientsData.data[0].id);
+          // Save for next time
+          await supabase
+            .from('users')
+            .update({ reportei_client_id: clientId })
+            .eq('id', user.id);
+        }
+      }
+    }
+
+    if (!clientId) {
+      return new Response(JSON.stringify({
+        error: 'No Reportei client configured. Please select a client first.',
+        action: 'select_client'
       }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    console.log('Fetching reports for client:', clientId);
+
+    // Get latest report
+    const reportsResponse = await fetch(`${REPORTEI_API_BASE}/clients/${clientId}/reports`, { headers });
+
+    if (!reportsResponse.ok) {
+      console.error('Failed to fetch reports:', reportsResponse.status);
+      return new Response(JSON.stringify({ error: 'Failed to fetch reports' }), {
         status: 502,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
 
-    // Extract Instagram data from Reportei response
-    // The structure depends on how Reportei formats their dashboard data
-    const instagramData = reporteiData?.instagram || reporteiData?.data?.instagram || reporteiData;
-    
-    // Extract profile metrics
-    const profile: ReporteiProfile = instagramData?.profile || instagramData?.account || {};
-    const posts: ReporteiPost[] = instagramData?.posts || instagramData?.media || [];
+    const reportsData = await reportsResponse.json();
+    const reports: ReporteiReport[] = reportsData.data || [];
 
-    console.log(`Found ${posts.length} posts from Reportei`);
+    if (reports.length === 0) {
+      return new Response(JSON.stringify({
+        error: 'No reports found for this client',
+        action: 'create_report'
+      }), {
+        status: 404,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
 
-    // Update user profile with Instagram stats
-    if (profile.followers_count || profile.follows_count || profile.media_count) {
-      const { error: updateError } = await supabase
+    // Get the most recent report
+    const latestReport = reports[0];
+    console.log('Using report:', latestReport.id, latestReport.title);
+
+    // Fetch report details
+    const reportResponse = await fetch(`${REPORTEI_API_BASE}/reports/${latestReport.id}`, { headers });
+
+    if (!reportResponse.ok) {
+      console.error('Failed to fetch report details:', reportResponse.status);
+      return new Response(JSON.stringify({ error: 'Failed to fetch report details' }), {
+        status: 502,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    const reportData = await reportResponse.json();
+    console.log('Report data received');
+
+    // Extract Instagram data
+    // The structure depends on Reportei's response format
+    const report = reportData.report || reportData;
+    const instagram = report.instagram || report.data?.instagram || {};
+
+    // Profile metrics
+    const profile: InstagramMetrics = instagram.profile || instagram.account || {};
+    const posts: InstagramPost[] = instagram.posts || instagram.media || instagram.feed || [];
+
+    console.log(`Found ${posts.length} posts from report`);
+
+    // Update user profile
+    if (profile.followers || profile.following) {
+      await supabase
         .from('users')
         .update({
-          instagram_followers: profile.followers_count || 0,
-          instagram_following: profile.follows_count || 0,
-          instagram_posts_count: profile.media_count || 0,
+          instagram_followers: profile.followers || 0,
+          instagram_following: profile.following || 0,
+          instagram_posts_count: profile.posts_count || posts.length,
           last_sync_at: new Date().toISOString(),
         })
         .eq('id', user.id);
-
-      if (updateError) {
-        console.error('Error updating user profile:', updateError);
-      }
     }
 
-    // Process and upsert posts
+    // Process and save posts
     let processedCount = 0;
+
     for (const post of posts) {
-      // Calculate engagement rate
       const likes = post.like_count || 0;
       const comments = post.comments_count || 0;
-      const saves = post.saved_count || 0;
-      const shares = post.shares_count || 0;
-      const views = post.plays || post.reach || 1;
-      const totalEngagement = likes + comments + saves;
+      const saves = post.saved || 0;
+      const shares = post.shares || 0;
+      const views = post.plays || post.reach || post.impressions || 1;
+      const totalEngagement = likes + comments + saves + shares;
       const engagementRate = parseFloat(((totalEngagement / views) * 100).toFixed(2));
 
       const postData = {
-        id: post.id || `${user.id}_${post.permalink || Date.now()}`,
+        id: post.id || `${user.id}_${post.permalink || Date.now()}_${processedCount}`,
         user_id: user.id,
         post_url: post.permalink || null,
         thumbnail_url: post.thumbnail_url || post.media_url || null,
         caption: post.caption || null,
-        post_type: post.type || post.media_type || 'post',
+        post_type: post.media_type || 'post',
         published_at: post.timestamp || null,
         likes,
         comments,
         saves,
         shares,
         views,
+        reach: post.reach || 0,
+        impressions: post.impressions || 0,
         engagement_rate: engagementRate,
         scraped_at: new Date().toISOString(),
       };
 
       const { error: upsertError } = await supabase
         .from('ig_posts')
-        .upsert(postData, { onConflict: 'id' });
+        .upsert(postData, {
+          onConflict: 'id',
+          ignoreDuplicates: false
+        });
 
       if (upsertError) {
-        console.error('Error upserting post:', upsertError);
+        console.error('Error upserting post:', upsertError.message);
       } else {
         processedCount++;
       }
@@ -225,7 +317,7 @@ serve(async (req) => {
 
     console.log(`Successfully processed ${processedCount} posts`);
 
-    // Update last sync timestamp
+    // Update last sync
     await supabase
       .from('users')
       .update({ last_sync_at: new Date().toISOString() })
@@ -234,10 +326,15 @@ serve(async (req) => {
     return new Response(JSON.stringify({
       success: true,
       message: `Synced ${processedCount} posts from Reportei`,
+      report: {
+        id: latestReport.id,
+        title: latestReport.title,
+        period: `${latestReport.start_date} to ${latestReport.end_date}`
+      },
       profile: {
-        followers: profile.followers_count,
-        following: profile.follows_count,
-        posts: profile.media_count,
+        followers: profile.followers,
+        following: profile.following,
+        posts: profile.posts_count,
       },
       posts_synced: processedCount,
     }), {
@@ -247,9 +344,7 @@ serve(async (req) => {
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : 'Internal server error';
     console.error('Unexpected error:', error);
-    return new Response(JSON.stringify({ 
-      error: errorMessage 
-    }), {
+    return new Response(JSON.stringify({ error: errorMessage }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });

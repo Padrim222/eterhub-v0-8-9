@@ -26,3 +26,9 @@ verify_jwt = false
 
 [functions.write-content]
 verify_jwt = false
+
+[functions.run-agent]
+verify_jwt = false
+
+[functions.execute-workflow]
+verify_jwt = false
