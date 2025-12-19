@@ -22,9 +22,9 @@ export function useAdminActivities() {
   const loadActivities = async () => {
     setIsLoading(true);
     try {
-      // Get all activities
-      const { data: activitiesData, error: activitiesError } = await supabase
-        .from("client_activities")
+      // Get all activities - using type assertion for tables not in types.ts
+      const { data: activitiesData, error: activitiesError } = await (supabase
+        .from("client_activities" as any) as any)
         .select("*")
         .order("created_at", { ascending: false })
         .limit(200);
@@ -39,7 +39,7 @@ export function useAdminActivities() {
       if (usersError) throw usersError;
 
       // Map users to activities
-      const activitiesWithUsers = (activitiesData || []).map(activity => {
+      const activitiesWithUsers = (activitiesData || []).map((activity: any) => {
         const user = usersData?.find(u => u.id === activity.user_id);
         return {
           ...activity,
@@ -48,7 +48,7 @@ export function useAdminActivities() {
         };
       });
 
-      setActivities(activitiesWithUsers);
+      setActivities(activitiesWithUsers as Activity[]);
     } catch (error) {
       console.error("Error loading activities:", error);
       toast.error("Erro ao carregar atividades");

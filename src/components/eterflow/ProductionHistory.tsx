@@ -31,8 +31,9 @@ export function ProductionHistory({ onSelectProduction, currentProductionId }: P
     if (!userId) return;
 
     const fetchProductions = async () => {
-      const { data, error } = await supabase
-        .from("playbooks")
+      // Using type assertion for tables not in types.ts
+      const { data, error } = await (supabase
+        .from("playbooks" as any) as any)
         .select("id, name, current_stage, status, updated_at, themes")
         .eq("user_id", userId)
         .order("updated_at", { ascending: false })

@@ -45,23 +45,23 @@ export function useAdminStats() {
 
       if (postsError) throw postsError;
 
-      // Get projects count from client_project_data
-      const { data: projectData, error: projectsError } = await supabase
-        .from("client_project_data")
+      // Get projects count from client_project_data - using type assertion
+      const { data: projectData, error: projectsError } = await (supabase
+        .from("client_project_data" as any) as any)
         .select("projetos");
 
       if (projectsError) throw projectsError;
 
       let totalProjects = 0;
-      projectData?.forEach(pd => {
+      (projectData || []).forEach((pd: any) => {
         if (Array.isArray(pd.projetos)) {
           totalProjects += pd.projetos.length;
         }
       });
 
-      // Get activities count
-      const { count: activitiesCount, error: activitiesError } = await supabase
-        .from("client_activities")
+      // Get activities count - using type assertion
+      const { count: activitiesCount, error: activitiesError } = await (supabase
+        .from("client_activities" as any) as any)
         .select("*", { count: "exact", head: true });
 
       if (activitiesError) throw activitiesError;

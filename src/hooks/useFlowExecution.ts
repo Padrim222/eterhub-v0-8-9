@@ -49,8 +49,9 @@ export const useFlowExecution = () => {
 
     const pollExecutionLogs = async (executionId: string) => {
         const interval = setInterval(async () => {
-            const { data, error } = await supabase
-                .from('workflow_executions')
+            // Using type assertion for tables not in types.ts
+            const { data, error } = await (supabase
+                .from('workflow_executions' as any) as any)
                 .select('status, logs')
                 .eq('id', executionId)
                 .single();

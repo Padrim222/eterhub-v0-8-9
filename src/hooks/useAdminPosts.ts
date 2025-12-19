@@ -44,16 +44,29 @@ export function useAdminPosts() {
       if (usersError) throw usersError;
 
       // Map users to posts
-      const postsWithUsers = (postsData || []).map(post => {
+      const postsWithUsers = (postsData || []).map((post: any) => {
         const user = usersData?.find(u => u.id === post.user_id);
         return {
-          ...post,
+          id: post.id,
+          user_id: post.user_id,
+          caption: post.caption,
+          post_url: post.post_url,
+          thumbnail_url: post.thumbnail_url,
+          post_type: post.post_type,
+          likes: post.likes,
+          comments: post.comments,
+          views: post.views,
+          saves: post.saves,
+          shares: post.shares,
+          engagement_rate: post.engagement_rate,
+          published_at: post.published_at,
+          scraped_at: post.scraped_at,
           user_email: user?.email || "Desconhecido",
           user_nome: user?.nome || "Sem nome"
         };
       });
 
-      setPosts(postsWithUsers);
+      setPosts(postsWithUsers as Post[]);
     } catch (error) {
       console.error("Error loading posts:", error);
       toast.error("Erro ao carregar posts");

@@ -375,6 +375,22 @@ export function FlowBuilder() {
     const runAgentNode = async (node: Node, context: string): Promise<string> => {
         try {
             const { data: { user } } = await supabase.auth.getUser();
+<<<<<<< HEAD
+=======
+
+            // Get brand identity
+            let brandIdentity = null;
+            if (user) {
+                const { data } = await (supabase
+                    .from('brand_identities' as any) as any)
+                    .select('*')
+                    .eq('user_id', user.id)
+                    .limit(1)
+                    .maybeSingle();
+                brandIdentity = data;
+            }
+
+>>>>>>> 5442674aa30024cf9bf479b084aeb08c6c27021a
             const role = node.data.agentRole as string || 'observer';
 
             console.log(`[${role}] Trying Edge Function run-agent...`);

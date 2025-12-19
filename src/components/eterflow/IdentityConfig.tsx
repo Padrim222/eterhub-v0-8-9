@@ -41,15 +41,16 @@ export function IdentityConfig() {
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) return;
 
-        const { data, error } = await supabase
-            .from('brand_identities')
+        // Using type assertion for tables not in types.ts
+        const { data, error } = await (supabase
+            .from('brand_identities' as any) as any)
             .select('*')
             .order('created_at', { ascending: false });
 
         if (error) {
             toast({ title: "Erro", description: "Falha ao carregar identidades.", variant: "destructive" });
         } else {
-            setIdentities(data || []);
+            setIdentities((data || []) as BrandIdentity[]);
         }
     };
 
@@ -79,16 +80,16 @@ export function IdentityConfig() {
 
         let error;
         if (currentIdentity.id) {
-            // Update
-            const { error: updateError } = await supabase
-                .from('brand_identities')
+            // Update - using type assertion
+            const { error: updateError } = await (supabase
+                .from('brand_identities' as any) as any)
                 .update(payload)
                 .eq('id', currentIdentity.id);
             error = updateError;
         } else {
-            // Insert
-            const { error: insertError } = await supabase
-                .from('brand_identities')
+            // Insert - using type assertion
+            const { error: insertError } = await (supabase
+                .from('brand_identities' as any) as any)
                 .insert([payload]);
             error = insertError;
         }
@@ -104,7 +105,11 @@ export function IdentityConfig() {
     };
 
     const handleDelete = async (id: string) => {
-        const { error } = await supabase.from('brand_identities').delete().eq('id', id);
+        // Using type assertion
+        const { error } = await (supabase
+            .from('brand_identities' as any) as any)
+            .delete()
+            .eq('id', id);
         if (error) {
             toast({ title: "Erro ao deletar", description: error.message, variant: "destructive" });
         } else {
